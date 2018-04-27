@@ -69,7 +69,7 @@ As a Python Library
 ~~~~~~~~~~~~~~~~~~~
 In order to demonstrate *TextDirectory* as a Python library, we'll recreate the second example from above:
 
-.. highlight:: python
+.. code:: python
     import textdirectory
     td = textdirectory.TextDirectory(directory='testdata')
     td.load_files(recursive=False, filetype='txt', sort=True)
