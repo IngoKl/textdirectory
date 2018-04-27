@@ -19,7 +19,7 @@ deploy:
   distributions: sdist bdist_wheel
   user: IngoK
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: i2plVFkqlN+I8S9kWGki34yWX8lNtMQAsfDIdAj5Vo6G55+PHpuZ3829EMi0QSaDvMrZiA5POn7MD2d4xI3zviAQpTkbFeCaYTFq9hI4x/gopcJVfmywqhKqWiGe3zyYBlVk0R37nmSHCoNEbULuLzfWONhPDTBTtUja6J6EHqAJi97OMZsR3/mCgaM3Q6pWMvoJzjSTQ2SF+y8+bFSn1/g9k+34hnPfqv9ulGLzHvyoORYOx7zrboy1CzV/F31gu7RidZorfxVotZdOIF9E6j6wpWGAx2hunVOfpnGHnsp5xxrrO6m8bfPIvrgb1t0+mRUKjySqfTSYFRE52YL+jutrfRJmr5RT212tBK04y3og4wSj/lFKYyXfyxSUbR7arpNjkStLSPDeJZrG5NT3Jf4PxmAtUe8z5rF6/WmLERhbx0K9JgqDnhMerfCjKxPHargoQ+gMJxWplHx8psz6GvnJjoeBTPhm+a7vANKm5+zXausoQMRT1sS75/b++5RNsZlPo8SCeIQuKlKRe5j0U3cCDkUzONIAkO+jCZWdeDgdcsJ/ShifkVrsia9GuR6k6f1L75SkMiFOi3k3mFXg2HwEgjWIAB1tRq+Zpx4NDRK8X/tBHDF4C7QdgVB45hY3G/1RHT9HAVSZjiqQB31S39IjvzKuSlc4pbliTaUMcbI=
   on:
     tags: true
     repo: IngoKl/textdirectory
