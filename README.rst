@@ -36,7 +36,7 @@ Features
 * Matching based on length (character, tokens), content, and random sampling
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
 
-.. csv-table:: Filters and Outliers
+.. csv-table::
    :header: "Version", "Filters", "Transformations"
    :widths: 10, 30, 30
 
