@@ -23,8 +23,6 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import textdirectory
-import textdirectory.textdirectory
-import textdirectory.transformations
 
 # -- General configuration ---------------------------------------------
 
