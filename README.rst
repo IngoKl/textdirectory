@@ -70,6 +70,7 @@ As a Python Library
 In order to demonstrate *TextDirectory* as a Python library, we'll recreate the second example from above:
 
 .. code:: python
+
     import textdirectory
     td = textdirectory.TextDirectory(directory='testdata')
     td.load_files(recursive=False, filetype='txt', sort=True)
@@ -77,7 +78,7 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.filter_by_random_sampling(2)
     td.stage_transformation('transform_lowercase')
     td.aggregate_to_file('aggregated.txt')
-    
+        
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
 ToDo
