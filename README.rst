@@ -12,7 +12,10 @@ TextDirectory
 .. image:: https://readthedocs.org/projects/textdirectory/badge/?version=latest
         :target: https://textdirectory.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
-
+|
+|
+.. image:: https://user-images.githubusercontent.com/16179317/39367680-cd409a00-4a37-11e8-8d42-0bed5a4e814b.png
+        :alt: TextDirectory
 
 TextDirectory allows you to combine multiple text files into one aggregated file. TextDirectory also supports matching
 files for certain criteria and applying transformations to the aggregated text.
@@ -32,6 +35,50 @@ Features
 * Aggregating multiple text files
 * Matching based on length (character, tokens), content, and random sampling
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
+
+Quickstart
+----------
+Install *TextDirectory* via pip: ``pip install textdirectory``
+
+*TextDirectory*, as exemplified below, works with a two-stage model. After loading in your data (directory) you can iteratively select the files you want to process. In a second step you can perform transformations on the text before finally aggregating it.
+
+.. image:: https://user-images.githubusercontent.com/16179317/39367589-7f774116-4a37-11e8-9a09-5cbdf5f3311b.png
+        :alt: TextDirectory
+
+As a Command-Line Tool
+~~~~~~~~~~~~~~~~~~~~~~
+*TextDirectory* comes equipped with a CLI. 
+
+**Example 1: A Very Simple Aggregation**
+
+``textdirectory --directory testdata --output_file aggregated.txt``
+
+This will take all files (.txt) in *testdata* and then aggregates the files into a file called *aggregated.txt*.
+
+**Example 2: Applying Filters and Transformations**
+
+In this example we want to filter the files based on their token count, perform a random sampling and finally transform all text to lowercase.
+
+``textdirectory --directory testdata --output_file aggregated.txt --filters filter_by_min_tokens,5/filter_by_random_sampling,2 --transformations transformation_lowercase``
+
+After passing two filters (*filter_by_min_tokens* and *filter_by_random_sampling*) we've applied the *transform_lowercase* transformation. 
+
+The resulting file will contain the content of two files that each have at least five tokens.
+
+As a Python Library
+~~~~~~~~~~~~~~~~~~~
+In order to demonstrate *TextDirectory* as a Python library, we'll recreate the second example from above:
+
+.. highlight:: python
+    import textdirectory
+    td = textdirectory.TextDirectory(directory='testdata')
+    td.load_files(recursive=False, filetype='txt', sort=True)
+    td.filter_by_min_tokens(5)
+    td.filter_by_random_sampling(2)
+    td.stage_transformation('transform_lowercase')
+    td.aggregate_to_file('aggregated.txt')
+    
+If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
 ToDo
 --------
