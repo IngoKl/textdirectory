@@ -1,25 +1,14 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
 python:
-  - 3.6
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+- 3.6
 install: pip install -U tox-travis
-
-# Command to run tests, e.g. python setup.py test
 script: tox
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   user: IngoK
   password:
-    secure: i2plVFkqlN+I8S9kWGki34yWX8lNtMQAsfDIdAj5Vo6G55+PHpuZ3829EMi0QSaDvMrZiA5POn7MD2d4xI3zviAQpTkbFeCaYTFq9hI4x/gopcJVfmywqhKqWiGe3zyYBlVk0R37nmSHCoNEbULuLzfWONhPDTBTtUja6J6EHqAJi97OMZsR3/mCgaM3Q6pWMvoJzjSTQ2SF+y8+bFSn1/g9k+34hnPfqv9ulGLzHvyoORYOx7zrboy1CzV/F31gu7RidZorfxVotZdOIF9E6j6wpWGAx2hunVOfpnGHnsp5xxrrO6m8bfPIvrgb1t0+mRUKjySqfTSYFRE52YL+jutrfRJmr5RT212tBK04y3og4wSj/lFKYyXfyxSUbR7arpNjkStLSPDeJZrG5NT3Jf4PxmAtUe8z5rF6/WmLERhbx0K9JgqDnhMerfCjKxPHargoQ+gMJxWplHx8psz6GvnJjoeBTPhm+a7vANKm5+zXausoQMRT1sS75/b++5RNsZlPo8SCeIQuKlKRe5j0U3cCDkUzONIAkO+jCZWdeDgdcsJ/ShifkVrsia9GuR6k6f1L75SkMiFOi3k3mFXg2HwEgjWIAB1tRq+Zpx4NDRK8X/tBHDF4C7QdgVB45hY3G/1RHT9HAVSZjiqQB31S39IjvzKuSlc4pbliTaUMcbI=
+    secure: mw0HWw5SwyAT00qtZ2Llbjw5SBaA6lTjx8X5gYGIrKy1E9HvHAhP7LXcZatb/KolYi8i+1zqOwI0yHopPgGo8whwUy2Gp0d0nquP5+VrfgP7LyfruHPHR0rIkKsxghx0vGZFZyXOL7ZgiIu3EObA6Ao51oWl14YqmZeudGgzd77fn++/VDG7ivKd7maTGwMZiYqiX6hBQwL6TXA4jNOC4sg1uxsnC4UlMGfJCJ+KfZORwqMGrJjJRiLK1vH9NCO6HGZ7qf6AZ6rI2e1VAf3CRTkdB72i6xM2Jhs/TFqeXVqBs8WuYfeVmPDPxIGwSj09DidVuCPU7gRVmrFvBJrFgdrCKFeFVTpgFzBraNslpaeDaXzv4YsYh2E6Yw1oFEBgNhLCOF97HcucrrC/WoFqd2F8p2ElDa++Q2zQBRwo/HgRJTWovYQAQ9A6vnaokVAHdb3xrRTrKAErFO4P0CbxZh6MmJv5iWop9JSMRYG2qdu1ygSeTQSgE+6JEAeBDtb4Wfs6V0jo258WuEJ4WGblWfZO5A4hHWRbS5mltS8GA5VyqHlwXFmNXQOpXX633voDFJi6iNy8Tny5Ep+ybhDWOAfKsaLqd2JtgGLksVxyYqulC9ArkMp3aFMAjbvYxxlH7a3IpnAR8ps+Gv83fycR7fe8AaK41KUovfuMGcXBxJw=
   on:
     tags: true
     repo: IngoKl/textdirectory
