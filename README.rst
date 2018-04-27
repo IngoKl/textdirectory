@@ -17,12 +17,12 @@ TextDirectory
 .. image:: https://user-images.githubusercontent.com/16179317/39367680-cd409a00-4a37-11e8-8d42-0bed5a4e814b.png
         :alt: TextDirectory
 
-TextDirectory allows you to combine multiple text files into one aggregated file. TextDirectory also supports matching
+*TextDirectory* allows you to combine multiple text files into one aggregated file. TextDirectory also supports matching
 files for certain criteria and applying transformations to the aggregated text.
 
-TextDirectory can be used as a mere tool (via the CLI) and as a Python library.
+*TextDirectory* can be used as a mere tool (via the CLI) and as a Python library.
 
-Everything TextDirectory does could be achieved in bash or PowerShell. However, there are certain
+Of course, everything *TextDirectory* does could be achieved in bash or PowerShell. However, there are certain
 use-cases (e.g. when used as a library) in which it might be useful.
 
 
