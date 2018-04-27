@@ -3,13 +3,3 @@ python:
 - 3.6
 install: pip install -U tox-travis
 script: tox
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: IngoK
-  password:
-    secure: mw0HWw5SwyAT00qtZ2Llbjw5SBaA6lTjx8X5gYGIrKy1E9HvHAhP7LXcZatb/KolYi8i+1zqOwI0yHopPgGo8whwUy2Gp0d0nquP5+VrfgP7LyfruHPHR0rIkKsxghx0vGZFZyXOL7ZgiIu3EObA6Ao51oWl14YqmZeudGgzd77fn++/VDG7ivKd7maTGwMZiYqiX6hBQwL6TXA4jNOC4sg1uxsnC4UlMGfJCJ+KfZORwqMGrJjJRiLK1vH9NCO6HGZ7qf6AZ6rI2e1VAf3CRTkdB72i6xM2Jhs/TFqeXVqBs8WuYfeVmPDPxIGwSj09DidVuCPU7gRVmrFvBJrFgdrCKFeFVTpgFzBraNslpaeDaXzv4YsYh2E6Yw1oFEBgNhLCOF97HcucrrC/WoFqd2F8p2ElDa++Q2zQBRwo/HgRJTWovYQAQ9A6vnaokVAHdb3xrRTrKAErFO4P0CbxZh6MmJv5iWop9JSMRYG2qdu1ygSeTQSgE+6JEAeBDtb4Wfs6V0jo258WuEJ4WGblWfZO5A4hHWRbS5mltS8GA5VyqHlwXFmNXQOpXX633voDFJi6iNy8Tny5Ep+ybhDWOAfKsaLqd2JtgGLksVxyYqulC9ArkMp3aFMAjbvYxxlH7a3IpnAR8ps+Gv83fycR7fe8AaK41KUovfuMGcXBxJw=
-  on:
-    tags: true
-    repo: IngoKl/textdirectory
-    python: 3.6
