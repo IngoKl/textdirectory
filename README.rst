@@ -36,6 +36,13 @@ Features
 * Matching based on length (character, tokens), content, and random sampling
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
 
+.. csv-table:: Filters and Outliers
+   :header: "Version", "Filters", "Transformations"
+   :widths: 10, 30, 30
+
+   0.1.0, filter_by_max_chars(n); filter_by_min_chars(n); filter_by_max_tokens(n); filter_by_min_tokens(n); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n), transformation_lowercase
+   0.1.1, filter_by_chars_outliers(n sigmas), transformation_remove_nl
+
 Quickstart
 ----------
 Install *TextDirectory* via pip: ``pip install textdirectory``
@@ -47,7 +54,7 @@ Install *TextDirectory* via pip: ``pip install textdirectory``
 
 As a Command-Line Tool
 ~~~~~~~~~~~~~~~~~~~~~~
-*TextDirectory* comes equipped with a CLI. 
+*TextDirectory* comes equipped with a CLI.
 
 **Example 1: A Very Simple Aggregation**
 
@@ -61,7 +68,7 @@ In this example we want to filter the files based on their token count, perform 
 
 ``textdirectory --directory testdata --output_file aggregated.txt --filters filter_by_min_tokens,5/filter_by_random_sampling,2 --transformations transformation_lowercase``
 
-After passing two filters (*filter_by_min_tokens* and *filter_by_random_sampling*) we've applied the *transform_lowercase* transformation. 
+After passing two filters (*filter_by_min_tokens* and *filter_by_random_sampling*) we've applied the *transform_lowercase* transformation.
 
 The resulting file will contain the content of two files that each have at least five tokens.
 
@@ -78,7 +85,7 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.filter_by_random_sampling(2)
     td.stage_transformation('transform_lowercase')
     td.aggregate_to_file('aggregated.txt')
-        
+
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
 ToDo

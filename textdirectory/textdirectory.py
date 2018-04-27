@@ -157,6 +157,23 @@ class TextDirectory:
 
         self.aggregation = np.random.choice(self.aggregation, int(n))
 
+    def filter_by_chars_outliers(self, sigmas=2):
+        """
+        :param sigmas: The number of stds that qualifies an outlier.
+        :type sigmas: int 
+        """
+
+        chars_list = [file['characters'] for file in self.aggregation]
+        std = np.std(chars_list)
+        mean = np.mean(chars_list)
+        min = round(mean - sigmas * std, 1)
+        max = round(mean + sigmas * std, 1)
+
+        self.filter_by_min_chars(min)
+        self.filter_by_max_chars(max)
+
+        return(std, mean, min, max)
+
     def stage_transformation(self, transformation):
         """
         :param transformation: the transformation that should be staged

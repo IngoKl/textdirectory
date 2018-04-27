@@ -12,3 +12,13 @@ def transformation_lowercase(text):
     """
 
     return text.lower()
+
+def transformation_remove_nl(text):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    return text.replace('\n', ' ')
