@@ -1,5 +1,5 @@
 =============
-textdirectory
+TextDirectory
 =============
 
 
