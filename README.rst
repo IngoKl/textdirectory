@@ -99,6 +99,7 @@ ToDo
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
+* Implementing autodoc (via Sphinx)
 
 Behaviour
 ---------

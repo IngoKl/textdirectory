@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'tabulate>=0.8.2', 'numpy', 'requests', 'beautifulsoup4', 'spacy', 'tabulate', ]
+requirements = ['Click>=6.0', 'tabulate>=0.8.2', 'numpy', 'requests', 'beautifulsoup4', 'spacy', ]
 
 setup_requirements = ['pytest-runner', ]
 
