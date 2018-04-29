@@ -21,3 +21,7 @@ History
 * added transformation_uppercase
 * added filter_by_filename_contains
 * added parameter support for transformations
+
+0.1.3 (2018-00-00)
+------------------
+* filter_by_random_sampling now has a "replacement" option

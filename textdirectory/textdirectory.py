@@ -166,13 +166,15 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
-    def filter_by_random_sampling(self, n):
+    def filter_by_random_sampling(self, n, replace=False):
         """
         :param n: the number of documents in the sample
         :type n: int
+        :param replace: Should valued be replaced
+        :type replace: bool
         """
 
-        self.aggregation = np.random.choice(self.aggregation, int(n))
+        self.aggregation = np.random.choice(self.aggregation, int(n), replace=replace)
 
     def filter_by_chars_outliers(self, sigmas=2):
         """
