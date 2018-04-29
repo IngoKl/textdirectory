@@ -42,7 +42,7 @@ Features
 
    0.1.0, filter_by_max_chars(n); filter_by_min_chars(n); filter_by_max_tokens(n); filter_by_min_tokens(n); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n), transformation_lowercase
    0.1.1, filter_by_chars_outliers(n sigmas), transformation_remove_nl
-   0.1.2, filter_by_filename_contains, transformation_usas_en_semtag, transformation_uppercase, transformation_postag
+   0.1.2, filter_by_filename_contains, transformation_usas_en_semtag; transformation_uppercase; transformation_postag
 
 Quickstart
 ----------
