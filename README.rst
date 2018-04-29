@@ -42,6 +42,7 @@ Features
 
    0.1.0, filter_by_max_chars(n); filter_by_min_chars(n); filter_by_max_tokens(n); filter_by_min_tokens(n); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n), transformation_lowercase
    0.1.1, filter_by_chars_outliers(n sigmas), transformation_remove_nl
+   0.1.2, filter_by_filename_contains, transformation_usas_en_semtag, transformation_uppercase, transformation_postag
 
 Quickstart
 ----------
@@ -55,6 +56,9 @@ Install *TextDirectory* via pip: ``pip install textdirectory``
 As a Command-Line Tool
 ~~~~~~~~~~~~~~~~~~~~~~
 *TextDirectory* comes equipped with a CLI.
+
+The syntax for both the *filters* and *tranformations* works similarly. They are chained by adding slashes (/) and
+parameters are passed via commas (,): ``filter_by_min_tokens,5/filter_by_random_sampling,2``.
 
 **Example 1: A Very Simple Aggregation**
 
@@ -83,7 +87,7 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.load_files(recursive=False, filetype='txt', sort=True)
     td.filter_by_min_tokens(5)
     td.filter_by_random_sampling(2)
-    td.stage_transformation('transform_lowercase')
+    td.stage_transformation(['transform_lowercase'])
     td.aggregate_to_file('aggregated.txt')
 
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
@@ -92,11 +96,18 @@ ToDo
 --------
 * Increasing test coverage
 * Writing better documentation
+* Adding better error handling (raw exception are, well ...)
+* Adding logging
 
 Behaviour
 ---------
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
+
+``transformation_usas_en_semtag`` relies on the web versionof `Paul Rayson's USAS Tagger
+<http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
+consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
+
 
 Credits
 -------

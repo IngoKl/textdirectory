@@ -11,11 +11,11 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'tabulate>=0.8.2', 'numpy']
+requirements = ['Click>=6.0', 'tabulate>=0.8.2', 'numpy', 'requests', 'beautifulsoup4', 'spacy', ]
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', 'numpy']
+test_requirements = ['pytest', 'numpy', 'spacy', ]
 
 setup(
     author="Ingo Kleiber",
@@ -44,6 +44,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/IngoKl/textdirectory',
-    version='0.1.1',
+    version='0.1.2',
     zip_safe=False,
 )

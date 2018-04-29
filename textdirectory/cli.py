@@ -2,9 +2,13 @@
 
 """Console script for textdirectory."""
 import sys
+import os
 import click
+
+sys.path.insert(0, os.path.abspath('..'))
 from textdirectory import textdirectory
 from textdirectory import transformations
+
 
 available_filters = [filter for filter in dir(textdirectory.TextDirectory) if 'filter_by' in filter]
 available_transformations = [transformation for transformation in dir(transformations)
@@ -31,14 +35,17 @@ def main(directory, output_file, filetype, recursive, filters, transformations):
             filters_list.append(filter.split(','))
 
     if transformations:
-        transformations = transformations.split(',')
+        transformations_list = []
+        transformations = transformations.split('/')
+        for transformation in transformations:
+            transformations_list.append(transformation.split(','))
 
     td = textdirectory.TextDirectory(directory=directory)
     td.load_files(recursive, filetype)
     if filters and len(filters_list) > 0:
         td.run_filters(filters_list)
-    if transformations and len(transformations) > 0:
-        for transformation in transformations:
+    if transformations and len(transformations_list) > 0:
+        for transformation in transformations_list:
             td.stage_transformation(transformation)
     td.print_aggregation()
     td.aggregate_to_file(output_file)

@@ -31,8 +31,22 @@ def test_filter_by_chars_outliers():
     assert len(td.aggregation) == 4
 
 def test_transformation_remove_nl():
-    """Test the outlier filter."""
+    """Test the remove_nl transformation."""
     td = TextDirectory(directory='data/testdata/')
     td.load_files(True, 'txt')
-    td.stage_transformation('transformation_remove_nl')
+    td.stage_transformation(['transformation_remove_nl'])
     assert '\n' not in td.aggregate_to_memory()
+
+def test_transformation_uppercase():
+    """Test the uppercase transformation."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.stage_transformation(['transformation_uppercase'])
+    assert td.aggregate_to_memory().isupper()
+
+def test_transformation_postag():
+    """Test the postag transformation."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.stage_transformation(['transformation_postag'])
+    assert 'NN' in td.aggregate_to_memory()

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Main module."""
+import os
+import sys
 from pathlib import Path
 from tabulate import tabulate
 import numpy as np
+
+sys.path.insert(0, os.path.abspath('..'))
 from textdirectory import transformations
 
 class TextDirectory:
@@ -68,8 +72,8 @@ class TextDirectory:
 
     def filter_by_max_chars(self, max_chars=100):
         """
-        :param max_chars: the maximum number of characters a file can have 
-        :type max_chars: int 
+        :param max_chars: the maximum number of characters a file can have
+        :type max_chars: int
         """
 
         new_aggregation = []
@@ -81,8 +85,8 @@ class TextDirectory:
 
     def filter_by_min_chars(self, min_chars=100):
         """
-        :param min_chars: the minimum number of characters a file can have 
-        :type min_chars: int 
+        :param min_chars: the minimum number of characters a file can have
+        :type min_chars: int
         """
 
         new_aggregation = []
@@ -94,7 +98,7 @@ class TextDirectory:
 
     def filter_by_max_tokens(self, max_tokens=100):
         """
-        :param max_tokens: the maximum number of tokens a file can have 
+        :param max_tokens: the maximum number of tokens a file can have
         :type max_tokens: int
         """
 
@@ -107,7 +111,7 @@ class TextDirectory:
 
     def filter_by_min_tokens(self, min_tokens=1):
         """
-        :param min_tokens: the minimum number of tokens a file can have 
+        :param min_tokens: the minimum number of tokens a file can have
         :type min_tokens: int
         """
 
@@ -121,7 +125,7 @@ class TextDirectory:
 
     def filter_by_contains(self, contains):
         """
-        :param contains: A string that needs to be present in the file 
+        :param contains: A string that needs to be present in the file
         :type contains: str
         """
 
@@ -136,7 +140,7 @@ class TextDirectory:
 
     def filter_by_not_contains(self, not_contains):
         """
-        :param not_contains: A string that is not allowed to be present in the file 
+        :param not_contains: A string that is not allowed to be present in the file
         :type not_contains: str
         """
 
@@ -146,6 +150,19 @@ class TextDirectory:
                 fr = f.read()
                 if not_contains not in fr:
                     new_aggregation.append(file)
+
+        self.aggregation = new_aggregation
+
+    def filter_by_filename_contains(self, contains):
+        """
+        :param contains: A string that needs to be present in the filename
+        :type contains: str
+        """
+
+        new_aggregation = []
+        for file in self.aggregation:
+            if contains in file['path'].name:
+                new_aggregation.append(file)
 
         self.aggregation = new_aggregation
 
@@ -160,7 +177,7 @@ class TextDirectory:
     def filter_by_chars_outliers(self, sigmas=2):
         """
         :param sigmas: The number of stds that qualifies an outlier.
-        :type sigmas: int 
+        :type sigmas: int
         """
 
         chars_list = [file['characters'] for file in self.aggregation]
@@ -176,15 +193,13 @@ class TextDirectory:
 
     def stage_transformation(self, transformation):
         """
-        :param transformation: the transformation that should be staged
-        :type transformation: str
+        :param transformation: the transformation that should be staged and its parameters
+        :type transformation: list
         """
-
-        print(transformation)
 
         available_transformations = dir(transformations)
 
-        if transformation in available_transformations:
+        if transformation[0] in available_transformations:
             self.staged_transformations.append(transformation)
         else:
             raise NameError
@@ -200,8 +215,8 @@ class TextDirectory:
         transformed_text = text
 
         for transformation in self.staged_transformations:
-            transformation_method = getattr(transformations, transformation)
-            transformed_text = transformation_method(transformed_text)
+            transformation_method = getattr(transformations, transformation[0])
+            transformed_text = transformation_method(transformed_text, *transformation[1:])
 
         return transformed_text
 
@@ -241,7 +256,6 @@ class TextDirectory:
                 with file['path'].open() as f:
                     text = self.run_transformations(f.read())
                     aggregation_file.write(text)
-
 
 
     def print_aggregation(self):
