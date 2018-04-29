@@ -44,9 +44,9 @@ def test_transformation_uppercase():
     td.stage_transformation(['transformation_uppercase'])
     assert td.aggregate_to_memory().isupper()
 
-def test_transformation_postag():
-    """Test the postag transformation."""
-    td = TextDirectory(directory='data/testdata/')
-    td.load_files(True, 'txt')
-    td.stage_transformation(['transformation_postag'])
-    assert 'NN' in td.aggregate_to_memory()
+#def test_transformation_postag():
+#    """Test the postag transformation."""
+#    td = TextDirectory(directory='data/testdata/')
+#    td.load_files(True, 'txt')
+#    td.stage_transformation(['transformation_postag'])
+#    assert 'NN' in td.aggregate_to_memory()
