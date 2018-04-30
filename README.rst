@@ -12,8 +12,10 @@ TextDirectory
 .. image:: https://readthedocs.org/projects/textdirectory/badge/?version=latest
         :target: https://textdirectory.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
+
 |
 |
+
 .. image:: https://user-images.githubusercontent.com/16179317/39367680-cd409a00-4a37-11e8-8d42-0bed5a4e814b.png
         :alt: TextDirectory
 
@@ -43,7 +45,7 @@ Features
    0.1.0, filter_by_max_chars(n); filter_by_min_chars(n); filter_by_max_tokens(n); filter_by_min_tokens(n); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n; replace=False), transformation_lowercase
    0.1.1, filter_by_chars_outliers(n sigmas), transformation_remove_nl
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spaCy model)
-   0.1.3, TBD, TBD
+   0.1.3, TBD, transformation_remove_non_ascii; transformation_remove_non_alphanumerical
 
 Quickstart
 ----------

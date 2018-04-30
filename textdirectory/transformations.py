@@ -6,6 +6,7 @@ import html
 import requests
 import spacy
 from bs4 import BeautifulSoup
+import re
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -86,3 +87,26 @@ def transformation_usas_en_semtag(text, *args):
     tagged_text = ' '.join(tagged_text[:-1 or None])
 
     return tagged_text
+
+
+def transformation_remove_non_ascii(text, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    return ''.join(i for i in text if ord(i) < 128)
+
+
+def transformation_remove_non_alphanumerical(text, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    pattern = re.compile('([^\s\w]|_)+')
+    return pattern.sub('', text)

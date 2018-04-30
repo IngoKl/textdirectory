@@ -7,6 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 from textdirectory.textdirectory import TextDirectory
+from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical
 from textdirectory import cli
 
 def test_command_line_interface():
@@ -44,9 +45,27 @@ def test_transformation_uppercase():
     td.stage_transformation(['transformation_uppercase'])
     assert td.aggregate_to_memory().isupper()
 
+def test_transformation_remove_non_ascii():
+    """Test the remove non-ascii transformation."""
+    test_string = 'This is a @ test string ~ containing non-ascii characters such as 😁.'
+    assert transformation_remove_non_ascii(test_string) == 'This is a @ test string ~ containing non-ascii characters such as .'
+
+def test_transformation_remove_non_ascii():
+    """Test the remove non-alphanumerical transformation."""
+    test_string = 'non-alphanumerical @ / - * .'
+    assert transformation_remove_non_alphanumerical(test_string).strip() == 'nonalphanumerical'
+
 #def test_transformation_postag():
 #    """Test the postag transformation."""
 #    td = TextDirectory(directory='data/testdata/')
 #    td.load_files(True, 'txt')
 #    td.stage_transformation(['transformation_postag'])
 #    assert 'NN' in td.aggregate_to_memory()
+
+def test_tabulation(capsys):
+    """Test the tabulation."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.print_aggregation()
+    out, err = capsys.readouterr()
+    assert 'path' in out

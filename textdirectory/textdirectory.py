@@ -4,11 +4,11 @@
 import os
 import sys
 from pathlib import Path
-from tabulate import tabulate
 import numpy as np
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory import transformations
+from textdirectory import helpers
 
 class TextDirectory:
     def __init__(self, directory):
@@ -262,5 +262,5 @@ class TextDirectory:
 
     def print_aggregation(self):
         """ Prints the aggregated files as a table. """
-        print(tabulate(self.aggregation, headers={'path': 'Path', 'characters':'Characters', 'tokens':'Tokens'}))
-        print(f'Staged Transformations: {self.staged_transformations}')
+        print(helpers.tabulate_flat_list_of_dicts(self.aggregation))
+        print(f'\nStaged Transformations: {self.staged_transformations}')

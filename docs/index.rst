@@ -3,7 +3,6 @@ Welcome to textdirectory's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    readme
    installation
@@ -11,7 +10,11 @@ Welcome to textdirectory's documentation!
    contributing
    authors
    history
+   
+API
+---
+* :ref:`modindex`
 
 Search
-======
+------
 * :ref:`search`
