@@ -1,0 +1,7 @@
+name: td
+dependencies:
+  - spacy
+  - requests
+  - numpy
+  - click
+  - beautifulsoup4
