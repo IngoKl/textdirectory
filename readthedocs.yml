@@ -1,9 +1,5 @@
-formats:
-    - none
-
 build:
     image: latest
 
 python:
     version: 3.6
-    pip_install: false
