@@ -3,6 +3,7 @@
 """Main module."""
 import os
 import sys
+import difflib
 from pathlib import Path
 import numpy as np
 
@@ -19,6 +20,7 @@ class TextDirectory:
 
         self.directory = Path(directory)
         self.files = []
+        self.filenames = []
         self.aggregation = []
         self.staged_transformations = []
 
@@ -66,6 +68,7 @@ class TextDirectory:
             file_with_meta = {'path': file, 'characters': self.get_file_length(file),
                               'tokens': self.get_file_tokens(file)}
             self.files.append(file_with_meta)
+            self.filenames.append(file.name)
 
         # Initial population of self.aggregation
         self.aggregation = self.files
@@ -192,6 +195,29 @@ class TextDirectory:
         self.filter_by_max_chars(max)
 
         return(std, mean, min, max)
+
+    def filter_by_similar_documents(self, reference_file, threshold=0.8):
+        """
+        :param reference_file: Path to the reference file
+        :type reference_file: str
+        :param threshold: A value between 0.0 and 1.0 indicating the max. difference between the file and the reference.
+        :type threshold: float
+        """
+
+        if not 0.0 <= threshold <= 1.0:
+            raise(ValueError)
+
+        new_aggregation = []
+        with open(reference_file, 'r') as rf:
+            reference = rf.read()
+            for file in self.aggregation:
+                with open(file['path'], 'r') as ft:
+                    target = ft.read()
+                    d = difflib.SequenceMatcher(None, reference, target)
+                    if d.ratio() >= threshold:
+                        new_aggregation.append(file)
+
+        self.aggregation = new_aggregation
 
     def stage_transformation(self, transformation):
         """

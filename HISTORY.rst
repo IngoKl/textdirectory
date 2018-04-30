@@ -22,9 +22,10 @@ History
 * added filter_by_filename_contains
 * added parameter support for transformations
 
-0.1.3 (2018-00-00)
+0.1.3 (2018-04-30)
 ------------------
 * filter_by_random_sampling now has a "replacement" option
 * changed from tabulate to an embedded function
 * added transformation_remove_non_ascii
 * added transformation_remove_non_alphanumerical
+* added filter_by_similar_documents

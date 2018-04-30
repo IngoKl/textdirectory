@@ -22,7 +22,7 @@ def test_simpple_aggregations():
     """Test the simplest form of aggregation."""
     td = TextDirectory(directory='data/testdata/')
     td.load_files(True, 'txt')
-    assert len(td.aggregate_to_memory()) == 681
+    assert len(td.aggregate_to_memory()) == 1653
 
 def test_filter_by_chars_outliers():
     """Test the outlier filter."""
@@ -30,6 +30,13 @@ def test_filter_by_chars_outliers():
     td.load_files(True, 'txt')
     td.filter_by_chars_outliers(1)
     assert len(td.aggregation) == 4
+
+def test_filter_by_similar_documents():
+    """Test the similarity filter."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.filter_by_similar_documents(reference_file='data/testdata/level_2/Text_E.txt', threshold=0.7)
+    assert len(td.aggregation) == 2
 
 def test_transformation_remove_nl():
     """Test the remove_nl transformation."""

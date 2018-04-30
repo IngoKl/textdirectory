@@ -4,32 +4,32 @@ textdirectory package
 Submodules
 ----------
 
-textdirectory\.cli module
--------------------------
+textdirectory.cli module
+------------------------
 
 .. automodule:: textdirectory.cli
     :members:
     :undoc-members:
     :show-inheritance:
 
-textdirectory\.helpers module
------------------------------
+textdirectory.helpers module
+----------------------------
 
 .. automodule:: textdirectory.helpers
     :members:
     :undoc-members:
     :show-inheritance:
 
-textdirectory\.textdirectory module
------------------------------------
+textdirectory.textdirectory module
+----------------------------------
 
 .. automodule:: textdirectory.textdirectory
     :members:
     :undoc-members:
     :show-inheritance:
 
-textdirectory\.transformations module
--------------------------------------
+textdirectory.transformations module
+------------------------------------
 
 .. automodule:: textdirectory.transformations
     :members:
