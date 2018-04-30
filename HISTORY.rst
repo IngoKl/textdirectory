@@ -29,3 +29,6 @@ History
 * added transformation_remove_non_ascii
 * added transformation_remove_non_alphanumerical
 * added filter_by_similar_documents
+
+0.2.0 (2018-00-00)
+------------------

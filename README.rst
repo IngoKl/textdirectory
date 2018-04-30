@@ -46,6 +46,7 @@ Features
    0.1.1, filter_by_chars_outliers(n sigmas int), transformation_remove_nl
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spaCy model)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
+   0.2.0, TBD, TBD
 
 Quickstart
 ----------
