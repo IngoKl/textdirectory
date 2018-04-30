@@ -35,7 +35,7 @@ use-cases (e.g. when used as a library) in which it might be useful.
 Features
 --------
 * Aggregating multiple text files
-* Matching based on length (character, tokens), content, and random sampling
+* Filtering documents/texts based on various parameters such as length, content, and random sampling
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
 
 .. csv-table::
