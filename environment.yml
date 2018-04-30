@@ -1,5 +1,6 @@
 name: td
 dependencies:
+  - python=3.6
   - spacy
   - requests
   - numpy
