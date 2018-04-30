@@ -3,3 +3,7 @@ build:
 
 python:
     version: 3
+<<<<<<< HEAD
+=======
+    setup_py_install: true
+>>>>>>> origin/master
