@@ -29,3 +29,7 @@ History
 * added transformation_remove_non_ascii
 * added transformation_remove_non_alphanumerical
 * added filter_by_similar_documents
+
+0.1.4 (2018-04-02)
+------------------
+* fixed an object mutation problem in the tabulate function
