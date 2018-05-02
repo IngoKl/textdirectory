@@ -16,7 +16,7 @@ available_transformations = [transformation for transformation in dir(transforma
 
 @click.command()
 @click.option('--directory', help='The directory containing text files', type=str)
-@click.option('--output_file', help='The file to aggregate to', type=str)
+@click.option('--output_file', help='The file to aggregate to', type=str, default='aggregate.txt')
 @click.option('--filetype', help='The file type to look for.', default='txt', type=str)
 @click.option('--recursive', help='Recursion', type=bool)
 @click.option('--filters', help=f'The filters you want to apply. Filters: {available_filters}', type=str)
@@ -24,7 +24,7 @@ available_transformations = [transformation for transformation in dir(transforma
                                         f'Tranformations: {available_transformations}', type=str)
 def main(directory, output_file, filetype, recursive, filters, transformations):
     """Console script for textdirectory."""
-    if not directory or not output_file:
+    if not directory:
         click.echo('Welcome to TextDirectory!\nRun textdirectory --help for further information.')
         sys.exit()
 
@@ -41,7 +41,7 @@ def main(directory, output_file, filetype, recursive, filters, transformations):
             transformations_list.append(transformation.split(','))
 
     td = textdirectory.TextDirectory(directory=directory)
-    td.load_files(recursive, filetype)
+    td.load_files(recursive=recursive, filetype=filetype)
     if filters and len(filters_list) > 0:
         td.run_filters(filters_list)
     if transformations and len(transformations_list) > 0:
