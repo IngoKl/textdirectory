@@ -110,3 +110,20 @@ def transformation_remove_non_alphanumerical(text, *args):
 
     pattern = re.compile('([^\s\w]|_)+')
     return pattern.sub('', text)
+
+
+def transformation_to_leetspeak(text, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    replacements = (('e', '3'), ('a', '4'), ('l', '1'), ('o', '0'))
+
+    transformed_text = text
+    for a, b in replacements:
+        transformed_text = transformed_text.replace(a, b)
+
+    return transformed_text
