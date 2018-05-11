@@ -199,7 +199,7 @@ class TextDirectory:
         self.filter_by_min_chars(min)
         self.filter_by_max_chars(max)
 
-        return(std, mean, min, max)
+        return std, mean, min, max
 
     def filter_by_similar_documents(self, reference_file, threshold=0.8):
         """
@@ -237,6 +237,18 @@ class TextDirectory:
         else:
             raise NameError
 
+    def destage_transformation(self, transformation):
+        """
+        :param transformation: the transformation that should be de-staged and its parameters
+        :type transformation: list
+        """
+
+        available_transformations = self.staged_transformations
+
+        if transformation[0] in available_transformations:
+            self.staged_transformations.remove(transformation)
+        else:
+            raise NameError
 
     def run_transformations(self, text):
         """
@@ -252,7 +264,6 @@ class TextDirectory:
             transformed_text = transformation_method(transformed_text, *transformation[1:])
 
         return transformed_text
-
 
     def run_filters(self, filters):
         """
@@ -290,7 +301,7 @@ class TextDirectory:
         :param filename: the path/filename to write to
         :type filename: str
         """
-        with open(filename, 'w') as aggregation_file:
+        with open(filename, 'w', encoding=self.encoding, errors='ignore') as aggregation_file:
             for file in self.aggregation:
                 with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                     text = self.run_transformations(f.read())
