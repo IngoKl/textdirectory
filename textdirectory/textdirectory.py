@@ -69,7 +69,6 @@ class TextDirectory:
 
             for file in files:
                 file = Path(file)
-                print (file, type(file))
                 file_with_meta = {'path': file, 'characters': self.get_file_length(file),
                                   'tokens': self.get_file_tokens(file), 'transformed_text': False}
                 self.files.append(file_with_meta)
