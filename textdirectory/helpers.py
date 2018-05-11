@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Helpers module."""
+import copy
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     """
@@ -11,6 +12,9 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     :return: a table
     :type return: str
     """
+
+    # Create a copy of the list to prevent object mutation
+    list_of_dicts = copy.deepcopy(list_of_dicts)
 
     # Enforce a maximum length
     if max_length:
@@ -41,7 +45,7 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     line = '\n|' + '-' * (length + len(longest_values) - 1) + '|'
 
     # Header based on the first dictionary
-    table = line + '\n|' 
+    table = line + '\n|'
     for key in list_of_dicts[0].keys():
         table += f'{key}'.ljust(longest_values[key]) + '|'
 

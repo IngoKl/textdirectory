@@ -76,3 +76,9 @@ def test_tabulation(capsys):
     td.print_aggregation()
     out, err = capsys.readouterr()
     assert 'path' in out
+
+def test_transform_to_memory():
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.transform_to_memory()
+    assert 'level two' in td.aggregation[0]['transformed_text']
