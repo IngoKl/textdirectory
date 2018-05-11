@@ -11,8 +11,9 @@ sys.path.insert(0, os.path.abspath('..'))
 from textdirectory import transformations
 from textdirectory import helpers
 
+
 class TextDirectory:
-    def __init__(self, directory):
+    def __init__(self, directory, encoding='utf8'):
         """
         :param directory: path to the text directory
         :type directory: str
@@ -23,6 +24,7 @@ class TextDirectory:
         self.filenames = []
         self.aggregation = []
         self.staged_transformations = []
+        self.encoding = encoding
 
         if not self.directory.exists():
             raise NotADirectoryError
@@ -32,7 +34,7 @@ class TextDirectory:
         :param path: path to a textfile
         :return: the files length in characters
         """
-        with path.open() as f:
+        with path.open(encoding=self.encoding, errors='ignore') as f:
             fr = f.read()
             return len(fr)
 
@@ -41,7 +43,7 @@ class TextDirectory:
         :param path: path to a textfile
         :return: the files length in tokens
         """
-        with path.open() as f:
+        with path.open(encoding=self.encoding, errors='ignore') as f:
             # Replace all line breaks with spaces
             fr = f.read().replace('\n', ' ')
             return len(fr.split(' '))
@@ -61,17 +63,21 @@ class TextDirectory:
         else:
             files = list(self.directory.glob('*.' + filetype))
 
-        if sort:
-            files.sort()
+        if len(files) > 0:
+            if sort:
+                files.sort()
 
-        for file in files:
-            file_with_meta = {'path': file, 'characters': self.get_file_length(file),
-                              'tokens': self.get_file_tokens(file)}
-            self.files.append(file_with_meta)
-            self.filenames.append(file.name)
+            for file in files:
+                file = Path(file)
+                file_with_meta = {'path': file, 'characters': self.get_file_length(file),
+                                  'tokens': self.get_file_tokens(file), 'transformed_text': False}
+                self.files.append(file_with_meta)
+                self.filenames.append(file.name)
 
-        # Initial population of self.aggregation
-        self.aggregation = self.files
+            # Initial population of self.aggregation
+            self.aggregation = self.files
+        else:
+            raise FileNotFoundError
 
     def filter_by_max_chars(self, max_chars=100):
         """
@@ -125,7 +131,6 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
-
     def filter_by_contains(self, contains):
         """
         :param contains: A string that needs to be present in the file
@@ -134,7 +139,7 @@ class TextDirectory:
 
         new_aggregation = []
         for file in self.aggregation:
-            with open(file['path'], 'r') as f:
+            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if contains in fr:
                     new_aggregation.append(file)
@@ -149,7 +154,7 @@ class TextDirectory:
 
         new_aggregation = []
         for file in self.aggregation:
-            with open(file['path'], 'r') as f:
+            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if not_contains not in fr:
                     new_aggregation.append(file)
@@ -194,7 +199,7 @@ class TextDirectory:
         self.filter_by_min_chars(min)
         self.filter_by_max_chars(max)
 
-        return(std, mean, min, max)
+        return std, mean, min, max
 
     def filter_by_similar_documents(self, reference_file, threshold=0.8):
         """
@@ -208,10 +213,10 @@ class TextDirectory:
             raise(ValueError)
 
         new_aggregation = []
-        with open(reference_file, 'r') as rf:
+        with open(reference_file, 'r', encoding=self.encoding, errors='ignore') as rf:
             reference = rf.read()
             for file in self.aggregation:
-                with open(file['path'], 'r') as ft:
+                with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as ft:
                     target = ft.read()
                     d = difflib.SequenceMatcher(None, reference, target)
                     if d.ratio() >= threshold:
@@ -232,6 +237,18 @@ class TextDirectory:
         else:
             raise NameError
 
+    def destage_transformation(self, transformation):
+        """
+        :param transformation: the transformation that should be de-staged and its parameters
+        :type transformation: list
+        """
+
+        available_transformations = self.staged_transformations
+
+        if transformation[0] in available_transformations:
+            self.staged_transformations.remove(transformation)
+        else:
+            raise NameError
 
     def run_transformations(self, text):
         """
@@ -247,7 +264,6 @@ class TextDirectory:
             transformed_text = transformation_method(transformed_text, *transformation[1:])
 
         return transformed_text
-
 
     def run_filters(self, filters):
         """
@@ -267,26 +283,32 @@ class TextDirectory:
 
         aggregated_string = ''
         for file in self.aggregation:
-            with file['path'].open() as f:
+            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
                 aggregated_string = aggregated_string + text
 
         return aggregated_string
 
+    def transform_to_memory(self):
+        """ Runs all transformations and stores the transformed texts in memory. """
+        for file in self.aggregation:
+            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
+                text = self.run_transformations(f.read())
+                file['transformed_text'] = text
 
     def aggregate_to_file(self, filename='aggregated.txt'):
         """
         :param filename: the path/filename to write to
         :type filename: str
         """
-        with open(filename, 'w') as aggregation_file:
+        with open(filename, 'w', encoding=self.encoding, errors='ignore') as aggregation_file:
             for file in self.aggregation:
-                with file['path'].open() as f:
+                with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                     text = self.run_transformations(f.read())
                     aggregation_file.write(text)
-
 
     def print_aggregation(self):
         """ Prints the aggregated files as a table. """
         print(helpers.tabulate_flat_list_of_dicts(self.aggregation))
         print(f'\nStaged Transformations: {self.staged_transformations}')
+
