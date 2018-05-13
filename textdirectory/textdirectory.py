@@ -201,6 +201,32 @@ class TextDirectory:
 
         return std, mean, min, max
 
+    def filter_by_max_filesize(self, max_kb=100):
+        """
+        :param max_mb: The maximum number of kB a file is allowed to have.
+        :type max_mb: int
+        """
+
+        new_aggregation = []
+        for file in self.aggregation:
+            if os.stat(file['path']).st_size / 1024 <= max_kb:
+                new_aggregation.append(file)
+
+        self.aggregation = new_aggregation
+
+    def filter_by_min_filesize(self, min_kb=10):
+        """
+        :param max_mb: The minimum number of kB a file is allowed to have.
+        :type max_mb: int
+        """
+
+        new_aggregation = []
+        for file in self.aggregation:
+            if os.stat(file['path']).st_size / 1024 >= min_kb:
+                new_aggregation.append(file)
+
+        self.aggregation = new_aggregation
+
     def filter_by_similar_documents(self, reference_file, threshold=0.8):
         """
         :param reference_file: Path to the reference file
