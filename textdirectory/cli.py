@@ -47,7 +47,7 @@ def main(directory, output_file, filetype, encoding, recursive, filters, transfo
     except FileNotFoundError:
         click.echo('There seem to be no files. Maybe you want to run with --recursive True.')
         sys.exit()
-
+        
     if filters and len(filters_list) > 0:
         td.run_filters(filters_list)
     if transformations and len(transformations_list) > 0:

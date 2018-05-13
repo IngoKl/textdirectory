@@ -214,7 +214,6 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
-
     def filter_by_min_filesize(self, min_kb=10):
         """
         :param max_mb: The minimum number of kB a file is allowed to have.
