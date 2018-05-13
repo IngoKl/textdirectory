@@ -2,11 +2,16 @@
 
 """Transformation module."""
 
+import sys
+import os
 import html
 import requests
 import spacy
 from bs4 import BeautifulSoup
 import re
+
+sys.path.insert(0, os.path.abspath('..'))
+from textdirectory.crudespellchecker import CrudeSpellChecker
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -125,5 +130,19 @@ def transformation_to_leetspeak(text, *args):
     transformed_text = text
     for a, b in replacements:
         transformed_text = transformed_text.replace(a, b)
+
+    return transformed_text
+
+
+def transformation_crude_spellchecker(text, language_model='crudesc_lm_en', *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    cs = CrudeSpellChecker(language_model=language_model)
+    transformed_text = cs.correct_string(text)
 
     return transformed_text

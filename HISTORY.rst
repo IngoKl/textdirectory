@@ -34,7 +34,11 @@ History
 ------------------
 * fixed an object mutation problem in the tabulate function
 
-0.2.0 (2018-00-00)
+0.2.0 (2018-05-13)
 ------------------
 * added the transform_to_memory() function
+* added transformation_to_leetspeak
+* added transformation_crude_spellchecker
+* added filter_by_max_filesize
+* added filter_by_min_filesize
 * fixed a bug where load_files() would fail if there were no files
