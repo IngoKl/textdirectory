@@ -26,6 +26,7 @@ class TextDirectory:
         self.staged_transformations = []
         self.applied_filters = []
         self.aggregation_states = []
+        self.current_state = 0
         self.encoding = encoding
 
         if not self.directory.exists():
@@ -38,19 +39,26 @@ class TextDirectory:
             #A pointer would be great!
             current_state.append(self.files.index(file))
 
-        self.aggregation_states.append(current_state)
+        self.aggregation_states.append([current_state, list(self.applied_filters)])
+        self.current_state = len(self.aggregation_states)
 
-    def load_aggregation_state(self, back=1):
+    def load_aggregation_state(self, state=0):
         """
         :param back: how many filter operations to go back
         :type back: int
         """
 
-        aggregation = []
-        for file_id in self.aggregation_states[-back]:
-            aggregation.append(file_id)
+        if state in range(len(self.aggregation_states)):
+            aggregation = []
+            previous_aggregation = self.aggregation_states[state]
+            for file_id in previous_aggregation[0]:
+                aggregation.append(file_id)
 
-        self.aggregation = aggregation
+            self.aggregation = aggregation
+            self.applied_filters = previous_aggregation[1]
+            self.current_state = state
+        else:
+            raise ValueError
 
     def get_aggregation(self):
         """A generator that provides the current aggregation."""
@@ -119,8 +127,9 @@ class TextDirectory:
                 self.filenames.append(file.name)
 
             # Initial population of self.aggregation
-            # self.aggregation = self.files
             self.set_aggregation(self.files)
+            # Initial checkpoint
+            self.save_aggregation_state()
         else:
             raise FileNotFoundError
 
@@ -397,15 +406,23 @@ class TextDirectory:
                     aggregation_file.write(text)
 
     def print_aggregation(self):
-        """Prints the aggregated files as a table."""
+        """Print the aggregated files as a table."""
         print(helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation())))
         print(f'\nStaged Transformations: {self.staged_transformations}')
+
+
+    def print_saved_states(self):
+        """Print all saved states."""
+        print('Saved States:')
+        for i, state in enumerate(self.aggregation_states):
+            print (f'[{i}] - {len(state[0])} files after applying {state[1]}')
 
     def print_pipeline(self):
         """Print the current pipeline. """
         print('Applied Filters:')
         if len(self.aggregation_states) > 0:
             print(f'> {len(self.aggregation_states)} states have been saved.')
+            print(f'> Currently on state {self.current_state} / {len(self.aggregation_states)}')
         if len(self.applied_filters) == 0:
             print('None')
         else:

@@ -97,6 +97,10 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
 
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
+Every applied filter will create a *state* (i.e. a checkpoint). If you want to go back to a previous state, you can print
+all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
+calling ``td.load_aggregation_state(state=0)``.
+
 To-Do
 --------
 * Increasing test coverage
