@@ -360,6 +360,7 @@ class TextDirectory:
         return aggregated_string
 
     def transform_to_memory(self):
+        """Runs all transformations and stores the transformed texts in memory."""
         for file in self.aggregation:
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
@@ -377,6 +378,7 @@ class TextDirectory:
                     aggregation_file.write(text)
 
     def print_aggregation(self):
+        """Prints the aggregated files as a table."""
         print(helpers.tabulate_flat_list_of_dicts(self.aggregation))
         print(f'\nStaged Transformations: {self.staged_transformations}')
 
