@@ -58,6 +58,8 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     for row in list_of_dicts:
         table += '\n|'
         for key, value in row.items():
+            # Remove linebreaks
+            value = value.replace('\n', '')
             table += str(value).ljust(longest_values[key]) + '|'
 
     table += line

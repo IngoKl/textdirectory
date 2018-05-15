@@ -104,17 +104,12 @@ To-Do
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
 * Better handling of non-unicode files (e.g. by detecting and reporting the encoding)
-* Just refer to self.files in self.aggregation instead of keeping two copies (memory efficiency)
 * Contemplating whether it makes sense to stage filters similarly to transformations
 
 Behaviour
 ---------
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
-
-As of now, loading an old aggregation state (``load_aggregation_state``) will clear transformation results from memory.
-This will be solved once we're not keeping two copies of each file object (one in ``self.files`` and
-one in ``self.aggregation``.
 
 ``transformation_usas_en_semtag`` relies on the web versionof `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and

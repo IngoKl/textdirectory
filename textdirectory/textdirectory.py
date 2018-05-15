@@ -34,7 +34,8 @@ class TextDirectory:
     def save_aggregation_state(self):
         """Saves the current self.aggregation state."""
         current_state = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
+            #A pointer would be great!
             current_state.append(self.files.index(file))
 
         self.aggregation_states.append(current_state)
@@ -47,9 +48,20 @@ class TextDirectory:
 
         aggregation = []
         for file_id in self.aggregation_states[-back]:
-            aggregation.append(self.files[file_id])
+            aggregation.append(file_id)
 
         self.aggregation = aggregation
+
+    def get_aggregation(self):
+        """A generator that provides the current aggregation."""
+        for file_id in self.aggregation:
+            yield self.files[file_id]
+
+    def set_aggregation(self, aggregation):
+        """Set the aggregation."""
+        self.aggregation = []
+        for file in aggregation:
+            self.aggregation.append(self.files.index(file))
 
     def filter(filter):
         """A wrapper for filters."""
@@ -107,7 +119,8 @@ class TextDirectory:
                 self.filenames.append(file.name)
 
             # Initial population of self.aggregation
-            self.aggregation = self.files
+            # self.aggregation = self.files
+            self.set_aggregation(self.files)
         else:
             raise FileNotFoundError
 
@@ -119,11 +132,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if file['characters'] <= int(max_chars):
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_min_chars(self, min_chars=100):
@@ -133,11 +146,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if file['characters'] >= int(min_chars):
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_max_tokens(self, max_tokens=100):
@@ -147,11 +160,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if file['tokens'] <= int(max_tokens):
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_min_tokens(self, min_tokens=1):
@@ -161,11 +174,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if file['tokens'] >= int(min_tokens):
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_contains(self, contains):
@@ -175,13 +188,13 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if contains in fr:
                     new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_not_contains(self, not_contains):
@@ -191,13 +204,13 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if not_contains not in fr:
                     new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_filename_contains(self, contains):
@@ -207,11 +220,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if contains in file['path'].name:
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_random_sampling(self, n, replace=False):
@@ -231,7 +244,7 @@ class TextDirectory:
         :type sigmas: int
         """
 
-        chars_list = [file['characters'] for file in self.aggregation]
+        chars_list = [file['characters'] for file in self.get_aggregation()]
         std = np.std(chars_list)
         mean = np.mean(chars_list)
         min = round(mean - sigmas * std, 1)
@@ -250,11 +263,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if os.stat(file['path']).st_size / 1024 <= max_kb:
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_min_filesize(self, min_kb=10):
@@ -264,11 +277,11 @@ class TextDirectory:
         """
 
         new_aggregation = []
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             if os.stat(file['path']).st_size / 1024 >= min_kb:
                 new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     @filter
     def filter_by_similar_documents(self, reference_file, threshold=0.8):
@@ -285,14 +298,14 @@ class TextDirectory:
         new_aggregation = []
         with open(reference_file, 'r', encoding=self.encoding, errors='ignore') as rf:
             reference = rf.read()
-            for file in self.aggregation:
+            for file in self.get_aggregation():
                 with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as ft:
                     target = ft.read()
                     d = difflib.SequenceMatcher(None, reference, target)
                     if d.ratio() >= threshold:
                         new_aggregation.append(file)
 
-        self.aggregation = new_aggregation
+        self.set_aggregation(new_aggregation)
 
     def stage_transformation(self, transformation):
         """
@@ -352,7 +365,7 @@ class TextDirectory:
         """
 
         aggregated_string = ''
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
                 aggregated_string = aggregated_string + text
@@ -361,10 +374,16 @@ class TextDirectory:
 
     def transform_to_memory(self):
         """Runs all transformations and stores the transformed texts in memory."""
-        for file in self.aggregation:
+        for file in self.get_aggregation():
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
                 file['transformed_text'] = text
+
+    def clear_transformation(self):
+        """Destage all transformations and clear memory."""
+        self.staged_transformations = []
+        for file in self.files:
+            file['transformed_text'] = None
 
     def aggregate_to_file(self, filename='aggregated.txt'):
         """
@@ -372,25 +391,27 @@ class TextDirectory:
         :type filename: str
         """
         with open(filename, 'w', encoding=self.encoding, errors='ignore') as aggregation_file:
-            for file in self.aggregation:
+            for file in self.get_aggregation():
                 with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                     text = self.run_transformations(f.read())
                     aggregation_file.write(text)
 
     def print_aggregation(self):
         """Prints the aggregated files as a table."""
-        print(helpers.tabulate_flat_list_of_dicts(self.aggregation))
+        print(helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation())))
         print(f'\nStaged Transformations: {self.staged_transformations}')
 
     def print_pipeline(self):
         """Print the current pipeline. """
-        print('Applied Filters')
+        print('Applied Filters:')
+        if len(self.aggregation_states) > 0:
+            print(f'> {len(self.aggregation_states)} states have been saved.')
         if len(self.applied_filters) == 0:
             print('None')
         else:
             for filter in self.applied_filters:
                 print(filter)
-        print('Staged Transformations')
+        print('\nStaged Transformations:')
         if len(self.staged_transformations) == 0:
             print('None')
         else:

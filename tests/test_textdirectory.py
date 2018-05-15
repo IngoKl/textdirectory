@@ -132,4 +132,4 @@ def test_transform_to_memory():
     td = TextDirectory(directory='data/testdata/')
     td.load_files(True, 'txt')
     td.transform_to_memory()
-    assert len(td.aggregation[0]['transformed_text']) > 0
+    assert len(list(td.get_aggregation())[0]['transformed_text']) > 0
