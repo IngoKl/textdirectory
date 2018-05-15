@@ -24,10 +24,42 @@ class TextDirectory:
         self.filenames = []
         self.aggregation = []
         self.staged_transformations = []
+        self.applied_filters = []
+        self.aggregation_states = []
         self.encoding = encoding
 
         if not self.directory.exists():
             raise NotADirectoryError
+
+    def save_aggregation_state(self):
+        """Saves the current self.aggregation state."""
+        current_state = []
+        for file in self.aggregation:
+            current_state.append(self.files.index(file))
+
+        self.aggregation_states.append(current_state)
+
+    def load_aggregation_state(self, back=1):
+        """
+        :param back: how many filter operations to go back
+        :type back: int
+        """
+
+        aggregation = []
+        for file_id in self.aggregation_states[-back]:
+            aggregation.append(self.files[file_id])
+
+        self.aggregation = aggregation
+
+    def filter(filter):
+        """A wrapper for filters."""
+        def filter_wrapper(*args, **kwargs):
+            self = args[0]
+            self.applied_filters.append(filter.__name__)
+            self.save_aggregation_state()
+            return filter(*args, **kwargs)
+
+        return filter_wrapper
 
     def get_file_length(self, path):
         """
@@ -79,6 +111,7 @@ class TextDirectory:
         else:
             raise FileNotFoundError
 
+    @filter
     def filter_by_max_chars(self, max_chars=100):
         """
         :param max_chars: the maximum number of characters a file can have
@@ -92,6 +125,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_min_chars(self, min_chars=100):
         """
         :param min_chars: the minimum number of characters a file can have
@@ -105,6 +139,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_max_tokens(self, max_tokens=100):
         """
         :param max_tokens: the maximum number of tokens a file can have
@@ -118,6 +153,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_min_tokens(self, min_tokens=1):
         """
         :param min_tokens: the minimum number of tokens a file can have
@@ -131,6 +167,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_contains(self, contains):
         """
         :param contains: A string that needs to be present in the file
@@ -146,6 +183,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_not_contains(self, not_contains):
         """
         :param not_contains: A string that is not allowed to be present in the file
@@ -161,6 +199,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_filename_contains(self, contains):
         """
         :param contains: A string that needs to be present in the filename
@@ -174,6 +213,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_random_sampling(self, n, replace=False):
         """
         :param n: the number of documents in the sample
@@ -184,6 +224,7 @@ class TextDirectory:
 
         self.aggregation = np.random.choice(self.aggregation, int(n), replace=replace)
 
+    @filter
     def filter_by_chars_outliers(self, sigmas=2):
         """
         :param sigmas: The number of stds that qualifies an outlier.
@@ -201,6 +242,7 @@ class TextDirectory:
 
         return std, mean, min, max
 
+    @filter
     def filter_by_max_filesize(self, max_kb=100):
         """
         :param max_mb: The maximum number of kB a file is allowed to have.
@@ -214,6 +256,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_min_filesize(self, min_kb=10):
         """
         :param max_mb: The minimum number of kB a file is allowed to have.
@@ -227,6 +270,7 @@ class TextDirectory:
 
         self.aggregation = new_aggregation
 
+    @filter
     def filter_by_similar_documents(self, reference_file, threshold=0.8):
         """
         :param reference_file: Path to the reference file
@@ -316,7 +360,6 @@ class TextDirectory:
         return aggregated_string
 
     def transform_to_memory(self):
-        """ Runs all transformations and stores the transformed texts in memory. """
         for file in self.aggregation:
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
@@ -334,7 +377,20 @@ class TextDirectory:
                     aggregation_file.write(text)
 
     def print_aggregation(self):
-        """ Prints the aggregated files as a table. """
         print(helpers.tabulate_flat_list_of_dicts(self.aggregation))
         print(f'\nStaged Transformations: {self.staged_transformations}')
 
+    def print_pipeline(self):
+        """Print the current pipeline. """
+        print('Applied Filters')
+        if len(self.applied_filters) == 0:
+            print('None')
+        else:
+            for filter in self.applied_filters:
+                print(filter)
+        print('Staged Transformations')
+        if len(self.staged_transformations) == 0:
+            print('None')
+        else:
+            for transformation in self.staged_transformations:
+                print(transformation)

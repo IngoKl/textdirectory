@@ -47,6 +47,7 @@ Features
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spaCy model)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
+   0.3.0, TBA, TBA
 
 Quickstart
 ----------
@@ -102,17 +103,21 @@ ToDo
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
-* Implementing autodoc (via Sphinx)
+* Just refer to self.files in self.aggregation instead of keeping two copies (memory efficiency)
+* Contemplating whether it makes sense to stage filters similarly to transformations
 
 Behaviour
 ---------
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
 
+As of now, loading an old aggregation state (``load_aggregation_state``) will clear transformation results from memory.
+This will be solved once we're not keeping two copies of each file object (one in ``self.files`` and
+one in ``self.aggregation``.
+
 ``transformation_usas_en_semtag`` relies on the web versionof `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
 consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
-
 
 Credits
 -------

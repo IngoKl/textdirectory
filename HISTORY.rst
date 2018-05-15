@@ -42,3 +42,9 @@ History
 * added filter_by_max_filesize
 * added filter_by_min_filesize
 * fixed a bug where load_files() would fail if there were no files
+
+0.3.0 (2018-00-00)
+------------------
+* added a function to revert applied filters
+* added a function that prints the current pipeline
+* fixed a bug in which ``tabulate_flat_list_of_dicts`` would fail if the dictionary was empty

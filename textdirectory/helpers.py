@@ -16,6 +16,9 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     # Create a copy of the list to prevent object mutation
     list_of_dicts = copy.deepcopy(list_of_dicts)
 
+    if len(list_of_dicts) == 0:
+        return False
+
     # Enforce a maximum length
     if max_length:
         for row in list_of_dicts:
@@ -59,5 +62,5 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
 
     table += line
 
+    return table
 
-    return(table)
