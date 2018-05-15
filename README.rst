@@ -97,12 +97,13 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
 
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
-ToDo
+To-Do
 --------
 * Increasing test coverage
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
+* Better handling of non-unicode files (e.g. by detecting and reporting the encoding)
 * Just refer to self.files in self.aggregation instead of keeping two copies (memory efficiency)
 * Contemplating whether it makes sense to stage filters similarly to transformations
 
