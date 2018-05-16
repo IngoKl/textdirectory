@@ -21,6 +21,16 @@ def test_command_line_interface():
     assert 'Usage' in help_result.output
 
 
+def test_iterator():
+    """Test the iterator of TextDirectory."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files()
+    files = [file for file in td]
+    assert len(files) == 8
+    print(files[0]['path'].resolve())
+    assert 'Text_' in str(files[0]['path'].resolve())
+
+
 def test_simpple_aggregations():
     """Test the simplest form of aggregation."""
     td = TextDirectory(directory='data/testdata/')

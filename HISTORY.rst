@@ -50,3 +50,4 @@ History
 * added a function that clears all transformations
 * fixed a bug in which ``tabulate_flat_list_of_dicts`` would fail if the dictionary was empty
 * ``self.aggregation`` does not hold a copy of the files anymore but references to ``self.files``
+* TextDirectory objects are now iterable

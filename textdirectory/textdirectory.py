@@ -28,9 +28,22 @@ class TextDirectory:
         self.aggregation_states = []
         self.current_state = 0
         self.encoding = encoding
+        self.iterator = 0
 
         if not self.directory.exists():
             raise NotADirectoryError
+
+    def __iter__(self):
+        self.iterator = 0
+        return self
+
+    def __next__(self):
+        if self.iterator < len(self.aggregation):
+            file = self.files[self.aggregation[self.iterator]]
+            self.iterator += 1
+            return file
+        else:
+            raise StopIteration()
 
     def save_aggregation_state(self):
         """Saves the current self.aggregation state."""
