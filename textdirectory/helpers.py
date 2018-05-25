@@ -2,6 +2,7 @@
 
 """Helpers module."""
 import copy
+import psutil
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     """
@@ -81,3 +82,28 @@ def count_non_alphanum(string):
             non_alphanum += 1
 
     return non_alphanum
+
+
+def chunk_text(string, chunk_size=50000):
+    """
+    :param string: a string
+    :type string: str
+    :param chunk_size: the max characters of one chunk
+    :type chunk_size: int
+    :return: a list of chunks
+    :type return: list
+    """
+
+    chunks = [string[i:i + chunk_size] for i in range(0, len(string), chunk_size)]
+    return chunks
+
+
+def estimate_spacy_max_length():
+    """Returns a somewhat sensible suggestions for max_length."""
+    memory = psutil.virtual_memory()
+    gb_available = memory.available / 1024 / 1024 / 1024
+
+    # 100,000 characters = 1 GB
+    estimated_max_length = gb_available * 100000
+
+    return estimated_max_length

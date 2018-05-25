@@ -110,10 +110,10 @@ def test_transformation_crude_spellchecker():
     assert transformation_crude_spellchecker(test_string) == 'There are two spelling mistakes in here.'
 
 
-def test_transformation_crude_spellchecker():
-    """Test the crude spellchecker transformation."""
-    test_string = 'There are two spellling mistaces in here.'
-    assert transformation_crude_spellchecker(test_string) == 'There are two spelling mistakes in here.'
+def test_transformation_remove_weird_tokens():
+    """Test the remove weird tokens transformation."""
+    test_string = 'Hello ---;#aaa World!'
+    assert transformation_remove_weird_tokens(test_string, remove_double_space=True) == 'Hello World!'
 
 
 #def test_transformation_postag():

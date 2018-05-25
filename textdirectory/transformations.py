@@ -12,7 +12,7 @@ import re
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
-from textdirectory.helpers import count_non_alphanum
+from textdirectory.helpers import count_non_alphanum, estimate_spacy_max_length
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -26,6 +26,7 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
     """
 
     nlp = spacy.load(spacy_model)
+    nlp.max_length = estimate_spacy_max_length()
     doc = nlp(text)
 
     transformed_text = ''
@@ -162,11 +163,12 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     """
 
     nlp = spacy.load(spacy_model)
+    nlp.max_length = estimate_spacy_max_length()
     doc = nlp(text)
 
     for token in doc:
         # More non-alphanum than alphanum
-        if count_non_alphanum(token.text) > len(token.text) / 2:
+        if count_non_alphanum(token.text) > len(token.text) / 2 and len(token.text) > 1:
             text = text.replace(token.text, '')
 
         # Remove very long tokens (45 seems to be one of the longest words in major dictionaries)
