@@ -3,3 +3,4 @@ requests==2.18.4
 numpy==1.14.0
 click==6.7
 beautifulsoup4==4.6.0
+psutil

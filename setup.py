@@ -11,11 +11,11 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'requests', 'beautifulsoup4', 'spacy', ]
+requirements = ['Click>=6.0', 'numpy', 'requests', 'beautifulsoup4', 'spacy', 'psutil', ]
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', 'numpy', 'spacy', ]
+test_requirements = ['pytest', 'numpy', 'spacy', 'psutil', ]
 
 setup(
     author="Ingo Kleiber",
