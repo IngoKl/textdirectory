@@ -66,3 +66,18 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
 
     return table
 
+
+def count_non_alphanum(string):
+    """
+    :param string: a string
+    :type string: str
+    :return: the number of non-alphanumeric characters in the string
+    :type return: int
+    """
+
+    non_alphanum = 0
+    for c in string:
+        if not c.isalpha():
+            non_alphanum += 1
+
+    return non_alphanum

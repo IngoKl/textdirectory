@@ -8,7 +8,7 @@ from click.testing import CliRunner
 
 from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
-    transformation_to_leetspeak, transformation_crude_spellchecker
+    transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_weird_tokens
 from textdirectory import cli
 
 
@@ -102,6 +102,12 @@ def test_transformation_to_leetspeak():
     """Test the leetspeak transformation."""
     test_string = 'leetspeak'
     assert transformation_to_leetspeak(test_string) == '133tsp34k'
+
+
+def test_transformation_crude_spellchecker():
+    """Test the crude spellchecker transformation."""
+    test_string = 'There are two spellling mistaces in here.'
+    assert transformation_crude_spellchecker(test_string) == 'There are two spelling mistakes in here.'
 
 
 def test_transformation_crude_spellchecker():

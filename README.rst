@@ -47,7 +47,7 @@ Features
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spaCy model)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
-   0.3.0, TBA, TBA
+   0.3.0, TBA, transformation_remove_weird_tokens(spaCy model; remove_double_space=False)
 
 Quickstart
 ----------

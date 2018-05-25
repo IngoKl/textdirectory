@@ -12,6 +12,7 @@ import re
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
+from textdirectory.helpers import count_non_alphanum
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -146,3 +147,31 @@ def transformation_crude_spellchecker(text, language_model='crudesc_lm_en', *arg
     transformed_text = cs.correct_string(text)
 
     return transformed_text
+
+
+def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remove_double_space=False, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :param remove_double_space: remove duplicated spaces
+    :type: remove_double_space: bool
+    :return: the transformed text
+    :type return: str
+    """
+
+    nlp = spacy.load(spacy_model)
+    doc = nlp(text)
+
+    for token in doc:
+        # More non-alphanum than alphanum
+        if count_non_alphanum(token.text) > len(token.text) / 2:
+            text = text.replace(token.text, '')
+
+        # Remove very long tokens (45 seems to be one of the longest words in major dictionaries)
+        if len(token.text) > 45:
+            text = text.replace(token.text, '')
+
+    if remove_double_space:
+        text = re.sub(' +', ' ', text)
+
+    return text

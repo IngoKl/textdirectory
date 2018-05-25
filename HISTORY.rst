@@ -45,6 +45,7 @@ History
 
 0.3.0 (2018-00-00)
 ------------------
+* added transformation_remove_weird_tokens
 * added a function to revert applied filters
 * added a function that prints the current pipeline
 * added a function that clears all transformations
