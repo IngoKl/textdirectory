@@ -98,13 +98,16 @@ def chunk_text(string, chunk_size=50000):
     return chunks
 
 
-def estimate_spacy_max_length(override=False):
+def estimate_spacy_max_length(override=False, tokenizer_only=False):
     """Returns a somewhat sensible suggestions for max_length."""
     memory = psutil.virtual_memory()
     gb_available = memory.available / 1024 / 1024 / 1024
 
-    # 100,000 characters = 1 GB
+    # tagger, parser, ner 100,000 characters = 1 GB
     estimated_max_length = gb_available * 100000
+
+    if tokenizer_only:
+        estimated_max_length = estimated_max_length * 3
 
     if override:
         estimated_max_length = override

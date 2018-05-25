@@ -162,8 +162,8 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     :type return: str
     """
 
-    nlp = spacy.load(spacy_model)
-    nlp.max_length = estimate_spacy_max_length()
+    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner'])
+    nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
     doc = nlp(text)
 
     for token in doc:
