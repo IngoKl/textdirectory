@@ -153,6 +153,8 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     """
     :param text: the text to run the transformation on
     :type text: str
+    :param spacy_model: the spaCy model we want to use
+    :type spacy_model: str
     :param remove_double_space: remove duplicated spaces
     :type: remove_double_space: bool
     :return: the transformed text
