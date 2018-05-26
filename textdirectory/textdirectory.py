@@ -423,7 +423,6 @@ class TextDirectory:
         print(helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation())))
         print(f'\nStaged Transformations: {self.staged_transformations}')
 
-
     def print_saved_states(self):
         """Print all saved states."""
         print('Saved States:')
