@@ -66,8 +66,9 @@ def transformation_remove_nl(text, *args):
     :return: the transformed text
     :type return: str
     """
-
-    return text.replace('\n', ' ')
+    
+    text = text.replace('\r\n', ' ').replace('n', '')
+    return text
 
 def transformation_usas_en_semtag(text, *args):
     """
