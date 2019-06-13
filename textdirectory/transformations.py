@@ -39,7 +39,7 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
 
 
 def transformation_remove_stopwords(text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm',
-                                    *args):
+                                    custom_stopwords=None, *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -47,6 +47,10 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     :type stopwords_source: str
     :param stopwords: filename of a list containing stopwords
     :type stopwords: str
+    :param spacy_model: the spaCy model we want to use
+    :type spacy_model: str
+    :param custom_stopwords: a list of additional stopwords to consider:
+    :type custom_stopwords: str
     :return: the transformed text
     :type return: str
     """
@@ -69,6 +73,9 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
             stopwords = stopwords_file.read().splitlines()[1:]
     except FileNotFoundError:
         return False
+
+    if custom_stopwords:
+        stopwords = stopwords + custom_stopwords.split(',')
 
     for token in doc:
         if token.text.lower() not in stopwords:

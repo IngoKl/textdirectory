@@ -113,6 +113,16 @@ def test_transformation_remove_stopwords():
     assert transformation_remove_stopwords(test_string) == 'There is house hill.'
 
 
+def test_transformation_test_arguments():
+    """Test whether we can pass arguments to transformations."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.stage_transformation(['transformation_remove_stopwords', 'internal', 'en', 'en_core_web_sm',
+                             'dolor,dolore,dolores'])
+    text = td.aggregate_to_memory()
+    assert 'dolor' not in text
+
+
 #def test_transformation_postag():
 #    """Test the postag transformation."""
 #    td = TextDirectory(directory='data/testdata/')

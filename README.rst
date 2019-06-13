@@ -47,7 +47,7 @@ Features
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spacy_model str)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(spacy_model str)
-   0.2.1, ,transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str); transformation_remove_htmltags
+   0.2.1, ,transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
 
 Quickstart
 ----------
@@ -92,10 +92,19 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.load_files(recursive=False, filetype='txt', sort=True)
     td.filter_by_min_tokens(5)
     td.filter_by_random_sampling(2)
-    td.stage_transformation(['transform_lowercase'])
+    td.stage_transformation(['transformation_lowercase'])
     td.aggregate_to_file('aggregated.txt')
 
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
+
+It's also possible to pass arguments to the individual transformations. In order to do this (at the moment) you have to adhere to the correct order of arguments.
+
+.. code:: python
+
+    # def transformation_remove_stopwords(text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm', custom_stopwords=None, *args)
+    td.stage_transformation(['transformation_remove_stopwords', 'internal', 'en', 'en_core_web_sm', 'dolor'])
+
+In the above example, we are adding additional custom stopwords to the transformer.
 
 ToDo
 --------
@@ -103,6 +112,7 @@ ToDo
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
+* Allowing users to pass keyword arguments to transformers
 * Implementing autodoc (via Sphinx)
 
 Behaviour
