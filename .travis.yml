@@ -2,6 +2,7 @@ language: python
 python:
 - 3.6
 before_install:
+- pip install spacy
 - python -m spacy download en_core_web_sm
 install:
 - pip install -U tox-travis
