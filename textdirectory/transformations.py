@@ -59,11 +59,12 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     transformed_text = ''
 
     nlp = spacy.load(spacy_model)
+    nlp.max_length = 5000000
     doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat'])
 
     # Locating the stopwords list
     if stopwords_source == 'internal':
-        stopwords_path = Path(f'{os.path.join(os.path.dirname(__file__))}/../data/stopwords/'
+        stopwords_path = Path(f'{os.path.join(os.path.dirname(__file__))}/data/stopwords/'
                               f'stopwords_{stopwords}.txt')
     if stopwords_source == 'file':
         stopwords_path = Path(stopwords)

@@ -27,7 +27,7 @@ class CrudeSpellChecker():
         self.cache = {}
         self.language_model_name = language_model
 
-        model_path = Path(f'{os.path.join(os.path.dirname(__file__))}/../data/language_models/'
+        model_path = Path(f'{os.path.join(os.path.dirname(__file__))}/data/language_models/'
                           f'{self.language_model_name}.gz.lm')
         print(model_path)
         with gzip.open(model_path, 'rb') as lm:

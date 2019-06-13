@@ -48,3 +48,7 @@ History
 * added transformation_remove_stopwords
 * added transformation_remove_htmltags
 * fixed some minor bugs
+
+0.2.2 (2019-06-13)
+------------------
+* changed the data packaging
