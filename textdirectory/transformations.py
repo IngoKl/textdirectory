@@ -59,7 +59,7 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     transformed_text = ''
 
     nlp = spacy.load(spacy_model)
-    doc = nlp(text)
+    doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat'])
 
     # Locating the stopwords list
     if stopwords_source == 'internal':
