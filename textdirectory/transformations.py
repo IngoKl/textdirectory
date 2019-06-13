@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Transformation module."""
-
 import sys
 import os
 import html
@@ -9,6 +8,7 @@ import requests
 import spacy
 from bs4 import BeautifulSoup
 import re
+from pathlib import Path
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
@@ -37,6 +37,53 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
 
     return transformed_text
 
+
+def transformation_remove_stopwords(text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm',
+                                    *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :param stopwords_source: [internal, file] where are stopwords loaded from
+    :type stopwords_source: str
+    :param stopwords: filename of a list containing stopwords
+    :type stopwords: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    tokens = []
+    transformed_text = ''
+
+    nlp = spacy.load(spacy_model)
+    doc = nlp(text)
+
+    # Locating the stopwords list
+    if stopwords_source == 'internal':
+        stopwords_path = Path(f'{os.path.join(os.path.dirname(__file__))}/../data/stopwords/'
+                              f'stopwords_{stopwords}.txt')
+    if stopwords_source == 'file':
+        stopwords_path = Path(stopwords)
+
+    try:
+        with open(stopwords_path, 'r') as stopwords_file:
+            stopwords = stopwords_file.read().splitlines()[1:]
+    except FileNotFoundError:
+        return False
+
+    for token in doc:
+        if token.text.lower() not in stopwords:
+            tokens.append(token)
+
+    # Detokenize
+    for token in tokens:
+        if token.whitespace_:
+            transformed_text += token.text + ' '
+        else:
+            transformed_text += token.text
+
+    return transformed_text
+
+
 def transformation_uppercase(text, *args):
     """
     :param text: the text to run the transformation on
@@ -46,6 +93,7 @@ def transformation_uppercase(text, *args):
     """
 
     return text.upper()
+
 
 def transformation_lowercase(text, *args):
     """
@@ -57,6 +105,7 @@ def transformation_lowercase(text, *args):
 
     return text.lower()
 
+
 def transformation_remove_nl(text, *args):
     """
     :param text: the text to run the transformation on
@@ -66,6 +115,7 @@ def transformation_remove_nl(text, *args):
     """
 
     return text.replace('\n', ' ')
+
 
 def transformation_usas_en_semtag(text, *args):
     """
@@ -103,6 +153,17 @@ def transformation_remove_non_ascii(text, *args):
     """
 
     return ''.join(i for i in text if ord(i) < 128)
+
+
+def transformation_remove_htmltags(text, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    return re.sub('<[^<]+?>', '', text)
 
 
 def transformation_remove_non_alphanumerical(text, *args):

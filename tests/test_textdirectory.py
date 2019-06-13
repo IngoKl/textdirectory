@@ -8,8 +8,10 @@ from click.testing import CliRunner
 
 from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
-    transformation_to_leetspeak, transformation_crude_spellchecker
+    transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_stopwords, \
+    transformation_remove_htmltags
 from textdirectory import cli
+
 
 def test_command_line_interface():
     """Test the CLI."""
@@ -18,6 +20,7 @@ def test_command_line_interface():
     assert 'TextDirectory' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert 'Usage' in help_result.output
+
 
 def test_simpple_aggregations():
     """Test the simplest form of aggregation."""
@@ -41,12 +44,14 @@ def test_filter_by_similar_documents():
     td.filter_by_similar_documents(reference_file='data/testdata/level_2/Text_E.txt', threshold=0.7)
     assert len(td.aggregation) == 2
 
+
 def test_filter_by_max_filesize():
     """Test the filesize (max) filter."""
     td = TextDirectory(directory='data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_max_filesize(max_kb=1)
     assert len(td.aggregation) == 7
+
 
 def test_filter_by_min_filesize():
     """Test the filesize (min) filter."""
@@ -55,12 +60,19 @@ def test_filter_by_min_filesize():
     td.filter_by_min_filesize(min_kb=2)
     assert len(td.aggregation) == 1
 
+
 def test_transformation_remove_nl():
     """Test the remove_nl transformation."""
     td = TextDirectory(directory='data/testdata/')
     td.load_files(True, 'txt')
     td.stage_transformation(['transformation_remove_nl'])
     assert '\n' not in td.aggregate_to_memory()
+
+
+def test_transformation_remove_htmltags():
+    """Test the remove htmltags transformation."""
+    test_string = '<html><body>This <span id="1">is</span> a <em>test</em></body></html>'
+    assert transformation_remove_htmltags(test_string) == 'This is a test'
 
 
 def test_transformation_uppercase():
@@ -71,13 +83,13 @@ def test_transformation_uppercase():
     assert td.aggregate_to_memory().isupper()
 
 
-def test_transformation_remove_non_ascii():
+def test_transformation_remove_non_ascii_hard():
     """Test the remove non-ascii transformation."""
     test_string = 'This is a @ test string ~ containing non-ascii characters such as 😁.'
     assert transformation_remove_non_ascii(test_string) == 'This is a @ test string ~ containing non-ascii characters such as .'
 
 
-def test_transformation_remove_non_ascii():
+def test_transformation_remove_non_ascii_easy():
     """Test the remove non-alphanumerical transformation."""
     test_string = 'non-alphanumerical @ / - * .'
     assert transformation_remove_non_alphanumerical(test_string).strip() == 'nonalphanumerical'
@@ -93,6 +105,12 @@ def test_transformation_crude_spellchecker():
     """Test the crude spellchecker transformation."""
     test_string = 'There are two spellling mistaces in here.'
     assert transformation_crude_spellchecker(test_string) == 'There are two spelling mistakes in here.'
+
+
+def test_transformation_remove_stopwords():
+    """Test the remove stopwords transformation."""
+    test_string = 'There is a house on the hill.'
+    assert transformation_remove_stopwords(test_string) == 'There is house hill.'
 
 
 #def test_transformation_postag():

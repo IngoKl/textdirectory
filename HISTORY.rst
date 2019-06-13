@@ -36,9 +36,15 @@ History
 
 0.2.0 (2018-05-13)
 ------------------
-* added the transform_to_memory() function
-* added transformation_to_leetspeak
+* added transform_to_memory() function
+* added transformation_to_leetspeak() function
 * added transformation_crude_spellchecker
 * added filter_by_max_filesize
 * added filter_by_min_filesize
 * fixed a bug where load_files() would fail if there were no files
+
+0.2.1 (2019-06-13)
+------------------
+* added transformation_remove_stopwords
+* added transformation_remove_htmltags
+* fixed some minor bugs
