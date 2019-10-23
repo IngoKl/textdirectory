@@ -1,6 +1,6 @@
 spacy==2.0.11
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz#egg=en_core_web_sm
-requests==2.18.4
+requests==2.20.0
 numpy==1.14.0
 click==6.7
 beautifulsoup4==4.6.0
