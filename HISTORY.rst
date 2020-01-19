@@ -36,8 +36,8 @@ History
 
 0.2.0 (2018-05-13)
 ------------------
-* added the transform_to_memory() function
-* added transformation_to_leetspeak
+* added transform_to_memory() function
+* added transformation_to_leetspeak() function
 * added transformation_crude_spellchecker
 * added filter_by_max_filesize
 * added filter_by_min_filesize
@@ -56,9 +56,11 @@ changed the data packaging
 0.3.0 (2020-01-19)
 ------------------
 * added transformation_remove_weird_tokens
+* fixed some minor bugs
 * added a function to revert applied filters
 * added a function that prints the current pipeline
 * added a function that clears all transformations
+* added helper functions to list available filters and transformations
 * fixed a bug in which ``tabulate_flat_list_of_dicts`` would fail if the dictionary was empty
 * ``self.aggregation`` does not hold a copy of the files anymore but references to ``self.files``
 * transformations relying on spaCy are now estimating a max_length based on available memory
