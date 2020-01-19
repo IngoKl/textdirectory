@@ -23,6 +23,7 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
     :type spacy_model: str
     :return: the transformed text
     :type return: str
+    :human_name: Add pos-tags
     """
 
     nlp = spacy.load(spacy_model)
@@ -116,7 +117,7 @@ def transformation_remove_non_alphanumerical(text, *args):
     :type return: str
     """
 
-    pattern = re.compile('([^\s\w]|_)+')
+    pattern = re.compile(r'([^\s\w]|_)+')
     return pattern.sub('', text)
 
 

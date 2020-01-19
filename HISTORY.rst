@@ -43,7 +43,17 @@ History
 * added filter_by_min_filesize
 * fixed a bug where load_files() would fail if there were no files
 
-0.3.0 (2018-00-00)
+0.2.1 (2019-06-13)
+------------------
+added transformation_remove_stopwords
+added transformation_remove_htmltags
+fixed some minor bugs
+
+0.2.2 (2019-06-13)
+------------------
+changed the data packaging
+
+0.3.0 (2020-01-19)
 ------------------
 * added transformation_remove_weird_tokens
 * added a function to revert applied filters

@@ -8,11 +8,11 @@ import click
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory import textdirectory
 from textdirectory import transformations
+import textdirectory.helpers as helpers
 
 
-available_filters = [filter for filter in dir(textdirectory.TextDirectory) if 'filter_by' in filter]
-available_transformations = [transformation for transformation in dir(transformations)
-                             if 'transformation' in transformation]
+available_filters = helpers.get_available_filters()
+available_transformations = helpers.get_available_transformations()
 
 @click.command()
 @click.option('--directory', help='The directory containing text files', type=str)

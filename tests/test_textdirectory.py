@@ -92,7 +92,7 @@ def test_transformation_remove_non_ascii():
     assert transformation_remove_non_ascii(test_string) == 'This is a @ test string ~ containing non-ascii characters such as .'
 
 
-def test_transformation_remove_non_ascii():
+def test_transformation_remove_non_alphanumerical():
     """Test the remove non-alphanumerical transformation."""
     test_string = 'non-alphanumerical @ / - * .'
     assert transformation_remove_non_alphanumerical(test_string).strip() == 'nonalphanumerical'

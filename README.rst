@@ -47,7 +47,8 @@ Features
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spaCy model)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
-   0.3.0, TBA, transformation_remove_weird_tokens(spaCy model; remove_double_space=False)
+   0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
+   0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False)
 
 Quickstart
 ----------
@@ -100,6 +101,10 @@ If we wanted to keep working with the actual aggregated text, we could have call
 Every applied filter will create a *state* (i.e. a checkpoint). If we want to go back to a previous state, we can print
 all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
 calling ``td.load_aggregation_state(state=0)``.
+
+Notes for Developers
+~~~~~~~~~~~~~~~~~~~
+If you want to run tests, please use `python setup.py test`.
 
 To-Do
 --------

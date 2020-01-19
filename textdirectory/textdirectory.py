@@ -4,6 +4,7 @@
 import os
 import sys
 import difflib
+from functools import wraps
 from pathlib import Path
 import numpy as np
 
@@ -86,6 +87,7 @@ class TextDirectory:
 
     def filter(filter):
         """A wrapper for filters."""
+        @wraps(filter)
         def filter_wrapper(*args, **kwargs):
             self = args[0]
             self.applied_filters.append(filter.__name__)
@@ -151,6 +153,7 @@ class TextDirectory:
         """
         :param max_chars: the maximum number of characters a file can have
         :type max_chars: int
+        :human_name: Maximum characters
         """
 
         new_aggregation = []
@@ -165,6 +168,7 @@ class TextDirectory:
         """
         :param min_chars: the minimum number of characters a file can have
         :type min_chars: int
+        :human_name: Minimum characters
         """
 
         new_aggregation = []
@@ -179,6 +183,7 @@ class TextDirectory:
         """
         :param max_tokens: the maximum number of tokens a file can have
         :type max_tokens: int
+        :human_name: Maximum tokens
         """
 
         new_aggregation = []
@@ -193,6 +198,7 @@ class TextDirectory:
         """
         :param min_tokens: the minimum number of tokens a file can have
         :type min_tokens: int
+        :human_name: Minimum tokens
         """
 
         new_aggregation = []
@@ -207,6 +213,7 @@ class TextDirectory:
         """
         :param contains: A string that needs to be present in the file
         :type contains: str
+        :human_name: Contains string
         """
 
         new_aggregation = []
@@ -223,6 +230,7 @@ class TextDirectory:
         """
         :param not_contains: A string that is not allowed to be present in the file
         :type not_contains: str
+        :human_name: Does not contain string
         """
 
         new_aggregation = []
@@ -239,6 +247,7 @@ class TextDirectory:
         """
         :param contains: A string that needs to be present in the filename
         :type contains: str
+        :human_name: Filename contains string
         """
 
         new_aggregation = []
@@ -255,6 +264,7 @@ class TextDirectory:
         :type n: int
         :param replace: Should valued be replaced
         :type replace: bool
+        :human_name: Random sampling
         """
 
         self.aggregation = np.random.choice(self.aggregation, int(n), replace=replace)
@@ -264,6 +274,7 @@ class TextDirectory:
         """
         :param sigmas: The number of stds that qualifies an outlier.
         :type sigmas: int
+        :human_name: Character outliers
         """
 
         chars_list = [file['characters'] for file in self.get_aggregation()]
@@ -282,6 +293,7 @@ class TextDirectory:
         """
         :param max_mb: The maximum number of kB a file is allowed to have.
         :type max_mb: int
+        :human_name: Maximum filesize
         """
 
         new_aggregation = []
@@ -296,6 +308,7 @@ class TextDirectory:
         """
         :param max_mb: The minimum number of kB a file is allowed to have.
         :type max_mb: int
+        :human_name: Minimum Filesize
         """
 
         new_aggregation = []
@@ -312,6 +325,7 @@ class TextDirectory:
         :type reference_file: str
         :param threshold: A value between 0.0 and 1.0 indicating the max. difference between the file and the reference.
         :type threshold: float
+        :human_name: Similar documents
         """
 
         if not 0.0 <= threshold <= 1.0:

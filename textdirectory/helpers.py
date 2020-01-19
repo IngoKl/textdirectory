@@ -3,6 +3,10 @@
 """Helpers module."""
 import copy
 import psutil
+import re
+
+from textdirectory import textdirectory
+from textdirectory import transformations
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     """
@@ -113,3 +117,60 @@ def estimate_spacy_max_length(override=False, tokenizer_only=False):
         estimated_max_length = override
 
     return estimated_max_length
+
+
+def get_human_from_docstring(doc):
+    doc = doc.replace('    ', '')
+    res = re.findall('human_(.*):(.*)', doc)
+
+    return {k:v.strip() for (k,v) in res} 
+
+
+def get_available_filters(get_human_name=False):
+    """
+    :param get_human_name: if True, also return the 'human name'
+    :type string: bool
+    :return: a list of functions; if get_human_name a list of tuples
+    :type return: list
+    """
+    
+    available_filters = [filter for filter in dir(textdirectory.TextDirectory) if 'filter_by' in filter]
+
+    if get_human_name:
+        available_filters_with_human = []
+        for f in available_filters:
+            doc = getattr(textdirectory.TextDirectory, f).__doc__
+            human = get_human_from_docstring(doc)
+            if 'name' in human:
+                available_filters_with_human.append((f, human['name']))
+            else:
+                available_filters_with_human.append((f, f))
+
+        available_filters = available_filters_with_human
+
+    return available_filters
+
+
+def get_available_transformations(get_human_name=False):
+    """
+    :param get_human_name: if True, also return the 'human name'
+    :type string: bool
+    :return: a list of functions; if get_human_name a list of tuples
+    :type return: list
+    """
+
+    available_transformations = [transformation for transformation in dir(transformations) if 'transformation' in transformation]
+
+    if get_human_name:
+        available_transformations_with_human = []
+        for t in available_transformations:
+            doc = getattr(textdirectory.transformations, t).__doc__
+            human = get_human_from_docstring(doc)
+            if 'name' in human:
+                available_transformations_with_human.append((t, human['name']))
+            else:
+                available_transformations_with_human.append((t, t))
+
+        available_transformations = available_transformations_with_human
+
+    return available_transformations
