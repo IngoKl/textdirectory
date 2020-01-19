@@ -24,7 +24,7 @@ def test_command_line_interface():
 
 def test_iterator():
     """Test the iterator of TextDirectory."""
-    td = TextDirectory(directory='data/testdata/')
+    td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files()
     files = [file for file in td]
     assert len(files) == 8
@@ -158,7 +158,7 @@ def test_tabulation(capsys):
 
 def test_print_pipeline(capsys):
     """"Test the print_pipeline function."""
-    td = TextDirectory(directory='data/testdata/')
+    td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_chars_outliers()
     td.print_pipeline()

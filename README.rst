@@ -31,9 +31,8 @@ use-cases (e.g. when used as a library) in which it might be useful.
 * Free software: MIT license
 * Documentation: https://textdirectory.readthedocs.io.
 
-
 Features
---------
+========
 * Aggregating multiple text files
 * Filtering documents/texts based on various parameters such as length, content, and random sampling
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
@@ -51,7 +50,7 @@ Features
    0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False)
 
 Quickstart
-----------
+==========
 Install *TextDirectory* via pip: ``pip install textdirectory``
 
 *TextDirectory*, as exemplified below, works with a two-stage model. After loading in your data (directory) you can iteratively select the files you want to process. In a second step you can perform transformations on the text before finally aggregating it.
@@ -102,12 +101,7 @@ Every applied filter will create a *state* (i.e. a checkpoint). If we want to go
 all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
 calling ``td.load_aggregation_state(state=0)``.
 
-Notes for Developers
-~~~~~~~~~~~~~~~~~~~
-If you want to run tests, please use `python setup.py test`.
 
-To-Do
-=======
 It's also possible to pass arguments to the individual transformations. In order to do this (at the moment) you have to adhere to the correct order of arguments.
 
 .. code:: python
@@ -117,8 +111,12 @@ It's also possible to pass arguments to the individual transformations. In order
 
 In the above example, we are adding additional custom stopwords to the transformer.
 
-ToDo
---------
+Notes for Developers
+====================
+If you want to run tests, please use `python setup.py test`.
+
+To-Do
+=======
 * Increasing test coverage
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
@@ -129,7 +127,7 @@ ToDo
 * Implementing autodoc (via Sphinx)
 
 Behaviour
----------
+=======
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
 
@@ -138,7 +136,7 @@ saves memory.
 consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
 
 Credits
--------
+=======
 This package is based on the `audreyr/cookiecutter-pypackage`_ coockiecutter template. The *crude spellchecker*
 (transformation) is implemented following Peter Norvig's excellent `tutorial`_.
 
