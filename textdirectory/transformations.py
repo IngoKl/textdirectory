@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
+from textdirectory.helpers import count_non_alphanum, estimate_spacy_max_length
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -22,9 +23,11 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
     :type spacy_model: str
     :return: the transformed text
     :type return: str
+    :human_name: Add pos-tags
     """
 
     nlp = spacy.load(spacy_model)
+    nlp.max_length = estimate_spacy_max_length()
     doc = nlp(text)
 
     transformed_text = ''
@@ -121,8 +124,9 @@ def transformation_remove_nl(text, *args):
     :return: the transformed text
     :type return: str
     """
-
-    return text.replace('\n', ' ')
+    
+    text = text.replace('\r\n', '').replace('\n', '')
+    return text
 
 
 def transformation_usas_en_semtag(text, *args):
@@ -182,7 +186,7 @@ def transformation_remove_non_alphanumerical(text, *args):
     :type return: str
     """
 
-    pattern = re.compile('([^\s\w]|_)+')
+    pattern = re.compile(r'([^\s\w]|_)+')
     return pattern.sub('', text)
 
 
@@ -215,3 +219,34 @@ def transformation_crude_spellchecker(text, language_model='crudesc_lm_en', *arg
     transformed_text = cs.correct_string(text)
 
     return transformed_text
+
+
+def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remove_double_space=False, *args):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :param spacy_model: the spaCy model we want to use
+    :type spacy_model: str
+    :param remove_double_space: remove duplicated spaces
+    :type: remove_double_space: bool
+    :return: the transformed text
+    :type return: str
+    """
+
+    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner'])
+    nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
+    doc = nlp(text)
+
+    for token in doc:
+        # More non-alphanum than alphanum
+        if count_non_alphanum(token.text) > len(token.text) / 2 and len(token.text) > 1:
+            text = text.replace(token.text, '')
+
+        # Remove very long tokens (45 seems to be one of the longest words in major dictionaries)
+        if len(token.text) > 45:
+            text = text.replace(token.text, '')
+
+    if remove_double_space:
+        text = re.sub(' +', ' ', text)
+
+    return text

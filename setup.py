@@ -11,11 +11,11 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'requests', 'beautifulsoup4', 'spacy', ]
+requirements = ['Click>=6.0', 'numpy', 'requests', 'beautifulsoup4', 'spacy', 'psutil', 'en_core_web_sm', ]
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', 'numpy', 'spacy', ]
+test_requirements = ['pytest', 'numpy', 'spacy', 'psutil', 'en_core_web_sm', ]
 
 setup(
     author="Ingo Kleiber",
@@ -33,6 +33,9 @@ setup(
             'textdirectory=textdirectory.cli:main',
         ],
     },
+    dependency_links=[
+        'https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.0.0/en_core_web_sm-2.0.0.tar.gz'
+    ],
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
@@ -44,6 +47,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/IngoKl/textdirectory',
-    version='0.2.2',
+    version='0.3.0',
     zip_safe=False,
 )

@@ -45,10 +45,23 @@ History
 
 0.2.1 (2019-06-13)
 ------------------
-* added transformation_remove_stopwords
-* added transformation_remove_htmltags
-* fixed some minor bugs
+added transformation_remove_stopwords
+added transformation_remove_htmltags
+fixed some minor bugs
 
 0.2.2 (2019-06-13)
 ------------------
-* changed the data packaging
+changed the data packaging
+
+0.3.0 (2020-01-19)
+------------------
+* added transformation_remove_weird_tokens
+* fixed some minor bugs
+* added a function to revert applied filters
+* added a function that prints the current pipeline
+* added a function that clears all transformations
+* added helper functions to list available filters and transformations
+* fixed a bug in which ``tabulate_flat_list_of_dicts`` would fail if the dictionary was empty
+* ``self.aggregation`` does not hold a copy of the files anymore but references to ``self.files``
+* transformations relying on spaCy are now estimating a max_length based on available memory
+* TextDirectory objects are now iterable

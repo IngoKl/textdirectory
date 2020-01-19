@@ -12,6 +12,14 @@ textdirectory.cli module
     :undoc-members:
     :show-inheritance:
 
+textdirectory.crudespellchecker module
+--------------------------------------
+
+.. automodule:: textdirectory.crudespellchecker
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 textdirectory.helpers module
 ----------------------------
 

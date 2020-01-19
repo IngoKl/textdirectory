@@ -9,7 +9,7 @@ from click.testing import CliRunner
 from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
     transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_stopwords, \
-    transformation_remove_htmltags
+    transformation_remove_htmltags, transformation_remove_weird_tokens
 from textdirectory import cli
 
 
@@ -20,6 +20,16 @@ def test_command_line_interface():
     assert 'TextDirectory' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert 'Usage' in help_result.output
+
+
+def test_iterator():
+    """Test the iterator of TextDirectory."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files()
+    files = [file for file in td]
+    assert len(files) == 8
+    print(files[0]['path'].resolve())
+    assert 'Text_' in str(files[0]['path'].resolve())
 
 
 def test_simpple_aggregations():
@@ -89,7 +99,7 @@ def test_transformation_remove_non_ascii_hard():
     assert transformation_remove_non_ascii(test_string) == 'This is a @ test string ~ containing non-ascii characters such as .'
 
 
-def test_transformation_remove_non_ascii_easy():
+def test_transformation_remove_non_alphanumerical():
     """Test the remove non-alphanumerical transformation."""
     test_string = 'non-alphanumerical @ / - * .'
     assert transformation_remove_non_alphanumerical(test_string).strip() == 'nonalphanumerical'
@@ -105,6 +115,12 @@ def test_transformation_crude_spellchecker():
     """Test the crude spellchecker transformation."""
     test_string = 'There are two spellling mistaces in here.'
     assert transformation_crude_spellchecker(test_string) == 'There are two spelling mistakes in here.'
+
+
+def test_transformation_remove_weird_tokens():
+    """Test the remove weird tokens transformation."""
+    test_string = 'Hello ---;#aaa World!'
+    assert transformation_remove_weird_tokens(test_string, remove_double_space=True) == 'Hello World!'
 
 
 def test_transformation_remove_stopwords():
@@ -140,9 +156,19 @@ def test_tabulation(capsys):
     assert 'path' in out
 
 
+def test_print_pipeline(capsys):
+    """"Test the print_pipeline function."""
+    td = TextDirectory(directory='data/testdata/')
+    td.load_files(True, 'txt')
+    td.filter_by_chars_outliers()
+    td.print_pipeline()
+    out, err = capsys.readouterr()
+    assert 'filter_by_chars_outliers' in out
+
+
 def test_transform_to_memory():
     """Test the in memory transformation."""
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.transform_to_memory()
-    assert len(td.aggregation[0]['transformed_text']) > 0
+    assert len(list(td.get_aggregation())[0]['transformed_text']) > 0

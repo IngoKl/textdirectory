@@ -46,8 +46,9 @@ Features
    0.1.1, filter_by_chars_outliers(n sigmas int), transformation_remove_nl
    0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spacy_model str)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
-   0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(spacy_model str)
-   0.2.1, ,transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
+   0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
+   0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
+   0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False)
 
 Quickstart
 ----------
@@ -97,6 +98,16 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
 
 If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
 
+Every applied filter will create a *state* (i.e. a checkpoint). If we want to go back to a previous state, we can print
+all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
+calling ``td.load_aggregation_state(state=0)``.
+
+Notes for Developers
+~~~~~~~~~~~~~~~~~~~
+If you want to run tests, please use `python setup.py test`.
+
+To-Do
+=======
 It's also possible to pass arguments to the individual transformations. In order to do this (at the moment) you have to adhere to the correct order of arguments.
 
 .. code:: python
@@ -112,6 +123,8 @@ ToDo
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
+* Better handling of non-unicode files (e.g. by detecting and reporting the encoding)
+* Contemplating whether it makes sense to stage filters similarly to transformations
 * Allowing users to pass keyword arguments to transformers
 * Implementing autodoc (via Sphinx)
 
@@ -123,7 +136,6 @@ saves memory.
 ``transformation_usas_en_semtag`` relies on the web versionof `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
 consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
-
 
 Credits
 -------
