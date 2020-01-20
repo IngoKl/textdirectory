@@ -10,6 +10,5 @@ twine==3.1.1
 pytest==5.3.3
 pytest-runner==5.2
 psutil>=5.6.7
-twine==3.1.1
 
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.5/en_core_web_sm-2.2.5.tar.gz
