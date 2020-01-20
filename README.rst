@@ -124,6 +124,7 @@ To-Do
 * Contemplating whether it makes sense to stage filters similarly to transformations
 * Allowing users to pass keyword arguments to transformers
 * Implementing autodoc (via Sphinx)
+* Fix how the documentation/readme is rendered on PyPI
 
 Behaviour
 =========
