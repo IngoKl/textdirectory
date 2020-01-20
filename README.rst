@@ -124,14 +124,13 @@ To-Do
 * Contemplating whether it makes sense to stage filters similarly to transformations
 * Allowing users to pass keyword arguments to transformers
 * Implementing autodoc (via Sphinx)
-* Fix how the documentation/readme is rendered on PyPI
 
-Behaviour
+Behavior
 =========
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
 
-``transformation_usas_en_semtag`` relies on the web versionof `Paul Rayson's USAS Tagger
+``transformation_usas_en_semtag`` relies on the web version of `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
 consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
 

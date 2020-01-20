@@ -2,20 +2,21 @@
 History
 =======
 
+
 0.1.0 (2018-04-26)
-------------------
+==================
 
 * Initial release
 * First release on PyPI.
 
 0.1.1 (2018-04-27)
-------------------
+==================
 
 * added filter_by_chars_outliers
 * added transformation_remove_nl
 
 0.1.2 (2018-04-29)
-------------------
+==================
 * added transformation_postag
 * added transformation_usas_en_semtag
 * added transformation_uppercase
@@ -23,7 +24,7 @@ History
 * added parameter support for transformations
 
 0.1.3 (2018-04-30)
-------------------
+==================
 * filter_by_random_sampling now has a "replacement" option
 * changed from tabulate to an embedded function
 * added transformation_remove_non_ascii
@@ -31,11 +32,11 @@ History
 * added filter_by_similar_documents
 
 0.1.4 (2018-04-02)
-------------------
+==================
 * fixed an object mutation problem in the tabulate function
 
 0.2.0 (2018-05-13)
-------------------
+==================
 * added transform_to_memory() function
 * added transformation_to_leetspeak() function
 * added transformation_crude_spellchecker
@@ -44,17 +45,17 @@ History
 * fixed a bug where load_files() would fail if there were no files
 
 0.2.1 (2019-06-13)
-------------------
+==================
 added transformation_remove_stopwords
 added transformation_remove_htmltags
 fixed some minor bugs
 
 0.2.2 (2019-06-13)
-------------------
+==================
 changed the data packaging
 
 0.3.0 (2020-01-19)
-------------------
+==================
 * added transformation_remove_weird_tokens
 * added transformation_lemmatizer
 * fixed some minor bugs
@@ -68,5 +69,5 @@ changed the data packaging
 * TextDirectory objects are now iterable
 
 0.3.1 (2020-01-20)
-------------------
+==================
 * added long_description_content_type to setup.py
