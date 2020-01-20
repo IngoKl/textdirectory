@@ -127,7 +127,7 @@ To-Do
 * Implementing autodoc (via Sphinx)
 
 Behaviour
-=======
+=========
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
 saves memory.
 
