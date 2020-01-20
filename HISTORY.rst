@@ -66,3 +66,7 @@ changed the data packaging
 * ``self.aggregation`` does not hold a copy of the files anymore but references to ``self.files``
 * transformations relying on spaCy are now estimating a max_length based on available memory
 * TextDirectory objects are now iterable
+
+0.3.1 (2020-01-20)
+------------------
+* added long_description_content_type to setup.py

@@ -2,7 +2,6 @@
 TextDirectory
 =============
 
-
 .. image:: https://img.shields.io/pypi/v/textdirectory.svg
         :target: https://pypi.python.org/pypi/textdirectory
 
