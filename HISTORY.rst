@@ -56,6 +56,7 @@ changed the data packaging
 0.3.0 (2020-01-19)
 ------------------
 * added transformation_remove_weird_tokens
+* added transformation_lemmatizer
 * fixed some minor bugs
 * added a function to revert applied filters
 * added a function that prints the current pipeline

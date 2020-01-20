@@ -250,3 +250,24 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
         text = re.sub(' +', ' ', text)
 
     return text
+
+
+def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :param spacy_model: the spaCy model we want to use
+    :type spacy_model: str
+    :return: the transformed text
+    :type return: str
+    :human_name: Lemmatizer
+    """
+
+    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner'])
+    nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
+    doc = nlp(text)
+
+    for token in doc:
+        text = text.replace(token.text, str(token.lemma_))
+
+    return text

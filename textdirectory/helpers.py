@@ -120,6 +120,12 @@ def estimate_spacy_max_length(override=False, tokenizer_only=False):
 
 
 def get_human_from_docstring(doc):
+    """
+    :param doc: if True, also return the 'human name'
+    :type doc: string
+    :return: a dictionary of name_* keys/values from the docstring.
+    :type return: dict
+    """
     doc = doc.replace('    ', '')
     res = re.findall('human_(.*):(.*)', doc)
 
@@ -129,7 +135,7 @@ def get_human_from_docstring(doc):
 def get_available_filters(get_human_name=False):
     """
     :param get_human_name: if True, also return the 'human name'
-    :type string: bool
+    :type get_human_name: bool
     :return: a list of functions; if get_human_name a list of tuples
     :type return: list
     """

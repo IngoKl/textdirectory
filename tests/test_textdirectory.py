@@ -27,7 +27,7 @@ def test_iterator():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files()
     files = [file for file in td]
-    assert len(files) == 8
+    assert len(files) == 9
     print(files[0]['path'].resolve())
     assert 'Text_' in str(files[0]['path'].resolve())
 
@@ -36,7 +36,7 @@ def test_simpple_aggregations():
     """Test the simplest form of aggregation."""
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
-    assert len(td.aggregate_to_memory()) == 4083
+    assert len(td.aggregate_to_memory()) == 4113
 
 
 def test_filter_by_chars_outliers():
@@ -44,7 +44,7 @@ def test_filter_by_chars_outliers():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_chars_outliers(1)
-    assert len(td.aggregation) == 7
+    assert len(td.aggregation) == 8
 
 
 def test_filter_by_similar_documents():
@@ -60,7 +60,7 @@ def test_filter_by_max_filesize():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_max_filesize(max_kb=1)
-    assert len(td.aggregation) == 7
+    assert len(td.aggregation) == 8
 
 
 def test_filter_by_min_filesize():
@@ -145,6 +145,14 @@ def test_transformation_postag():
     td.load_files(True, 'txt')
     td.stage_transformation(['transformation_postag'])
     assert 'NN' in td.aggregate_to_memory()
+
+
+def test_transformation_lemmatize():
+    """Test the lemmatize transformation."""
+    td = TextDirectory(directory='textdirectory/data/testdata/')
+    td.load_files(True, 'txt')
+    td.stage_transformation(['transformation_lemmatize'])
+    assert 'language be complicate' in td.aggregate_to_memory()
 
 
 def test_tabulation(capsys):
