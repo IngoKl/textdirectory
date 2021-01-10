@@ -50,7 +50,13 @@ class TextDirectory:
             raise StopIteration()
 
     def __str__(self):
-        self.print_aggregation()
+        aggregation = helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation()))
+        staged_transformations = self.staged_transformations
+
+        return f'{aggregation}\nStaged Transformation: {staged_transformations}'
+
+    def __repr__(self):
+        return f'TextDirectory: {len(self.files)} files in {self.directory}.'
 
     def save_aggregation_state(self):
         """Saves the current self.aggregation state."""

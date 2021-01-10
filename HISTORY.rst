@@ -79,3 +79,8 @@ History
 * added __str__ method to TextDirectory
 * added filename to __str__ output
 * added `get_text` method
+
+0.3.3 (2021-XX-XX)
+==================
+* fixed some minor bugs
+* added __repr__ method to TextDirectory
