@@ -9,7 +9,7 @@ from click.testing import CliRunner
 from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
     transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_stopwords, \
-    transformation_remove_htmltags, transformation_remove_weird_tokens
+    transformation_remove_htmltags, transformation_remove_weird_tokens, transformation_expand_english_contractions
 from textdirectory import cli
 
 
@@ -27,7 +27,7 @@ def test_iterator():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files()
     files = [file for file in td]
-    assert len(files) == 9
+    assert len(files) == 10
     print(files[0]['path'].resolve())
     assert 'Text_' in str(files[0]['path'].resolve())
 
@@ -36,7 +36,7 @@ def test_simpple_aggregations():
     """Test the simplest form of aggregation."""
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
-    assert len(td.aggregate_to_memory()) == 4113
+    assert len(td.aggregate_to_memory()) == 4179
 
 
 def test_filter_by_chars_outliers():
@@ -44,14 +44,14 @@ def test_filter_by_chars_outliers():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_chars_outliers(1)
-    assert len(td.aggregation) == 8
+    assert len(td.aggregation) == 9
 
 
 def test_filter_by_similar_documents():
     """Test the similarity filter."""
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
-    td.filter_by_similar_documents(reference_file='textdirectory/data/testdata/level_2/Text_E.txt', threshold=0.7)
+    td.filter_by_similar_documents(reference_file='textdirectory/data/testdata/level_2/Text_2_B.txt', threshold=0.7)
     assert len(td.aggregation) == 2
 
 
@@ -60,7 +60,7 @@ def test_filter_by_max_filesize():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_max_filesize(max_kb=1)
-    assert len(td.aggregation) == 8
+    assert len(td.aggregation) == 9
 
 
 def test_filter_by_min_filesize():
@@ -153,6 +153,15 @@ def test_transformation_lemmatize():
     td.load_files(True, 'txt')
     td.stage_transformation(['transformation_lemmatize'])
     assert 'language be complicate' in td.aggregate_to_memory()
+
+
+def test_transformation_expand_contrations():
+    """Test the expand English contractions transformation."""
+    td = TextDirectory(directory='textdirectory/data/testdata/')
+    td.load_files(True, 'txt')
+    td.stage_transformation(['transformation_expand_english_contractions'])
+    assert 'She is the one who flew to Mars.' in td.aggregate_to_memory()
+    assert 'I will finish the spaceship in time.' in td.aggregate_to_memory()
 
 
 def test_tabulation(capsys):

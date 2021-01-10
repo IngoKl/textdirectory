@@ -47,6 +47,7 @@ Features
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
    0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
    0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatizer(spaCy model)
+   0.3.2, None, transformation_expand_english_contractions
 
 Quickstart
 ==========
@@ -68,7 +69,11 @@ parameters are passed via commas (,): ``filter_by_min_tokens,5/filter_by_random_
 
 ``textdirectory --directory testdata --output_file aggregated.txt``
 
-This will take all files (.txt) in *testdata* and then aggregates the files into a file called *aggregated.txt*.
+This will take all files (.txt) in *testdata* and then aggregates the files into a file called *aggregated.txt*. 
+
+You could also use '*' as a wildcard for filetype if you need to include all files and not just .txt.
+
+``textdirectory --directory testdata --output_file aggregated.txt --filetype *``
 
 **Example 2: Applying Filters and Transformations**
 
@@ -94,12 +99,21 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.stage_transformation(['transformation_lowercase'])
     td.aggregate_to_file('aggregated.txt')
 
-If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()``.
+If we don't have special requirements, we can also call `td = textdirectory.TextDirectory(directory='testdata', autoload=True)` to skip manually callin `load_files`.
+If we wanted to keep working with the actual aggregated text, we could have called `text = td.aggregate_to_memory()` instead of `aggregate_to_file`.
+
+.. code:: python
+
+    import textdirectory
+    td = textdirectory.TextDirectory(directory='testdata', autoload=True)
+    td.get_text(0)
+
+Sometimes we might want to get the actual text of a given file. This can be achieved as seen above. The `get_text` method will return the transformed text if it is available. 
+Otherwise, it will simply read the file and return the text.
 
 Every applied filter will create a *state* (i.e. a checkpoint). If we want to go back to a previous state, we can print
 all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
 calling ``td.load_aggregation_state(state=0)``.
-
 
 It's also possible to pass arguments to the individual transformations. In order to do this (at the moment) you have to adhere to the correct order of arguments.
 
@@ -128,7 +142,7 @@ To-Do
 Behavior
 =========
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
-saves memory.
+saves memory. Of course, this is not the case when using `aggregate_to_memory`.
 
 ``transformation_usas_en_semtag`` relies on the web version of `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and

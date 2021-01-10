@@ -14,7 +14,7 @@ from textdirectory import helpers
 
 
 class TextDirectory:
-    def __init__(self, directory, encoding='utf8'):
+    def __init__(self, directory, encoding='utf8', autoload=False):
         """
         :param directory: path to the text directory
         :type directory: str
@@ -34,6 +34,9 @@ class TextDirectory:
         if not self.directory.exists():
             raise NotADirectoryError
 
+        if autoload:
+            self.load_files()
+
     def __iter__(self):
         self.iterator = 0
         return self
@@ -45,6 +48,9 @@ class TextDirectory:
             return file
         else:
             raise StopIteration()
+
+    def __str__(self):
+        self.print_aggregation()
 
     def save_aggregation_state(self):
         """Saves the current self.aggregation state."""
@@ -115,6 +121,18 @@ class TextDirectory:
             fr = f.read().replace('\n', ' ')
             return len(fr.split(' '))
 
+    def get_text(self, file_id):
+        """
+        :param file_id: the file_id in files
+        :return: the (transformed) text of the given file
+        """
+
+        if self.files[file_id]['transformed_text']:
+            return self.files[file_id]['transformed_text']
+        else:
+            with self.files[file_id]['path'].open(encoding=self.encoding, errors='ignore') as f:
+                return f.read()
+
     def load_files(self, recursive=True, sort=True, filetype='txt'):
         """
         :param recursive: recursive search
@@ -126,9 +144,15 @@ class TextDirectory:
         """
 
         if recursive:
-            files = list(self.directory.glob('**/*.' + filetype))
+            if filetype == '*':
+                files = list(self.directory.glob('**/*.*'))
+            else:
+                files = list(self.directory.glob('**/*.' + filetype))
         else:
-            files = list(self.directory.glob('*.' + filetype))
+            if filetype == '*':
+                files = list(self.directory.glob('*.*'))
+            else:
+                files = list(self.directory.glob('*.' + filetype))
 
         if len(files) > 0:
             if sort:
@@ -136,7 +160,7 @@ class TextDirectory:
 
             for file in files:
                 file = Path(file)
-                file_with_meta = {'path': file, 'characters': self.get_file_length(file),
+                file_with_meta = {'path': file, 'filename': file.name, 'characters': self.get_file_length(file),
                                   'tokens': self.get_file_tokens(file), 'transformed_text': False}
                 self.files.append(file_with_meta)
                 self.filenames.append(file.name)
@@ -404,6 +428,7 @@ class TextDirectory:
         for file in self.get_aggregation():
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
+                file['transformed_text'] = text
                 aggregated_string = aggregated_string + text
 
         return aggregated_string
@@ -419,7 +444,7 @@ class TextDirectory:
         """Destage all transformations and clear memory."""
         self.staged_transformations = []
         for file in self.files:
-            file['transformed_text'] = None
+            file['transformed_text'] = False
 
     def aggregate_to_file(self, filename='aggregated.txt'):
         """

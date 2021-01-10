@@ -27,6 +27,7 @@ def main(directory, output_file, filetype, encoding, recursive, filters, transfo
     """Console script for textdirectory."""
     if not directory:
         click.echo('Welcome to TextDirectory!\nRun textdirectory --help for further information.')
+        click.echo('Example (Basic Aggregation): textdirectory --directory testdata --output_file aggregated.xml --filetype xml')
         sys.exit()
 
     if filters:

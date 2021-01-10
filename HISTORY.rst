@@ -46,13 +46,13 @@ History
 
 0.2.1 (2019-06-13)
 ==================
-added transformation_remove_stopwords
-added transformation_remove_htmltags
-fixed some minor bugs
+* added transformation_remove_stopwords
+* added transformation_remove_htmltags
+* fixed some minor bugs
 
 0.2.2 (2019-06-13)
 ==================
-changed the data packaging
+* changed the data packaging
 
 0.3.0 (2020-01-19)
 ==================
@@ -71,3 +71,11 @@ changed the data packaging
 0.3.1 (2020-01-20)
 ==================
 * added long_description_content_type to setup.py
+
+0.3.2 (2021-01-10)
+==================
+* added transformation_expand_english_contractions
+* fixed some minor bugs
+* added __str__ method to TextDirectory
+* added filename to __str__ output
+* added `get_text` method

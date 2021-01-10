@@ -271,3 +271,32 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
         text = text.replace(token.text, str(token.lemma_))
 
     return text
+
+
+def transformation_expand_english_contractions(text):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    # This list certainly is not complete. However, it covers some of the most common cases.
+    contractions = [
+        ("he's", "he is"), ("she's", "she is"), ("that's", "that is"), 
+        ("'re", " are"),
+        ("'ll", " will"),
+        ("'ve", " have"),
+        ("'d", " would"),
+            ("don't", "do not"), ("can't", "cannot"), ("are't", "are not"), 
+            ("couldn't", "could not"), ("shouldn't", "should not"), ("isn't", "is not"),
+            ("doesn't", "does not"), ("wasn't", "was not"), ("won't", "will not"), ("weren't", "were not"),
+            ("ain't", "am not"),
+        ("let's", "let us"),
+        ("y'all", "you all")
+    ]
+
+    for contraction in contractions:
+        text = text.replace(contraction[0], contraction[1])
+
+    return text

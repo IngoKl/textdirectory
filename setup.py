@@ -27,14 +27,14 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="TextDirectory allows you to combine multiple text files into one.",
+    description="TextDirectory allows you to combine multiple text files into one. While doing this, filters and transformations can be applied.",
     entry_points={
         'console_scripts': [
             'textdirectory=textdirectory.cli:main',
         ],
     },
     dependency_links=[
-        'https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.0.0/en_core_web_sm-2.0.0.tar.gz'
+        'https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.5/en_core_web_sm-2.2.5.tar.gz'
     ],
     install_requires=requirements,
     license="MIT license",
@@ -48,6 +48,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/IngoKl/textdirectory',
-    version='0.3.1.1',
+    version='0.3.2',
     zip_safe=False,
 )
