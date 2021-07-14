@@ -34,6 +34,7 @@ Features
 ========
 * Aggregating multiple text files
 * Filtering documents/texts based on various parameters such as length, content, and random sampling
+* Filtering and transforming text files
 * Transforming the aggregated text (e.g. transforming the text to lowercase)
 
 .. csv-table::
@@ -48,6 +49,7 @@ Features
    0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
    0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatizer(spaCy model)
    0.3.2, None, transformation_expand_english_contractions
+   0.3.3, filter_by_filenames(filenames list), transformation_eebop4_to_plaintext
 
 Quickstart
 ==========
@@ -92,6 +94,7 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
 .. code:: python
 
     import textdirectory
+
     td = textdirectory.TextDirectory(directory='testdata')
     td.load_files(recursive=False, filetype='txt', sort=True)
     td.filter_by_min_tokens(5)
@@ -105,6 +108,7 @@ If we wanted to keep working with the actual aggregated text, we could have call
 .. code:: python
 
     import textdirectory
+    
     td = textdirectory.TextDirectory(directory='testdata', autoload=True)
     td.get_text(0)
 
@@ -123,6 +127,32 @@ It's also possible to pass arguments to the individual transformations. In order
     td.stage_transformation(['transformation_remove_stopwords', 'internal', 'en', 'en_core_web_sm', 'dolor'])
 
 In the above example, we are adding additional custom stopwords to the transformer.
+
+You also might not always want to aggregate texts into one file in many cases but filter and transform them.
+
+.. code:: python
+
+        import textdirectory
+
+        td = textdirectory.TextDirectory(directory='input')
+        td.load_files()
+        
+        td.filter_by_max_chars(480)
+        td.stage_transformation(['transformation_to_leetspeak'])
+        
+        td.transform_to_files('output')
+
+
+In the example above, we are loading all files in `input`. After filtering and transforming, the modified files will be written to `output`.
+
+Special Transformations
+=======================
+
+transformation_eebop4_to_plaintext
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a highly specific transformation that will extract the plain text from an EEBO-TCP P4 corpus file.
+Both the header as well as all XML tags will be removed during this transformation.
+
 
 Notes for Developers
 ====================
@@ -147,6 +177,10 @@ saves memory. Of course, this is not the case when using `aggregate_to_memory`.
 ``transformation_usas_en_semtag`` relies on the web version of `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
 consider using their commercial product `Wmatrix <http://ucrel.lancs.ac.uk/wmatrix/>`_.
+
+
+If you are working with a lot of files, it might be wise to use `load_files(fast=True, skip_checkpoint=True)`. 
+This will load files much quicker but skip collecting metadata. This will limit the filters that you can use.
 
 Credits
 =======
