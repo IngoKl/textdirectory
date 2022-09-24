@@ -24,7 +24,7 @@ files for certain criteria and applying transformations to the aggregated text.
 *TextDirectory* can be used as a mere tool (via the CLI) and as a Python library.
 
 Of course, everything *TextDirectory* does could be achieved in bash or PowerShell. However, there are certain
-use-cases (e.g. when used as a library) in which it might be useful.
+use cases (e.g., when used as a library) in which it might be useful.
 
 
 * Free software: MIT license
@@ -35,7 +35,7 @@ Features
 * Aggregating multiple text files
 * Filtering documents/texts based on various parameters such as length, content, and random sampling
 * Filtering and transforming text files
-* Transforming the aggregated text (e.g. transforming the text to lowercase)
+* Transforming the aggregated text (e.g., transforming the text to lowercase)
 
 .. csv-table::
    :header: "Version", "Filters", "Transformations"
@@ -79,7 +79,7 @@ You could also use '*' as a wildcard for filetype if you need to include all fil
 
 **Example 2: Applying Filters and Transformations**
 
-In this example we want to filter the files based on their token count, perform a random sampling and finally transform all text to lowercase.
+In this example, we want to filter the files based on their token count, perform a random sampling and finally transform all text to lowercase.
 
 ``textdirectory --directory testdata --output_file aggregated.txt --filters filter_by_min_tokens,5/filter_by_random_sampling,2 --transformations transformation_lowercase``
 
@@ -102,8 +102,8 @@ In order to demonstrate *TextDirectory* as a Python library, we'll recreate the 
     td.stage_transformation(['transformation_lowercase'])
     td.aggregate_to_file('aggregated.txt')
 
-If we don't have special requirements, we can also call `td = textdirectory.TextDirectory(directory='testdata', autoload=True)` to skip manually callin `load_files`.
-If we wanted to keep working with the actual aggregated text, we could have called `text = td.aggregate_to_memory()` instead of `aggregate_to_file`.
+If we don't have special requirements, we can also call ``td = textdirectory.TextDirectory(directory='testdata', autoload=True)`` to skip manually calling ``load_files``.
+If we wanted to keep working with the actual aggregated text, we could have called ``text = td.aggregate_to_memory()`` instead of ``aggregate_to_file``.
 
 .. code:: python
 
@@ -112,10 +112,10 @@ If we wanted to keep working with the actual aggregated text, we could have call
     td = textdirectory.TextDirectory(directory='testdata', autoload=True)
     td.get_text(0)
 
-Sometimes we might want to get the actual text of a given file. This can be achieved as seen above. The `get_text` method will return the transformed text if it is available. 
+Sometimes we might want to get the actual text of a given file. This can be achieved as seen above. The ``get_text`` method will return the transformed text if it is available. 
 Otherwise, it will simply read the file and return the text.
 
-Every applied filter will create a *state* (i.e. a checkpoint). If we want to go back to a previous state, we can print
+Every applied filter will create a *state* (i.e., a checkpoint). If we want to go back to a previous state, we can print
 all states by calling ``td.print_saved_states()``. Previous states can then be loaded by
 calling ``td.load_aggregation_state(state=0)``.
 
@@ -143,7 +143,7 @@ You also might not always want to aggregate texts into one file in many cases bu
         td.transform_to_files('output')
 
 
-In the example above, we are loading all files in `input`. After filtering and transforming, the modified files will be written to `output`.
+In the example above, we are loading all files in ``input``. After filtering and transforming, the modified files will be written to ``output``.
 
 Special Transformations
 =======================
@@ -156,7 +156,7 @@ Both the header as well as all XML tags will be removed during this transformati
 
 Notes for Developers
 ====================
-If you want to run tests, please use `python setup.py test`.
+If you want to run tests, please use ``python setup.py test``.
 
 To-Do
 =======
@@ -164,7 +164,7 @@ To-Do
 * Writing better documentation
 * Adding better error handling (raw exception are, well ...)
 * Adding logging
-* Better handling of non-unicode files (e.g. by detecting and reporting the encoding)
+* Better handling of non-unicode files (e.g., by detecting and reporting the encoding)
 * Contemplating whether it makes sense to stage filters similarly to transformations
 * Allowing users to pass keyword arguments to transformers
 * Implementing autodoc (via Sphinx)
@@ -172,7 +172,7 @@ To-Do
 Behavior
 =========
 We are not holding the actual texts in memory. This leads to much more disk read activity (and time inefficiency), but
-saves memory. Of course, this is not the case when using `aggregate_to_memory`.
+saves memory. Of course, this is not the case when using ``aggregate_to_memory``.
 
 ``transformation_usas_en_semtag`` relies on the web version of `Paul Rayson's USAS Tagger
 <http://ucrel.lancs.ac.uk/usas/>`_. Don't use this transformation for large amounts of text, give credit, and
