@@ -86,6 +86,6 @@ History
 * added filter_by_filename_contains
 * added transformation_eebop4_to_plaintext
 * added fast and skip_checkpoint options to load_files
-* upgrade to spaCy 3
-* fixed some minor bugs
 * added __repr__ method to TextDirectory
+* upgraded to spaCy 3
+* fixed some minor bugs
