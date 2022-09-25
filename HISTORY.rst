@@ -80,12 +80,17 @@ History
 * added filename to __str__ output
 * added `get_text` method
 
-0.3.3 (0000-00-00)
+0.3.3 (2022-09-25)
 ==================
+* added filter_by_filenames
+* added filter_by_filename_not_contains
 * added transform_to_files
-* added filter_by_filename_contains
 * added transformation_eebop4_to_plaintext
+* added transformation_replace_digits
+* added transformation_ftfy
 * added fast and skip_checkpoint options to load_files
 * added __repr__ method to TextDirectory
+* added examples
 * upgraded to spaCy 3
+* improved the test suite
 * fixed some minor bugs

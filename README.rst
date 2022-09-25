@@ -43,19 +43,20 @@ Features
 
    0.1.0, filter_by_max_chars(n int); filter_by_min_chars(n int); filter_by_max_tokens(n int); filter_by_min_tokens(n int); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n int; replace=False), transformation_lowercase
    0.1.1, filter_by_chars_outliers(n sigmas int), transformation_remove_nl
-   0.1.2, filter_by_filename_contains(str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spacy_model str)
+   0.1.2, filter_by_filename_contains(contains str), transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spacy_model str)
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
    0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
    0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatizer(spaCy model)
    0.3.2, None, transformation_expand_english_contractions
-   0.3.3, filter_by_filenames(filenames list), transformation_eebop4_to_plaintext
+   0.3.3, filter_by_filenames(filenames list); filter_by_filename_not_contains(not_contains str), transformation_eebop4_to_plaintext; transformation_replace_digits(replacement_character str); transformation_ftfy
 
 Quickstart
 ==========
 Install *TextDirectory* via pip: ``pip install textdirectory``
 
-*TextDirectory*, as exemplified below, works with a two-stage model. After loading in your data (directory) you can iteratively select the files you want to process. In a second step you can perform transformations on the text before finally aggregating it.
+*TextDirectory*, as exemplified below, works with a two-stage model. After loading in your data (directory) you can, by applying *filters*, iteratively select the files you want to process. 
+In a second step you can perform transformations on the text before finally aggregating it to either a file or memory.
 
 .. image:: https://user-images.githubusercontent.com/16179317/39367589-7f774116-4a37-11e8-9a09-5cbdf5f3311b.png
         :alt: TextDirectory
@@ -145,6 +146,8 @@ You also might not always want to aggregate texts into one file in many cases bu
 
 In the example above, we are loading all files in ``input``. After filtering and transforming, the modified files will be written to ``output``.
 
+In addition, there are a few `simple examples <https://github.com/IngoKl/textdirectory/tree/master/examples>`_ in the repository for you to look at.
+
 Special Transformations
 =======================
 
@@ -153,21 +156,14 @@ transformation_eebop4_to_plaintext
 This is a highly specific transformation that will extract the plain text from an EEBO-TCP P4 corpus file.
 Both the header as well as all XML tags will be removed during this transformation.
 
+transformation_ftfy
+~~~~~~~~~~~~~~~~~~~
+This transformation simply applies ``ftfy.fix_text`` to the text. 
+It is highly recommended to use `ftfy <https://pypi.org/project/ftfy/>`_ as a first transformation if you are working with messy Unicode text.
 
 Notes for Developers
 ====================
-If you want to run tests, please use ``python setup.py test``.
-
-To-Do
-=======
-* Increasing test coverage
-* Writing better documentation
-* Adding better error handling (raw exception are, well ...)
-* Adding logging
-* Better handling of non-unicode files (e.g., by detecting and reporting the encoding)
-* Contemplating whether it makes sense to stage filters similarly to transformations
-* Allowing users to pass keyword arguments to transformers
-* Implementing autodoc (via Sphinx)
+If you want to run tests, please use ``python setup.py test`` (or ``make test``). To build the docs, run ``make docs``.
 
 Behavior
 =========

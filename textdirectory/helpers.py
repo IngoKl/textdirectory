@@ -2,11 +2,12 @@
 
 """Helpers module."""
 import copy
-import psutil
 import re
 
-from textdirectory import textdirectory
-from textdirectory import transformations
+import psutil
+
+from textdirectory import textdirectory, transformations
+
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     """

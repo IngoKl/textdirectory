@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """Transformation module."""
-import sys
-import os
 import html
+import os
+import re
+import sys
+from pathlib import Path
+
+import ftfy
 import requests
 import spacy
 from bs4 import BeautifulSoup
 from lxml import etree
-import re
-from pathlib import Path
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
@@ -53,7 +55,7 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     :type stopwords: str
     :param spacy_model: the spaCy model we want to use
     :type spacy_model: str
-    :param custom_stopwords: a list of additional stopwords to consider:
+    :param custom_stopwords: a comma separated list of additional stopwords to consider:
     :type custom_stopwords: str
     :return: the transformed text
     :type return: str
@@ -321,3 +323,33 @@ def transformation_eebop4_to_plaintext(text):
             transformed_text += ' ' + e
     
     return transformed_text
+
+
+def transformation_replace_digits(text, replacement_character='%'):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    transformed_text = ''
+
+    for character in text:
+        if character.isdigit():
+            transformed_text += replacement_character
+        else:
+            transformed_text += character
+    
+    return transformed_text
+
+
+def transformation_ftfy(text):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+    
+    return ftfy.fix_text(text)

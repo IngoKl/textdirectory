@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """Main module."""
+import difflib
 import os
 import sys
-import difflib
-from tqdm import tqdm
 from functools import wraps
 from pathlib import Path
+
 import numpy as np
+from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath('..'))
-from textdirectory import transformations
-from textdirectory import helpers
+from textdirectory import transformations, helpers
 
 
 class TextDirectory:
@@ -64,7 +64,7 @@ class TextDirectory:
         current_state = []
         for file in self.get_aggregation():
 
-            #A pointer would be great!
+            # A pointer would be great!
             current_state.append(self.files.index(file))
 
         self.aggregation_states.append([current_state, list(self.applied_filters)])
@@ -72,8 +72,8 @@ class TextDirectory:
 
     def load_aggregation_state(self, state=0):
         """
-        :param back: how many filter operations to go back
-        :type back: int
+        :param state: the state to go back to
+        :type state: int
         """
 
         if state in range(len(self.aggregation_states)):
@@ -285,6 +285,21 @@ class TextDirectory:
         self.set_aggregation(new_aggregation)
 
     @filter
+    def filter_by_filename_not_contains(self, not_contains):
+        """
+        :param not_contains: A string that needs not to be present in the filename
+        :type not_contains: str
+        :human_name: Filename does not contain string
+        """
+
+        new_aggregation = []
+        for file in self.get_aggregation():
+            if not_contains not in file['path'].name:
+                new_aggregation.append(file)
+
+        self.set_aggregation(new_aggregation)
+
+    @filter
     def filter_by_filename_contains(self, contains):
         """
         :param contains: A string that needs to be present in the filename
@@ -298,7 +313,6 @@ class TextDirectory:
                 new_aggregation.append(file)
 
         self.set_aggregation(new_aggregation)
-
 
     @filter
     def filter_by_filenames(self, filenames):
