@@ -2,7 +2,7 @@ name: td
 dependencies:
   - python=3.10
   - click
-  - spacy
+  - spacy>=3.4.0
   - requests
   - numpy
   - beautifulsoup4

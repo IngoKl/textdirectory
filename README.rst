@@ -163,7 +163,7 @@ It is highly recommended to use `ftfy <https://pypi.org/project/ftfy/>`_ as a fi
 
 Notes for Developers
 ====================
-If you want to run tests, please use ``python setup.py test`` (or ``make test``). To build the docs, run ``make docs``.
+If you want to run tests, please use ``python setup.py test`` (or ``make test``). To build the docs, run ``make docs``. To bump the version, use ``bumpversion --new-version NEW.NEW.NEW minor``.
 
 Behavior
 =========

@@ -94,3 +94,6 @@ History
 * upgraded to spaCy 3
 * improved the test suite
 * fixed some minor bugs
+
+0.3.4 (XXXX-XX-XX)
+==================
