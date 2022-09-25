@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """Main module."""
+import difflib
 import os
 import sys
-import difflib
 from functools import wraps
 from pathlib import Path
+
 import numpy as np
+from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath('..'))
-from textdirectory import transformations
-from textdirectory import helpers
+from textdirectory import transformations, helpers
 
 
 class TextDirectory:
@@ -50,13 +51,20 @@ class TextDirectory:
             raise StopIteration()
 
     def __str__(self):
-        self.print_aggregation()
+        aggregation = helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation()))
+        staged_transformations = self.staged_transformations
+
+        return f'{aggregation}\nStaged Transformation: {staged_transformations}'
+
+    def __repr__(self):
+        return f'TextDirectory: {len(self.files)} files in {self.directory}.'
 
     def save_aggregation_state(self):
         """Saves the current self.aggregation state."""
         current_state = []
         for file in self.get_aggregation():
-            #A pointer would be great!
+
+            # A pointer would be great!
             current_state.append(self.files.index(file))
 
         self.aggregation_states.append([current_state, list(self.applied_filters)])
@@ -64,8 +72,8 @@ class TextDirectory:
 
     def load_aggregation_state(self, state=0):
         """
-        :param back: how many filter operations to go back
-        :type back: int
+        :param state: the state to go back to
+        :type state: int
         """
 
         if state in range(len(self.aggregation_states)):
@@ -88,7 +96,7 @@ class TextDirectory:
     def set_aggregation(self, aggregation):
         """Set the aggregation."""
         self.aggregation = []
-        for file in aggregation:
+        for file in tqdm(aggregation):
             self.aggregation.append(self.files.index(file))
 
     def filter(filter):
@@ -133,7 +141,7 @@ class TextDirectory:
             with self.files[file_id]['path'].open(encoding=self.encoding, errors='ignore') as f:
                 return f.read()
 
-    def load_files(self, recursive=True, sort=True, filetype='txt'):
+    def load_files(self, recursive=True, sort=True, filetype='txt', fast=False, skip_checkpoint=False):
         """
         :param recursive: recursive search
         :type recursive: bool
@@ -141,6 +149,8 @@ class TextDirectory:
         :type sort: bool
         :param filetype: filetype to look for (e.g. txt)
         :type filetype: str
+        :param fast: load files faster without getting metadata
+        :type fast: bool
         """
 
         if recursive:
@@ -158,17 +168,25 @@ class TextDirectory:
             if sort:
                 files.sort()
 
-            for file in files:
+            for file in tqdm(files):
                 file = Path(file)
-                file_with_meta = {'path': file, 'filename': file.name, 'characters': self.get_file_length(file),
-                                  'tokens': self.get_file_tokens(file), 'transformed_text': False}
+
+                if fast:
+                    file_with_meta = {'path': file, 'filename': file.name, 'characters': False,
+                                    'tokens': False, 'transformed_text': False}
+                else:
+                    file_with_meta = {'path': file, 'filename': file.name, 'characters': self.get_file_length(file),
+                                    'tokens': self.get_file_tokens(file), 'transformed_text': False}
+
                 self.files.append(file_with_meta)
                 self.filenames.append(file.name)
 
             # Initial population of self.aggregation
             self.set_aggregation(self.files)
+
             # Initial checkpoint
-            self.save_aggregation_state()
+            if not skip_checkpoint:
+                self.save_aggregation_state()
         else:
             raise FileNotFoundError
 
@@ -267,6 +285,21 @@ class TextDirectory:
         self.set_aggregation(new_aggregation)
 
     @filter
+    def filter_by_filename_not_contains(self, not_contains):
+        """
+        :param not_contains: A string that needs not to be present in the filename
+        :type not_contains: str
+        :human_name: Filename does not contain string
+        """
+
+        new_aggregation = []
+        for file in self.get_aggregation():
+            if not_contains not in file['path'].name:
+                new_aggregation.append(file)
+
+        self.set_aggregation(new_aggregation)
+
+    @filter
     def filter_by_filename_contains(self, contains):
         """
         :param contains: A string that needs to be present in the filename
@@ -280,6 +313,21 @@ class TextDirectory:
                 new_aggregation.append(file)
 
         self.set_aggregation(new_aggregation)
+
+    @filter
+    def filter_by_filenames(self, filenames):
+        """
+        :param filenames: A list of filenames to include
+        :type filenames: list
+        """
+
+        new_aggregation = []
+        for file in self.get_aggregation():
+            if file['filename'] in filenames:
+                new_aggregation.append(file)
+
+        self.set_aggregation(new_aggregation)
+
 
     @filter
     def filter_by_random_sampling(self, n, replace=False):
@@ -439,6 +487,28 @@ class TextDirectory:
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
                 file['transformed_text'] = text
+
+
+    def transform_to_files(self, output_directory):
+        """
+        Runs all transformations and stores the transformed texts in individual files.
+
+        :param output_directory: the path/filename to write to
+        :type output_directory: str
+        """
+
+        output_directory = Path(output_directory)
+
+        if output_directory.is_dir():
+
+            for file in self.get_aggregation():
+                with file['path'].open(encoding=self.encoding, errors='ignore') as f:
+
+                    with open(output_directory / file['filename'], 'w', encoding='utf8') as output_file:
+                        output_file.write(self.run_transformations(f.read()))
+
+        else:
+            raise FileNotFoundError
 
     def clear_transformation(self):
         """Destage all transformations and clear memory."""

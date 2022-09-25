@@ -1,8 +1,12 @@
 name: td
 dependencies:
-  - python=3.6
+  - python=3.10
+  - click
   - spacy
   - requests
   - numpy
-  - click
   - beautifulsoup4
+  - psutil
+  - lxml
+  - tqdm
+  - ftfy

@@ -53,8 +53,8 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style with flake8
 	flake8 textdirectory tests
 
-test: ## run tests quickly with the default Python
-	py.test
+test: ## run tests quickly
+	python setup.py test
 
 test-all: ## run tests on every Python version with tox
 	tox

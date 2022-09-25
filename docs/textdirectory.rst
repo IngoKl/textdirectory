@@ -44,7 +44,6 @@ textdirectory.transformations module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

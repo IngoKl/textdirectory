@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """Transformation module."""
-import sys
-import os
 import html
+import os
+import re
+import sys
+from pathlib import Path
+
+import ftfy
 import requests
 import spacy
 from bs4 import BeautifulSoup
-import re
-from pathlib import Path
+from lxml import etree
 
 sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
@@ -52,7 +55,7 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     :type stopwords: str
     :param spacy_model: the spaCy model we want to use
     :type spacy_model: str
-    :param custom_stopwords: a list of additional stopwords to consider:
+    :param custom_stopwords: a comma separated list of additional stopwords to consider:
     :type custom_stopwords: str
     :return: the transformed text
     :type return: str
@@ -63,7 +66,7 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
 
     nlp = spacy.load(spacy_model)
     nlp.max_length = 5000000
-    doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat'])
+    doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat', 'lemmatizer'])
 
     # Locating the stopwords list
     if stopwords_source == 'internal':
@@ -233,7 +236,7 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     :type return: str
     """
 
-    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner'])
+    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner', 'lemmatizer'])
     nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
     doc = nlp(text)
 
@@ -263,7 +266,7 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
     :human_name: Lemmatizer
     """
 
-    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner'])
+    nlp = spacy.load(spacy_model, disable=['parser', 'ner'])
     nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
     doc = nlp(text)
 
@@ -300,3 +303,53 @@ def transformation_expand_english_contractions(text):
         text = text.replace(contraction[0], contraction[1])
 
     return text
+
+
+def transformation_eebop4_to_plaintext(text):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    transformed_text = ''
+
+    root = etree.fromstring(text.encode())
+    text_element = root.xpath('//TEXT')[0]
+
+    for e in text_element.itertext():
+        if e != '\n':
+            transformed_text += ' ' + e
+    
+    return transformed_text
+
+
+def transformation_replace_digits(text, replacement_character='%'):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+
+    transformed_text = ''
+
+    for character in text:
+        if character.isdigit():
+            transformed_text += replacement_character
+        else:
+            transformed_text += character
+    
+    return transformed_text
+
+
+def transformation_ftfy(text):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+    
+    return ftfy.fix_text(text)

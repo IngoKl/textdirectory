@@ -1,0 +1,13 @@
+import textdirectory
+
+td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
+td.load_files(True, 'txt')
+
+# Stage the transformation to leetspeak
+td.stage_transformation(['transformation_to_leetspeak'])
+td.print_pipeline()
+
+# Perform the transformation
+td.transform_to_memory()
+
+print(td)

@@ -1,11 +1,14 @@
-from bs4 import BeautifulSoup
-from collections import Counter
-from pathlib import Path
-import pickle
-import re
-import re
+# -*- coding: utf-8 -*-
+
+"""Spellchecker module."""
 import gzip
 import os
+import pickle
+import re
+from collections import Counter
+from pathlib import Path
+
+from bs4 import BeautifulSoup
 
 
 class CrudeSpellChecker():
