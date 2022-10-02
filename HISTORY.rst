@@ -98,12 +98,13 @@ History
 0.3.4 (XXXX-XX-XX)
 ==================
 * added transformation_replace_string
+* added filter_by_type_token_ratio
 * added tests for running transformations
 * added contractions fix to transformation_lemmatize
 * added the --disable_tqdm option to the CLI
 * added the ability to output aggregations to the console when using the CLI
 * added (static) coverage badge to the README
-* unified some core approaches (e.g., how filters and transformations are applied)
+* unified some core approaches (e.g., how filters and transformations are applied; tokenizaton)
 * improved test structure
 * improved documentation
 * fixed transformation_usas_en_semtag

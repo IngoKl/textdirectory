@@ -128,7 +128,7 @@ class TextDirectory:
         with path.open(encoding=self.encoding, errors='ignore') as f:
             # Replace all line breaks with spaces
             fr = f.read().replace('\n', ' ')
-            return len(fr.split(' '))
+            return len(helpers.simple_tokenizer(fr))
 
     def get_text(self, file_id):
         """
@@ -413,6 +413,26 @@ class TextDirectory:
                     d = difflib.SequenceMatcher(None, reference, target)
                     if d.ratio() >= threshold:
                         new_aggregation.append(file)
+
+        self.set_aggregation(new_aggregation)
+
+    @filter
+    def filter_by_type_token_ratio(self, min_ttr=0, max_ttr=1):
+        """
+        :param min_ttr: The minimum TTR
+        :type min_ttr: float
+        :param max_ttr: The maximum TTR
+        :type max_ttr: float
+        :human_name: Type-Token Ratio
+        """
+
+        new_aggregation = []
+        for file in self.get_aggregation():
+            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
+                ttr = helpers.type_token_ratio(f.read())
+
+            if min_ttr <= ttr <= max_ttr:
+                new_aggregation.append(file)
 
         self.set_aggregation(new_aggregation)
 

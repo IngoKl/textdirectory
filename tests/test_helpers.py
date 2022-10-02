@@ -29,10 +29,22 @@ def test_chunk_text():
     assert chunks == ['lor', 'em']
 
 
+def test_simple_tokenizer():
+    """Test the simple_tokenizer helper."""
+    assert helpers.simple_tokenizer('lorem ipsum dolor sit') == ['lorem', 'ipsum', 'dolor', 'sit']
+
+
 def test_estimate_spacy_max_length():
     """Test the test_estimate_spacy_max_length helper."""
     estimate = helpers.estimate_spacy_max_length()
     assert estimate <= psutil.virtual_memory().available
+
+
+def test_type_token_ratio():
+    """Test the type_token_ratio helper."""
+    text = 'The TTR is the number of types devided by the number of tokens'
+    ttr = helpers.type_token_ratio(text)
+    assert ttr == 0.77
 
 
 def test_get_human_from_docstring():
