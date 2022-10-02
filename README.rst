@@ -50,7 +50,7 @@ Features
    0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatize(spaCy model)
    0.3.2, None, transformation_expand_english_contractions
    0.3.3, filter_by_filenames(filenames list); filter_by_filename_not_contains(not_contains str), transformation_eebop4_to_plaintext; transformation_replace_digits(replacement_character str); transformation_ftfy
-   0.3.4, None, transformation_replace_string(replace str, replace_with str)
+   0.3.4, None, transformation_replace_string(replace str; replace_with str)
 
 Quickstart
 ==========
