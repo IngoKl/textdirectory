@@ -161,6 +161,11 @@ In addition, there are a few `simple examples <https://github.com/IngoKl/textdir
 Special Transformations
 =======================
 
+transformation_crude_spellchecker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a very crude spellchecker implemented following Peter Norvig's excellent `tutorial`_. 
+It's really more of an experiment and not production ready in any sense of the word.
+
 transformation_eebop4_to_plaintext
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is a highly specific transformation that will extract the plain text from an EEBO-TCP P4 corpus file.
@@ -192,8 +197,7 @@ This will load files much quicker but skip collecting metadata. This will limit 
 
 Credits
 =======
-This package is based on the `audreyr/cookiecutter-pypackage`_ coockiecutter template. The *crude spellchecker*
-(transformation) is implemented following Peter Norvig's excellent `tutorial`_.
+This package is based on the `audreyr/cookiecutter-pypackage`_ coockiecutter template.
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
