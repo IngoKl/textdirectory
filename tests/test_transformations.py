@@ -10,7 +10,8 @@ from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
     transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_stopwords, \
     transformation_remove_htmltags, transformation_remove_weird_tokens, transformation_expand_english_contractions, \
-    transformation_eebop4_to_plaintext, transformation_replace_digits, transformation_ftfy, transformation_replace_string
+    transformation_eebop4_to_plaintext, transformation_replace_digits, transformation_ftfy, transformation_replace_string, \
+    transformation_usas_en_semtag
 from textdirectory import cli
 
 
@@ -137,9 +138,15 @@ def test_transformation_ftfy():
 
 
 def test_transformation_replace_string():
-    """Test the replace string transformation.""" 
+    """Test the replace_string transformation.""" 
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_filenames('Text_D.txt')
     td.stage_transformation(['transformation_replace_string', 'languages', 'X'])
     assert 'The X are complicated.' in td.aggregate_to_memory()
+
+
+def test_transformation_usas_en_semtag():
+    """Test the transformation_usas_en_semtag transformation.""" 
+    tagged_text = transformation_usas_en_semtag('Language')
+    assert tagged_text == '0000001 002 ----- ----- 0000003 010 NN1 Language Q3'

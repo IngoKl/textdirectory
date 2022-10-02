@@ -106,3 +106,4 @@ History
 * unified some core approaches (e.g., how filters and transformations are applied)
 * improved test structure
 * improved documentation
+* fixed transformation_usas_en_semtag

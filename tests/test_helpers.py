@@ -48,7 +48,19 @@ def test_get_get_available_filters():
     assert 'filter_by_chars_outliers' in available_filters
 
 
+def test_get_get_available_filters_human():
+    """Test the get_available_filters helper."""
+    available_filters = helpers.get_available_filters(get_human_name=True)
+    assert ('filter_by_chars_outliers', 'Character outliers') in available_filters
+
+
 def test_get_available_transformations():
     """Test the get_available_transformations helper."""
     available_transformations = helpers.get_available_transformations()
     assert 'transformation_lowercase' in available_transformations
+
+
+def test_get_available_transformations_human():
+    """Test the get_available_transformations helper."""
+    available_transformations = helpers.get_available_transformations(get_human_name=True)
+    assert ('transformation_crude_spellchecker', 'transformation_crude_spellchecker') in available_transformations

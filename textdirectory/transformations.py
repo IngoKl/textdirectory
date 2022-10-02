@@ -145,12 +145,14 @@ def transformation_usas_en_semtag(text, *args):
 
     # Requesting USAS
     # USAS (web) is sensitive regarding the payload sequence
-    payload = {'email': 'a.nobody@here.ac.uk', 'tagset': 'c7', 'style': 'horiz', 'text': text.strip()}
-    r = requests.post('http://ucrel.lancs.ac.uk/cgi-bin/usas.pl', files=payload)
+
+    usas_payload = {'email': 'a.nobody@here.ac.uk', 'tagset': 'c7', 'style': 'horiz', 'type': 'web', 'text': text.strip()}
+    usas_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'referer': 'http://ucrel-api.lancaster.ac.uk/usas/tagger.html'}
+    usas_request = requests.post('http://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl', files=usas_payload, headers=usas_headers, allow_redirects=True)
 
     # Parsing
-    soup = BeautifulSoup(r.text, 'html.parser')
-    tagged_text = soup.pre.text.strip()
+    soup = BeautifulSoup(usas_request.text, 'html.parser')
+    tagged_text = soup.text.strip()
 
     # Removing the last tag because USAS adds a hash as the last element
     tagged_text = tagged_text.split()
