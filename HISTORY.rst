@@ -102,6 +102,7 @@ History
 * added contractions fix to transformation_lemmatize
 * added the --disable_tqdm option to the CLI
 * added the ability to output aggregations to the console when using the CLI
+* added (static) coverage badge to the README
 * unified some core approaches (e.g., how filters and transformations are applied)
 * improved test structure
 * improved documentation
