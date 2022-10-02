@@ -12,6 +12,11 @@ TextDirectory
         :target: https://textdirectory.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
+.. image:: https://img.shields.io/badge/coverage-82%25-yellowgreen
+        :target: https://img.shields.io/badge/coverage-82%25-yellowgreen
+        :alt: Coverage
+
+
 |
 |
 
