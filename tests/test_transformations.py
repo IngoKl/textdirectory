@@ -10,7 +10,7 @@ from textdirectory.textdirectory import TextDirectory
 from textdirectory.transformations import transformation_remove_non_ascii, transformation_remove_non_alphanumerical, \
     transformation_to_leetspeak, transformation_crude_spellchecker, transformation_remove_stopwords, \
     transformation_remove_htmltags, transformation_remove_weird_tokens, transformation_expand_english_contractions, \
-    transformation_eebop4_to_plaintext, transformation_replace_digits, transformation_ftfy
+    transformation_eebop4_to_plaintext, transformation_replace_digits, transformation_ftfy, transformation_replace_string
 from textdirectory import cli
 
 
@@ -134,3 +134,12 @@ def test_transformation_ftfy():
 
     # ftfy example test
     assert transformation_ftfy('The Mona Lisa doesnÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t have eyebrows.') == "The Mona Lisa doesn't have eyebrows."
+
+
+def test_transformation_replace_string():
+    """Test the replace string transformation.""" 
+    td = TextDirectory(directory='textdirectory/data/testdata/')
+    td.load_files(True, 'txt')
+    td.filter_by_filenames('Text_D.txt')
+    td.stage_transformation(['transformation_replace_string', 'languages', 'X'])
+    assert 'The X are complicated.' in td.aggregate_to_memory()

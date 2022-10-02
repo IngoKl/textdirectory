@@ -271,7 +271,10 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
     doc = nlp(text)
 
     for token in doc:
-        text = text.replace(token.text, str(token.lemma_))
+        if token.text[0] == "'": #Fix for contractions
+            text = text.replace(token.text, f' {token.lemma_}')
+        else:
+            text = text.replace(token.text, str(token.lemma_))
 
     return text
 
@@ -353,3 +356,14 @@ def transformation_ftfy(text):
     """
     
     return ftfy.fix_text(text)
+
+
+def transformation_replace_string(text, replace, replace_with):
+    """
+    :param text: the text to run the transformation on
+    :type text: str
+    :return: the transformed text
+    :type return: str
+    """
+    
+    return text.replace(replace, replace_with)

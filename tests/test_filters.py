@@ -8,6 +8,7 @@ from click.testing import CliRunner
 
 from textdirectory.textdirectory import TextDirectory
 
+
 def test_filter_by_max_chars():
     """Test the max chars filter."""
     td = TextDirectory(directory='textdirectory/data/testdata/')

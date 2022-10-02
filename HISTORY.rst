@@ -97,3 +97,11 @@ History
 
 0.3.4 (XXXX-XX-XX)
 ==================
+* added transformation_replace_string
+* added tests for running transformations
+* added contractions fix to transformation_lemmatize
+* added the --disable_tqdm option to the CLI
+* added the ability to output aggregations to the console when using the CLI
+* unified some core approaches (e.g., how filters and transformations are applied)
+* improved test structure
+* improved documentation

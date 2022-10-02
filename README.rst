@@ -47,9 +47,10 @@ Features
    0.1.3, filter_by_similar_documents(reference_file str; threshold float), transformation_remove_non_ascii; transformation_remove_non_alphanumerical
    0.2.0, filter_by_max_filesize(max_kb int); filter_by_min_filesize(min_kb int), transformation_to_leetspeak; transformation_crude_spellchecker(language model str)
    0.2.1, None, transformation_remove_stopwords(stopwords_source str; stopwords str [en]; spacy_model str; custom_stopwords str); transformation_remove_htmltags
-   0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatizer(spaCy model)
+   0.3.0, None, transformation_remove_weird_tokens(spaCy model; remove_double_space=False); transformation_lemmatize(spaCy model)
    0.3.2, None, transformation_expand_english_contractions
    0.3.3, filter_by_filenames(filenames list); filter_by_filename_not_contains(not_contains str), transformation_eebop4_to_plaintext; transformation_replace_digits(replacement_character str); transformation_ftfy
+   0.3.4, None, transformation_replace_string(replace str, replace_with str)
 
 Quickstart
 ==========
@@ -87,6 +88,10 @@ In this example, we want to filter the files based on their token count, perform
 After passing two filters (*filter_by_min_tokens* and *filter_by_random_sampling*) we've applied the *transform_lowercase* transformation.
 
 The resulting file will contain the content of two files that each have at least five tokens.
+
+The same transformation can also be staged multiple times. For example, we could stage two simple string replacements like this: ``textdirectory --directory testdata --output_file aggregated.txt --transformations transformation_replace_string,lorem,x/transformation_replace_string,ipsum,y``
+
+If the ``--output_file`` is missing, the CLI will output the aggregated text to the console. In this scenario, there is no progress bar visible (can be controlled using ``--disable_tqdm True/False``).
 
 As a Python Library
 ~~~~~~~~~~~~~~~~~~~
@@ -163,7 +168,9 @@ It is highly recommended to use `ftfy <https://pypi.org/project/ftfy/>`_ as a fi
 
 Notes for Developers
 ====================
-If you want to run tests, please use ``python setup.py test`` (or ``make test``). To build the docs, run ``make docs``. To bump the version, use ``bumpversion --new-version NEW.NEW.NEW minor``.
+If you want to run tests, please use ``python setup.py test`` (or ``make test``). For individual tests, run, for example, ``pytest tests\test_cli.py``. 
+To build the docs, run ``make docs``. 
+To bump the version, use ``bumpversion --new-version NEW.NEW.NEW minor``.
 
 Behavior
 =========
