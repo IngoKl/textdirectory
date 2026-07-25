@@ -11,6 +11,7 @@ available_transformations = helpers.get_available_transformations()
 
 
 @click.command()
+@click.version_option(package_name='textdirectory')
 @click.option('--directory', help='The directory containing text files', type=str)
 @click.option('--output_file', help='The file to aggregate to', type=str)
 @click.option('--filetype', help='The file type to look for.', default='txt', type=str)
@@ -34,14 +35,19 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
 
     if filters:
         filters_list = []
-        filters = filters.split('/')
-        for filter in filters:
-            filters_list.append(filter.split(','))
+        for filter in filters.split('/'):
+            name, *filter_args = filter.split(',')
+
+            # Coerce string arguments (e.g. '100') to the types the filter expects
+            filter_method = getattr(textdirectory.TextDirectory, name, None)
+            if filter_method is not None and name in available_filters:
+                filter_args = helpers.coerce_args_by_signature(filter_method, filter_args)
+
+            filters_list.append([name, *filter_args])
 
     if transformations:
         transformations_list = []
-        transformations = transformations.split('/')
-        for transformation in transformations:
+        for transformation in transformations.split('/'):
             transformations_list.append(transformation.split(','))
 
     if disable_tqdm or not output_file:
@@ -54,23 +60,27 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
         td.load_files(recursive=recursive, filetype=filetype)
     except NotADirectoryError:
         click.echo('The directory could not be found.')
-        sys.exit()
+        sys.exit(1)
     except FileNotFoundError:
         click.echo('There seem to be no files. Maybe you want to run with --recursive True.')
-        sys.exit()
+        sys.exit(1)
 
-    if filters and len(filters_list) > 0:
-        td.run_filters(filters_list)
+    try:
+        if filters and len(filters_list) > 0:
+            td.run_filters(filters_list)
 
-    if transformations and len(transformations_list) > 0:
-        for transformation in transformations_list:
-            td.stage_transformation(transformation)
+        if transformations and len(transformations_list) > 0:
+            for transformation in transformations_list:
+                td.stage_transformation(transformation)
+    except NameError as e:
+        click.echo(str(e))
+        sys.exit(1)
 
     if output_file:
         td.print_aggregation()
         td.aggregate_to_file(output_file)
     else:
-        print(td.aggregate_to_memory())
+        click.echo(td.aggregate_to_memory())
 
     return 0
 

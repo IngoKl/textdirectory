@@ -165,6 +165,50 @@ def get_human_from_docstring(doc):
     return {k: v.strip() for (k, v) in res}
 
 
+def coerce_args_by_signature(func, args):
+    """
+    Coerce string arguments to the types suggested by a function's signature.
+
+    String values are converted to int, float, or bool when the corresponding
+    parameter's annotation or default value indicates such a type; all other
+    values are passed through unchanged.
+
+    :param func: the function or method the arguments are meant for
+    :type func: callable
+    :param args: the arguments to coerce
+    :type args: list
+    :return: a list of coerced arguments
+    :type return: list
+    """
+    import inspect
+
+    parameters = [p for p in inspect.signature(func).parameters.values() if p.name not in ('self', 'text')]
+
+    coerced = []
+    for arg, parameter in zip(args, parameters):
+        target_type = None
+
+        if parameter.annotation in (int, float, bool):
+            target_type = parameter.annotation
+        elif parameter.default is not inspect.Parameter.empty and isinstance(parameter.default, (bool, int, float)):
+            target_type = type(parameter.default)
+
+        if not isinstance(arg, str) or target_type is None:
+            coerced.append(arg)
+        elif target_type is bool:
+            coerced.append(arg.lower() in ('1', 'true', 'yes'))
+        else:
+            try:
+                coerced.append(target_type(arg))
+            except ValueError:
+                coerced.append(arg)
+
+    # Surplus arguments (consumed by *args) are passed through untouched
+    coerced.extend(args[len(coerced) :])
+
+    return coerced
+
+
 def get_available_filters(get_human_name=False):
     """
     :param get_human_name: if True, also return the 'human name'

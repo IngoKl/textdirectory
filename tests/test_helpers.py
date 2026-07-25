@@ -67,6 +67,22 @@ def test_type_token_ratio_empty_text():
     assert helpers.type_token_ratio('') == 0.0
 
 
+def test_coerce_args_by_signature():
+    """String args are coerced to the types the target signature suggests."""
+    coerced = helpers.coerce_args_by_signature(TextDirectory.filter_by_max_chars, ['50'])
+    assert coerced == [50]
+
+    coerced = helpers.coerce_args_by_signature(TextDirectory.filter_by_type_token_ratio, ['0.4', '0.8'])
+    assert coerced == [0.4, 0.8]
+
+    coerced = helpers.coerce_args_by_signature(TextDirectory.filter_by_random_sampling, ['3', 'True'])
+    assert coerced == ['3', True]
+
+    # String parameters stay strings, even when they look numeric
+    coerced = helpers.coerce_args_by_signature(TextDirectory.filter_by_contains, ['2024'])
+    assert coerced == ['2024']
+
+
 def test_get_available_filters_is_strict():
     """Only real filter_by_* methods are discovered (regression: substring matching)."""
     available_filters = helpers.get_available_filters()
