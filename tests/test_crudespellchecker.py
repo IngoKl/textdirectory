@@ -48,6 +48,33 @@ def test_correct_string_return_corrections(spellchecker):
     assert ('spellling', 'spelling') in corrections
 
 
+def test_unknown_language_model_is_rejected():
+    """Only the shipped models can be loaded (the models are pickles)."""
+    for name in ['../../../../evil', 'C:/Windows/Temp/evil', 'nonexistent']:
+        with pytest.raises(ValueError, match='Unknown language model'):
+            CrudeSpellChecker(language_model=name)
+
+
+def test_correct_string_preserves_contractions_and_compounds(spellchecker):
+    """Each word group is corrected separately (regression: the first correction was repeated)."""
+    assert spellchecker.correct_string("don't") == "don't"
+    assert spellchecker.correct_string('well-known') == 'well-known'
+    assert spellchecker.correct_string('mother-in-law') == 'mother-in-law'
+    assert spellchecker.correct_string("It doesn't matter.") == "It doesn't matter."
+
+
+def test_correction_preserves_internal_capitals(spellchecker):
+    """Correctly spelled acronyms and proper nouns keep their capitalization."""
+    assert spellchecker.correction('USA') == 'USA'
+    assert spellchecker.correction('NASA') == 'NASA'
+    assert spellchecker.correction('McDonald') == 'McDonald'
+
+
+def test_correction_of_empty_string(spellchecker):
+    """An empty word does not raise."""
+    assert spellchecker.correction('') == ''
+
+
 def test_init_is_silent(capsys):
     """Instantiating the spellchecker prints nothing (regression: stray debug print)."""
     CrudeSpellChecker()

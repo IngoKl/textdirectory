@@ -3,6 +3,42 @@
 import pytest
 
 
+def filenames(td):
+    """The filenames currently in the aggregation, sorted."""
+    return sorted(file['filename'] for file in td.get_aggregation())
+
+
+def test_filters_select_the_expected_files(td):
+    """Filters keep the right files, not merely the right number of them."""
+    td.filter_by_max_chars(50)
+    assert filenames(td) == ['Text_2_A.txt', 'Text_A.txt', 'Text_B.txt', 'Text_C.txt', 'Text_D.txt']
+
+
+def test_filter_by_contains_selects_the_expected_file(td):
+    """The contains filter keeps exactly the matching file."""
+    td.filter_by_contains('spaceship')
+    assert filenames(td) == ['Text_E.txt']
+
+
+def test_filter_by_filenames_matches_exactly(td):
+    """A filename string is matched as a whole name, not as a substring."""
+    td.filter_by_filenames('Text_A.txt')
+    assert filenames(td) == ['Text_A.txt']
+
+
+def test_filter_boundaries_are_inclusive(td):
+    """The character filters include files sitting exactly on the boundary."""
+    lengths = {file['filename']: file['characters'] for file in td.get_aggregation()}
+    boundary = lengths['Text_A.txt']
+
+    td.filter_by_max_chars(boundary)
+    assert 'Text_A.txt' in filenames(td)
+
+    td.load_aggregation_state(0)
+    td.filter_by_min_chars(boundary)
+    assert 'Text_A.txt' in filenames(td)
+
+
 def test_filter_by_max_chars(td):
     """Test the max chars filter."""
     td.filter_by_max_chars(50)

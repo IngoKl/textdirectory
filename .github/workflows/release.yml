@@ -1,5 +1,8 @@
 name: Release
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:
@@ -13,6 +16,26 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
+      - name: The tag must match the package version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION=$(uv run --no-project python -c "import re, pathlib; print(re.search(r\"__version__ = '([^']+)'\", pathlib.Path('src/textdirectory/__init__.py').read_text()).group(1))")
+          echo "tag=$TAG version=$VERSION"
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "The tag ($TAG) does not match __version__ ($VERSION)"
+            exit 1
+          fi
+      - name: The changelog must be dated
+        run: |
+          if grep -q 'XXXX-XX-XX' CHANGELOG.md; then
+            echo 'CHANGELOG.md still contains the XXXX-XX-XX placeholder'
+            exit 1
+          fi
+      - name: Install dependencies
+        run: uv sync --locked --group dev
+      - name: Run the tests
+        run: uv run pytest
       - name: Build sdist and wheel
         run: uv build
       - name: Check the distribution

@@ -29,6 +29,10 @@ def test_count_non_alphanum():
     assert helpers.count_non_alphanum('ab#cd!') == 2
     assert helpers.count_non_alphanum('***') == 3
 
+    # Digits are alphanumeric (regression: they were counted as non-alphanumeric)
+    assert helpers.count_non_alphanum('1945') == 0
+    assert helpers.count_non_alphanum('a1!') == 1
+
 
 def test_chunk_text():
     """Test the chunk_text helper."""
@@ -81,6 +85,23 @@ def test_coerce_args_by_signature():
     # String parameters stay strings, even when they look numeric
     coerced = helpers.coerce_args_by_signature(TextDirectory.filter_by_contains, ['2024'])
     assert coerced == ['2024']
+
+
+def test_coerce_args_by_signature_for_transformations():
+    """Boolean transformation arguments coming from the CLI are coerced, not left truthy."""
+    from textdirectory.transformations import transformation_remove_weird_tokens
+
+    coerced = helpers.coerce_args_by_signature(transformation_remove_weird_tokens, ['en_core_web_sm', 'False'])
+    assert coerced == ['en_core_web_sm', False]
+
+    coerced = helpers.coerce_args_by_signature(transformation_remove_weird_tokens, ['en_core_web_sm', 'True'])
+    assert coerced == ['en_core_web_sm', True]
+
+
+def test_get_human_from_docstring_without_docstring():
+    """A missing docstring yields no human name instead of raising."""
+    assert helpers.get_human_from_docstring(None) == {}
+    assert helpers.get_human_from_docstring('') == {}
 
 
 def test_get_available_filters_is_strict():

@@ -36,6 +36,13 @@ Releases are published to PyPI via **Trusted Publishing** (OIDC) — no API toke
 1. **Bump the version** in [`src/textdirectory/__init__.py`](https://github.com/IngoKl/textdirectory/blob/master/src/textdirectory/__init__.py)
    (`__version__ = 'X.Y.Z'`). This is the single source of truth; hatchling reads it at build time.
 
+   Then refresh the editable install, otherwise `textdirectory --version` keeps reporting the previous version
+   (it reads the installed metadata, not `__version__`, and `uv sync` alone does not rebuild it):
+
+   ```bash
+   uv sync --reinstall-package textdirectory
+   ```
+
 2. **Update `CHANGELOG.md`**: give the release a date and make sure all notable changes are listed.
 
 3. **Run the full check suite**:
@@ -47,9 +54,11 @@ Releases are published to PyPI via **Trusted Publishing** (OIDC) — no API toke
    uv run mypy
    ```
 
-4. **Build and verify the distribution**:
+4. **Build and verify the distribution**. `uv build` does not clean `dist/`, so remove it first — otherwise
+   older releases are checked (and, in the manual path below, re-uploaded):
 
    ```bash
+   rm -rf dist
    uv build
    uvx twine check dist/*
    ```
@@ -72,7 +81,8 @@ Releases are published to PyPI via **Trusted Publishing** (OIDC) — no API toke
 
 6. **The release workflow does the rest**: pushing a `v*` tag triggers
    [`.github/workflows/release.yml`](https://github.com/IngoKl/textdirectory/blob/master/.github/workflows/release.yml),
-   which builds the sdist and wheel, runs `twine check`, and publishes to PyPI via Trusted Publishing.
+   which checks that the tag matches `__version__` and that the changelog is dated, runs the test suite, builds the
+   sdist and wheel, runs `twine check`, and publishes to PyPI via Trusted Publishing.
 
 7. **Verify the release**:
    * The new version appears on <https://pypi.org/project/textdirectory/>

@@ -26,7 +26,7 @@ use cases (e.g., when used as a library) in which it might be useful.
 * Transforming the aggregated text (e.g., transforming the text to lowercase)
 
 | Version | Filters | Transformations |
-|---------|---------|-----------------|
+| --- | --- | --- |
 | 0.1.0 | filter_by_max_chars(n int); filter_by_min_chars(n int); filter_by_max_tokens(n int); filter_by_min_tokens(n int); filter_by_contains(str); filter_by_not_contains(str); filter_by_random_sampling(n int; replace=False) | transformation_lowercase |
 | 0.1.1 | filter_by_chars_outliers(n sigmas int) | transformation_remove_nl |
 | 0.1.2 | filter_by_filename_contains(contains str) | transformation_usas_en_semtag; transformation_uppercase; transformation_postag(spacy_model str) |
@@ -71,7 +71,7 @@ In a second step you can perform transformations on the text before finally aggr
 The syntax for both the *filters* and *transformations* works similarly. They are chained by adding slashes (/) and
 parameters are passed via commas (,): `filter_by_min_tokens,5/filter_by_random_sampling,2`.
 
-**Example 1: A Very Simple Aggregation**
+#### Example 1: A Very Simple Aggregation
 
 ```bash
 textdirectory --directory testdata --output_file aggregated.txt
@@ -85,7 +85,7 @@ You could also use '*' as a wildcard for filetype if you need to include all fil
 textdirectory --directory testdata --output_file aggregated.txt --filetype *
 ```
 
-**Example 2: Applying Filters and Transformations**
+#### Example 2: Applying Filters and Transformations
 
 In this example, we want to filter the files based on their token count, perform a random sampling and finally
 transform all text to lowercase:
@@ -201,6 +201,9 @@ The project uses [uv](https://docs.astral.sh/uv/) for development:
 uv sync --group dev --extra nlp
 uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 
+# Later syncs: use --inexact, otherwise the spaCy model is removed again
+uv sync --inexact --group dev --extra nlp
+
 uv run pytest              # run the test suite (network tests excluded by default)
 uv run pytest -m network   # run the tests that hit live external services
 uv run ruff check src tests
@@ -217,11 +220,14 @@ We are not holding the actual texts in memory. This leads to much more disk read
 but saves memory. Of course, this is not the case when using `aggregate_to_memory`.
 
 `transformation_usas_en_semtag` relies on the web version of
-[Paul Rayson's USAS Tagger](http://ucrel.lancs.ac.uk/usas/). Don't use this transformation for large amounts of text,
-give credit, and consider using their commercial product [Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/).
+[Paul Rayson's USAS Tagger](http://ucrel.lancs.ac.uk/usas/). **This transformation uploads the full text of every
+processed file to a third-party server operated by Lancaster University. Do not use it with confidential, personal,
+or licensed data.** Don't use this transformation for large amounts of text, give credit, and consider using their
+commercial product [Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/).
 
 If you are working with a lot of files, it might be wise to use `load_files(fast=True, skip_checkpoint=True)`.
-This will load files much quicker but skip collecting metadata. This will limit the filters that you can use.
+This will load files much quicker but skip collecting metadata. Filters that need that metadata (character and
+token counts) will then raise a `ValueError`.
 
 ## Credits
 

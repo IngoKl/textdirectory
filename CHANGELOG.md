@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.4.1 (2026-07-26)
+
+* the language model of the crude spellchecker is now restricted to the models shipped with the package; any other name could load (and execute) an arbitrary pickled file
+* transformation_eebop4_to_plaintext no longer resolves external XML entities, which could be used to read local files; the lxml requirement is now >=5.0
+* fixed CrudeSpellChecker.correct_string repeating the first correction across a token (`don't` became `don'don`, `well-known` became `well-well`)
+* fixed transformation_lemmatize corrupting unrelated words (`I saw a sawmill.` became `I see a seemill.`); the text is now rebuilt from tokens
+* fixed transformation_postag gluing single-character tokens onto the previous tag (`and_CCa girl_NNI`)
+* fixed count_non_alphanum counting digits as non-alphanumeric, which made transformation_remove_weird_tokens delete every multi-digit number
+* fixed transformation_expand_english_contractions matching inside words (`Porsche's` became `Porsche is`), ignoring capitalized forms (`Don't`, `He's`), and a typo that stopped `aren't` from being expanded
+* fixed transform_to_files overwriting files when two input files in different subdirectories share a filename; the directory structure is now mirrored
+* fixed transform_to_files writing UTF-8 regardless of the configured encoding
+* fixed filter_by_filenames matching by substring when given a single filename instead of a list
+* fixed transformation_remove_stopwords skipping the first line of a user-supplied stopword file; comments and blank lines are ignored instead
+* fixed transformation_remove_weird_tokens leaving the whitespace of removed tokens behind
+* fixed get_text falling back to the file on disk when a transformation legitimately produced an empty string
+* fixed CrudeSpellChecker lowercasing acronyms and proper nouns it did not correct (`USA` became `Usa`)
+* fixed nested iteration over a TextDirectory sharing a single cursor
+* checkpoints are now saved after a filter has run, so that they hold the files it selected and are labelled correctly; a filter that raises no longer records a state
+* current_state is now always a valid state index, and loading a state no longer rewrites the state that was loaded
+* saved states are now AggregationState named tuples; indexing them as `state[0]` / `state[1]` still works
+* filters that need character or token metadata now raise a ValueError in fast mode instead of silently keeping every file
+* transformation arguments passed on the command line are now coerced to the expected types, so boolean options can be switched off
+* all exceptions raised for invalid input now carry a message
+* aggregate_to_memory no longer builds the result by repeated concatenation, which was quadratic (2000 files: 1.2s to 0.14s)
+* the crude spellchecker no longer recomputes the language model total for every candidate
+* sped up set_aggregation and save_aggregation_state, which performed a linear search per file
+* documented that transformation_usas_en_semtag uploads the text to a third-party server
+* documented that `uv sync` removes the spaCy model unless `--inexact` is used
+* the release workflow now checks the tag against the version, requires a dated changelog, and runs the tests before publishing
+
 ## 0.4.0 (2026-07-26)
 
 * modernized the packaging: pyproject.toml + hatchling, src/ layout, uv-based development workflow

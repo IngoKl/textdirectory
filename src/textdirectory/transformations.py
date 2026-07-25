@@ -58,15 +58,15 @@ def transformation_postag(text: str, spacy_model: str = 'en_core_web_sm', *args:
     nlp.max_length = int(estimate_spacy_max_length())
     doc = nlp(text)
 
-    transformed_text = ''
+    tagged = []
     for token in doc:
-        # This handles most linebreaks, etc.
-        if len(token) > 1:
-            transformed_text = f'{transformed_text} {token.text}_{token.tag_}'
+        # Whitespace tokens (linebreaks, etc.) carry no useful tag
+        if token.is_space:
+            tagged.append(token.text)
         else:
-            transformed_text = f'{transformed_text}{token.text}'
+            tagged.append(f'{token.text}_{token.tag_}{token.whitespace_}')
 
-    return transformed_text
+    return ''.join(tagged)
 
 
 def transformation_remove_stopwords(
@@ -108,7 +108,10 @@ def transformation_remove_stopwords(
 
     try:
         with open(stopwords_path, encoding='utf-8') as stopwords_file:
-            stopword_list = stopwords_file.read().splitlines()[1:]
+            # Comment lines (the bundled lists start with one) and blank lines are ignored
+            stopword_list = [
+                line.strip() for line in stopwords_file.read().splitlines() if line.strip() and not line.startswith('#')
+            ]
     except FileNotFoundError as e:
         raise FileNotFoundError(f'The stopwords file {stopwords_path} could not be found.') from e
 
@@ -168,7 +171,11 @@ def transformation_remove_nl(text: str, *args: Any) -> str:
 
 
 def transformation_usas_en_semtag(text: str, *args: Any) -> str:
-    """
+    """Tag the text semantically using the web version of the UCREL USAS tagger.
+
+    This uploads the text to a third-party server operated by Lancaster University.
+    Do not use it with confidential, personal, or licensed data.
+
     :param text: the text to run the transformation on
     :type text: str
     :return: the transformed text
@@ -210,7 +217,7 @@ def transformation_usas_en_semtag(text: str, *args: Any) -> str:
 
     # Removing the last tag because USAS adds a hash as the last element
     tagged_tokens = tagged_text.split()
-    tagged_text = ' '.join(tagged_tokens[: -1 or None])
+    tagged_text = ' '.join(tagged_tokens[:-1])
 
     return tagged_text
 
@@ -298,14 +305,21 @@ def transformation_remove_weird_tokens(
     nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
+    # The text is rebuilt from the tokens; replacing token texts in the original string would
+    # also hit the same character sequence inside unrelated tokens.
+    kept_tokens = []
     for token in doc:
         # More non-alphanum than alphanum
         if count_non_alphanum(token.text) > len(token.text) / 2 and len(token.text) > 1:
-            text = text.replace(token.text, '')
+            continue
 
         # Remove very long tokens (45 seems to be one of the longest words in major dictionaries)
         if len(token.text) > 45:
-            text = text.replace(token.text, '')
+            continue
+
+        kept_tokens.append(token)
+
+    text = ''.join(f'{token.text}{token.whitespace_}' for token in kept_tokens)
 
     if remove_double_space:
         text = re.sub(' +', ' ', text)
@@ -328,13 +342,19 @@ def transformation_lemmatize(text: str, spacy_model: str = 'en_core_web_sm', *ar
     nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
+    # The text is rebuilt from the tokens; replacing token texts in the original string would
+    # also hit the same character sequence inside unrelated tokens (e.g. 'saw' in 'sawmill').
+    lemmatized = []
     for token in doc:
-        if token.text[0] == "'":  # Fix for contractions
-            text = text.replace(token.text, f' {token.lemma_}')
-        else:
-            text = text.replace(token.text, str(token.lemma_))
+        lemma = str(token.lemma_) if token.lemma_ else token.text
 
-    return text
+        # Fix for contractions ("'s" becomes a full word and needs a separating space)
+        if token.text.startswith("'") and not lemma.startswith("'"):
+            lemma = f' {lemma}'
+
+        lemmatized.append(f'{lemma}{token.whitespace_}')
+
+    return ''.join(lemmatized)
 
 
 def transformation_expand_english_contractions(text: str, *args: Any) -> str:
@@ -350,13 +370,9 @@ def transformation_expand_english_contractions(text: str, *args: Any) -> str:
         ("he's", 'he is'),
         ("she's", 'she is'),
         ("that's", 'that is'),
-        ("'re", ' are'),
-        ("'ll", ' will'),
-        ("'ve", ' have'),
-        ("'d", ' would'),
         ("don't", 'do not'),
         ("can't", 'cannot'),
-        ("are't", 'are not'),
+        ("aren't", 'are not'),
         ("couldn't", 'could not'),
         ("shouldn't", 'should not'),
         ("isn't", 'is not'),
@@ -367,12 +383,32 @@ def transformation_expand_english_contractions(text: str, *args: Any) -> str:
         ("ain't", 'am not'),
         ("let's", 'let us'),
         ("y'all", 'you all'),
+        ("'re", ' are'),
+        ("'ll", ' will'),
+        ("'ve", ' have'),
+        ("'d", ' would'),
     ]
 
-    for contraction in contractions:
-        text = text.replace(contraction[0], contraction[1])
+    expansions = dict(contractions)
 
-    return text
+    # A leading word boundary keeps the whole-word rules from matching inside longer words
+    # ("Porsche's" is not "he's"). The full forms are listed first so that they win over the
+    # suffix rules ("don't" is expanded as a whole, not as "do" + "n't").
+    pattern = re.compile(
+        '|'.join(rf'\b{re.escape(contraction)}' for contraction, _ in contractions),
+        re.IGNORECASE,
+    )
+
+    def expand(match: re.Match[str]) -> str:
+        """Expand a matched contraction, keeping its original capitalization."""
+        expansion = expansions[match.group().lower()]
+
+        if match.group()[0].isupper():
+            return expansion[0].upper() + expansion[1:]
+
+        return expansion
+
+    return pattern.sub(expand, text)
 
 
 def transformation_eebop4_to_plaintext(text: str, *args: Any) -> str:
@@ -387,10 +423,16 @@ def transformation_eebop4_to_plaintext(text: str, *args: Any) -> str:
 
     transformed_text = ''
 
-    root = etree.fromstring(text.encode())
-    text_element = root.xpath('//TEXT')[0]
+    # External entities are not resolved: the input is untrusted corpus data and would
+    # otherwise be able to read local files (XXE) on older lxml versions
+    parser = etree.XMLParser(resolve_entities=False, no_network=True, load_dtd=False, huge_tree=False)
+    root = etree.fromstring(text.encode(), parser=parser)
 
-    for e in text_element.itertext():
+    text_elements = root.xpath('//TEXT')
+    if not text_elements:
+        raise ValueError('No <TEXT> element was found; this does not look like an EEBO-TCP P4 file.')
+
+    for e in text_elements[0].itertext():
         if e != '\n':
             transformed_text += ' ' + e
 
