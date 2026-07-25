@@ -19,7 +19,7 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     list_of_dicts = copy.deepcopy(list_of_dicts)
 
     if len(list_of_dicts) == 0:
-        return False
+        return ''
 
     # Enforce a maximum length
     if max_length:
@@ -117,6 +117,9 @@ def simple_tokenizer(string, regular_expression=r'\w+'):
 
 def estimate_spacy_max_length(override=False, tokenizer_only=False):
     """Returns a somewhat sensible suggestions for max_length."""
+    if override:
+        return override
+
     try:
         import psutil
     except ImportError as e:
@@ -134,9 +137,6 @@ def estimate_spacy_max_length(override=False, tokenizer_only=False):
     if tokenizer_only:
         estimated_max_length = estimated_max_length * 3
 
-    if override:
-        estimated_max_length = override
-
     return estimated_max_length
 
 
@@ -145,6 +145,9 @@ def type_token_ratio(text):
     tokens = simple_tokenizer(text)
     no_types = len(Counter(tokens))
     no_tokens = len(tokens)
+
+    if no_tokens == 0:
+        return 0.0
 
     return round(no_types / no_tokens, 2)
 
@@ -172,7 +175,11 @@ def get_available_filters(get_human_name=False):
 
     from textdirectory.textdirectory import TextDirectory
 
-    available_filters = [filter for filter in dir(TextDirectory) if 'filter_by' in filter]
+    available_filters = [
+        filter
+        for filter in dir(TextDirectory)
+        if filter.startswith('filter_by_') and callable(getattr(TextDirectory, filter))
+    ]
 
     if get_human_name:
         available_filters_with_human = []
@@ -200,7 +207,9 @@ def get_available_transformations(get_human_name=False):
     from textdirectory import transformations
 
     available_transformations = [
-        transformation for transformation in dir(transformations) if 'transformation' in transformation
+        transformation
+        for transformation in dir(transformations)
+        if transformation.startswith('transformation_') and callable(getattr(transformations, transformation))
     ]
 
     if get_human_name:

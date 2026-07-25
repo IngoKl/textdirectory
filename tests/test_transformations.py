@@ -149,12 +149,27 @@ def test_transformation_usas_en_semtag_mocked():
     """Test the USAS semtag transformation against a canned response (offline)."""
     responses.add(
         responses.POST,
-        'http://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
+        'https://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
         body='<html><body><pre>0000001 002 ----- ----- 0000003 010 NN1 Language Q3 #</pre></body></html>',
         status=200,
     )
     tagged_text = transformation_usas_en_semtag('Language')
     assert tagged_text == '0000001 002 ----- ----- 0000003 010 NN1 Language Q3'
+
+
+@responses.activate
+def test_transformation_usas_en_semtag_http_error():
+    """A failing USAS request raises instead of silently returning garbage."""
+    import requests
+
+    responses.add(
+        responses.POST,
+        'https://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
+        body='Internal Server Error',
+        status=500,
+    )
+    with pytest.raises(requests.exceptions.HTTPError):
+        transformation_usas_en_semtag('Language')
 
 
 @pytest.mark.network
@@ -163,3 +178,72 @@ def test_transformation_usas_en_semtag_live():
     tagged_text = transformation_usas_en_semtag('Language')
     assert 'NN1' in tagged_text
     assert 'Language' in tagged_text
+
+
+def test_remove_stopwords_unknown_source_raises():
+    """An unknown stopwords_source raises a ValueError (regression: UnboundLocalError)."""
+    with pytest.raises(ValueError, match='stopwords_source'):
+        transformation_remove_stopwords('Some text.', stopwords_source='unknown')
+
+
+def test_remove_stopwords_missing_file_raises():
+    """A missing stopwords file raises (regression: silently returned False)."""
+    with pytest.raises(FileNotFoundError):
+        transformation_remove_stopwords('Some text.', stopwords_source='file', stopwords='no_such_stopwords.txt')
+
+
+def test_spacy_model_cache(monkeypatch):
+    """The spaCy model loader caches models per (model, disable) key (regression: load per call)."""
+    import sys
+    import types
+
+    from textdirectory import transformations
+
+    calls = []
+
+    class FakeLanguage:
+        max_length = 0
+
+    fake_spacy = types.ModuleType('spacy')
+
+    def fake_load(name, disable=None):
+        calls.append(name)
+        return FakeLanguage()
+
+    fake_spacy.load = fake_load
+    monkeypatch.setitem(sys.modules, 'spacy', fake_spacy)
+    monkeypatch.setattr(transformations, '_SPACY_MODELS', {})
+
+    nlp_first = transformations._load_spacy_model('fake_model')
+    nlp_second = transformations._load_spacy_model('fake_model')
+
+    assert nlp_first is nlp_second
+    assert calls == ['fake_model']
+
+
+def test_missing_spacy_error_names_the_extra(monkeypatch):
+    """Without spaCy installed, the error message points to the [nlp] extra."""
+    import sys
+
+    from textdirectory import transformations
+
+    monkeypatch.setitem(sys.modules, 'spacy', None)
+    monkeypatch.setattr(transformations, '_SPACY_MODELS', {})
+
+    with pytest.raises(ImportError, match=r'textdirectory\[nlp\]'):
+        transformations._load_spacy_model('en_core_web_sm')
+
+
+def test_transformations_tolerate_extra_args():
+    """All transformations accept surplus arguments staged via the CLI format."""
+    from textdirectory.transformations import (
+        transformation_expand_english_contractions,
+        transformation_lowercase,
+        transformation_replace_string,
+    )
+
+    assert transformation_lowercase('A', 'extra') == 'a'
+    assert transformation_ftfy('x', 'extra') == 'x'
+    assert transformation_replace_digits('1', 'x', 'extra') == 'x'
+    assert transformation_replace_string('ab', 'a', 'b', 'extra') == 'bb'
+    assert transformation_expand_english_contractions("don't", 'extra') == 'do not'

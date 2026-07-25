@@ -89,26 +89,28 @@ def transformation_remove_stopwords(
     tokens = []
     transformed_text = ''
 
-    nlp = _load_spacy_model(spacy_model)
-    nlp.max_length = 5000000
-    doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat', 'lemmatizer'])
-
     # Locating the stopwords list
     if stopwords_source == 'internal':
         stopwords_path = importlib.resources.files('textdirectory').joinpath(
             'data', 'stopwords', f'stopwords_{stopwords}.txt'
         )
-    if stopwords_source == 'file':
+    elif stopwords_source == 'file':
         stopwords_path = Path(stopwords)
+    else:
+        raise ValueError(f"Unknown stopwords_source {stopwords_source!r}; expected 'internal' or 'file'.")
 
     try:
         with open(stopwords_path, encoding='utf-8') as stopwords_file:
             stopwords = stopwords_file.read().splitlines()[1:]
-    except FileNotFoundError:
-        return False
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f'The stopwords file {stopwords_path} could not be found.') from e
 
     if custom_stopwords:
         stopwords = stopwords + custom_stopwords.split(',')
+
+    nlp = _load_spacy_model(spacy_model)
+    nlp.max_length = 5000000
+    doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat', 'lemmatizer'])
 
     for token in doc:
         if token.text.lower() not in stopwords:
@@ -184,14 +186,16 @@ def transformation_usas_en_semtag(text, *args):
     }
     usas_headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'referer': 'http://ucrel-api.lancaster.ac.uk/usas/tagger.html',
+        'referer': 'https://ucrel-api.lancaster.ac.uk/usas/tagger.html',
     }
     usas_request = requests.post(
-        'http://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
+        'https://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
         files=usas_payload,
         headers=usas_headers,
         allow_redirects=True,
+        timeout=(10, 120),
     )
+    usas_request.raise_for_status()
 
     # Parsing
     soup = BeautifulSoup(usas_request.text, 'html.parser')
@@ -300,7 +304,7 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     return text
 
 
-def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
+def transformation_lemmatize(text, spacy_model='en_core_web_sm', *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -324,7 +328,7 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
     return text
 
 
-def transformation_expand_english_contractions(text):
+def transformation_expand_english_contractions(text, *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -362,7 +366,7 @@ def transformation_expand_english_contractions(text):
     return text
 
 
-def transformation_eebop4_to_plaintext(text):
+def transformation_eebop4_to_plaintext(text, *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -384,7 +388,7 @@ def transformation_eebop4_to_plaintext(text):
     return transformed_text
 
 
-def transformation_replace_digits(text, replacement_character='%'):
+def transformation_replace_digits(text, replacement_character='%', *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -403,7 +407,7 @@ def transformation_replace_digits(text, replacement_character='%'):
     return transformed_text
 
 
-def transformation_ftfy(text):
+def transformation_ftfy(text, *args):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -416,7 +420,7 @@ def transformation_ftfy(text):
     return ftfy.fix_text(text)
 
 
-def transformation_replace_string(text, replace, replace_with):
+def transformation_replace_string(text, replace, replace_with, *args):
     """
     :param text: the text to run the transformation on
     :type text: str

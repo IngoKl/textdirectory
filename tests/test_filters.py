@@ -1,5 +1,7 @@
 """Tests for the filters of TextDirectory."""
 
+import pytest
+
 
 def test_filter_by_max_chars(td):
     """Test the max chars filter."""
@@ -41,6 +43,31 @@ def test_filter_by_random_sampling(td):
     """Test the random sampling filter."""
     td.filter_by_random_sampling(3)
     assert len(td.aggregation) == 3
+
+
+def test_filter_by_random_sampling_returns_list(td):
+    """Sampling keeps the aggregation a plain list (regression: became a numpy array)."""
+    td.filter_by_random_sampling(3)
+
+    assert isinstance(td.aggregation, list)
+
+    # Follow-up filters and state saving keep working on the sampled aggregation
+    td.filter_by_max_chars(10**9)
+    td.save_aggregation_state()
+    assert len(td.aggregation) == 3
+
+
+def test_filter_by_random_sampling_with_replacement(td):
+    """Sampling with replacement can exceed the number of files."""
+    td.filter_by_random_sampling(12, replace=True)
+
+    assert len(td.aggregation) == 12
+
+
+def test_filter_by_similar_documents_invalid_threshold_raises(td, testdata_dir):
+    """A threshold outside [0, 1] raises a ValueError."""
+    with pytest.raises(ValueError):
+        td.filter_by_similar_documents(reference_file=testdata_dir / 'Text_A.txt', threshold=1.5)
 
 
 def test_filter_by_chars_outliers(td):

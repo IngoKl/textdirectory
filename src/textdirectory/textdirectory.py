@@ -427,7 +427,7 @@ class TextDirectory:
         self.set_aggregation(new_aggregation)
 
     @filter
-    def filter_by_type_token_ratio(self, min_ttr=0, max_ttr=1):
+    def filter_by_type_token_ratio(self, min_ttr=0.0, max_ttr=1.0):
         """
         :param min_ttr: The minimum TTR
         :type min_ttr: float
@@ -452,12 +452,14 @@ class TextDirectory:
         :type transformation: list
         """
 
-        available_transformations = dir(transformations)
+        available_transformations = helpers.get_available_transformations()
 
         if transformation[0] in available_transformations:
             self.staged_transformations.append(transformation)
         else:
-            raise NameError
+            raise NameError(
+                f'{transformation[0]!r} is not a valid transformation. Available: {available_transformations}'
+            )
 
     def destage_transformation(self, transformation):
         """
@@ -465,12 +467,16 @@ class TextDirectory:
         :type transformation: list
         """
 
-        available_transformations = self.staged_transformations
-
-        if transformation[0] in available_transformations:
+        if transformation in self.staged_transformations:
             self.staged_transformations.remove(transformation)
-        else:
-            raise NameError
+            return
+
+        for staged in self.staged_transformations:
+            if staged[0] == transformation[0]:
+                self.staged_transformations.remove(staged)
+                return
+
+        raise NameError(f'The transformation {transformation[0]!r} is not staged.')
 
     def run_transformations(self, text):
         """
@@ -493,7 +499,12 @@ class TextDirectory:
         :type filters: list
         """
 
+        available_filters = helpers.get_available_filters()
+
         for filter, *args in filters:
+            if filter not in available_filters:
+                raise NameError(f'{filter!r} is not a valid filter. Available: {available_filters}')
+
             filter_method = getattr(self, filter)
             filter_method(*args)
 

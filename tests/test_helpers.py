@@ -12,6 +12,18 @@ def test_tabulate_flat_list_of_dicts():
     assert table == '\n|---|\n|1|\n|---|\n|a|\n|b|\n|---|'
 
 
+def test_tabulate_empty_list_returns_empty_string():
+    """An empty list tabulates to '' (regression: returned False)."""
+    assert helpers.tabulate_flat_list_of_dicts([]) == ''
+
+
+def test_tabulate_truncates_long_values():
+    """Cell values are truncated to max_length."""
+    table = helpers.tabulate_flat_list_of_dicts([{'col': 'abcdefghij'}], max_length=3)
+    assert 'abc' in table
+    assert 'abcd' not in table
+
+
 def test_count_non_alphanum():
     """Test the count_non_alphanum helper."""
     assert helpers.count_non_alphanum('ab#cd!') == 2
@@ -38,11 +50,36 @@ def test_estimate_spacy_max_length():
     assert estimate <= psutil.virtual_memory().available
 
 
+def test_estimate_spacy_max_length_override():
+    """An override is returned directly (and needs no psutil)."""
+    assert helpers.estimate_spacy_max_length(override=1234) == 1234
+
+
 def test_type_token_ratio():
     """Test the type_token_ratio helper."""
     text = 'The TTR is the number of types devided by the number of tokens'
     ttr = helpers.type_token_ratio(text)
     assert ttr == 0.77
+
+
+def test_type_token_ratio_empty_text():
+    """Empty text yields a TTR of 0.0 (regression: ZeroDivisionError)."""
+    assert helpers.type_token_ratio('') == 0.0
+
+
+def test_get_available_filters_is_strict():
+    """Only real filter_by_* methods are discovered (regression: substring matching)."""
+    available_filters = helpers.get_available_filters()
+    assert all(name.startswith('filter_by_') for name in available_filters)
+    assert 'filter' not in available_filters
+    assert 'load_files' not in available_filters
+
+
+def test_get_available_transformations_is_strict():
+    """Only real transformation_* functions are discovered."""
+    available_transformations = helpers.get_available_transformations()
+    assert all(name.startswith('transformation_') for name in available_transformations)
+    assert 'CrudeSpellChecker' not in available_transformations
 
 
 def test_get_human_from_docstring():

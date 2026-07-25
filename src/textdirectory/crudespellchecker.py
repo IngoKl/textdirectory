@@ -69,8 +69,7 @@ class CrudeSpellChecker:
             correction = max(self.candidates(word), key=self.p_word)
 
             if self.caching:
-                if correction not in self.cache:
-                    self.cache[word] = correction
+                self.cache[word] = correction
 
             return reconstruct_case(correction, word_isupper)
 
@@ -129,7 +128,14 @@ class CrudeSpellChecker:
         corrections = []
         corrected = []
         for word in string.split():
-            corrected_word = self.correction(re.findall(r'\w+', word)[0])
+            word_matches = re.findall(r'\w+', word)
+
+            # Tokens without any word characters (e.g. '---') are kept as-is
+            if not word_matches:
+                corrected.append(word)
+                continue
+
+            corrected_word = self.correction(word_matches[0])
             corrected_word = re.sub(r'(.*?)(\w+)(.*?)', rf'\g<1>{corrected_word}\g<3>', word)
             corrected.append(corrected_word)
 

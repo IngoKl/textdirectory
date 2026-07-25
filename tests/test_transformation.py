@@ -30,6 +30,49 @@ def test_complex_transformation(td):
     assert 'one fly Mars' in list(td.get_aggregation())[0]['transformed_text']
 
 
+def test_destage_transformation(td):
+    """Destaging removes exactly the requested transformation (regression: always raised)."""
+    td.stage_transformation(['transformation_lowercase'])
+    td.stage_transformation(['transformation_uppercase'])
+
+    td.destage_transformation(['transformation_lowercase'])
+
+    assert td.staged_transformations == [['transformation_uppercase']]
+
+
+def test_destage_transformation_by_name(td):
+    """Destaging by name removes a staged transformation with arguments."""
+    td.stage_transformation(['transformation_replace_string', 'a', 'b'])
+
+    td.destage_transformation(['transformation_replace_string'])
+
+    assert td.staged_transformations == []
+
+
+def test_destage_unknown_transformation_raises(td):
+    """Destaging something that is not staged raises a NameError."""
+    with pytest.raises(NameError):
+        td.destage_transformation(['transformation_lowercase'])
+
+
+def test_stage_transformation_rejects_non_transformations(td):
+    """Only transformation_* callables can be staged (regression: any module attribute passed)."""
+    for bogus in (['re'], ['html'], ['CrudeSpellChecker'], ['no_such_transformation']):
+        with pytest.raises(NameError):
+            td.stage_transformation(bogus)
+
+
+def test_clear_transformation(td):
+    """clear_transformation destages everything and clears transformed texts."""
+    td.stage_transformation(['transformation_lowercase'])
+    td.transform_to_memory()
+
+    td.clear_transformation()
+
+    assert td.staged_transformations == []
+    assert all(file['transformed_text'] is False for file in td.files)
+
+
 def test_transform_to_files(td, tmp_path):
     """Test transforming the aggregation to individual files."""
     output_dir = tmp_path / 'output'
