@@ -1,6 +1,6 @@
 import textdirectory
 
-td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
+td = textdirectory.TextDirectory(directory='tests/data/testdata/')
 td.load_files(True, 'txt')
 
 # Stage the transformation to leetspeak

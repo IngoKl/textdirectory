@@ -1,6 +1,6 @@
 import textdirectory
 
-td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
+td = textdirectory.TextDirectory(directory='tests/data/testdata/')
 td.load_files(True, 'txt')
 
 # Filter files by max characters

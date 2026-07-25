@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-TESTDATA = Path(__file__).resolve().parent.parent / 'textdirectory' / 'data' / 'testdata'
+TESTDATA = Path(__file__).resolve().parent / 'data' / 'testdata'
 
 _HAS_SPACY_MODEL = (
     importlib.util.find_spec('spacy') is not None
