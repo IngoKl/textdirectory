@@ -1,0 +1,273 @@
+"""Helpers module."""
+
+import copy
+import re
+from collections import Counter
+from collections.abc import Callable
+from typing import Any
+
+
+def tabulate_flat_list_of_dicts(list_of_dicts: list[dict[str, Any]], max_length: int = 25) -> str:
+    """
+    :param list_of_dicts: a list of dictionaries; each list is a row
+    :type list_of_dicts: list
+    :param max_length: the maximum length of a cell
+    :type max_length: int
+    :return: a table
+    :type return: str
+    """
+
+    # Create a copy of the list to prevent object mutation
+    list_of_dicts = copy.deepcopy(list_of_dicts)
+
+    if len(list_of_dicts) == 0:
+        return ''
+
+    # Enforce a maximum length
+    if max_length:
+        for row in list_of_dicts:
+            for key, value in row.items():
+                row[key] = str(value)[:max_length]
+
+    # Determine the width of the columns
+    longest_values: dict[str, int] = {}
+
+    for key in list_of_dicts[0].keys():
+        longest_values[key] = len(key)
+
+    for row in list_of_dicts:
+        for key, value in row.items():
+            value = str(value)
+            if key in longest_values:
+                if len(value) > longest_values[key]:
+                    longest_values[key] = len(value)
+            else:
+                longest_values[key] = len(value)
+
+    # Line / len(longest_values) = additonal characters for pipes
+    length = 0
+    for value in longest_values.values():
+        length += value
+
+    line = '\n|' + '-' * (length + len(longest_values) - 1) + '|'
+
+    # Header based on the first dictionary
+    table = line + '\n|'
+    for key in list_of_dicts[0].keys():
+        table += f'{key}'.ljust(longest_values[key]) + '|'
+
+    table += line
+
+    # Rows
+    for row in list_of_dicts:
+        table += '\n|'
+        for key, value in row.items():
+            # Remove linebreaks
+            value = value.replace('\n', '')
+            table += str(value).ljust(longest_values[key]) + '|'
+
+    table += line
+
+    return table
+
+
+def count_non_alphanum(string: str) -> int:
+    """
+    :param string: a string
+    :type string: str
+    :return: the number of non-alphanumeric characters in the string
+    :type return: int
+    """
+
+    non_alphanum = 0
+    for c in string:
+        if not c.isalpha():
+            non_alphanum += 1
+
+    return non_alphanum
+
+
+def chunk_text(string: str, chunk_size: int = 50000) -> list[str]:
+    """
+    :param string: a string
+    :type string: str
+    :param chunk_size: the max characters of one chunk
+    :type chunk_size: int
+    :return: a list of chunks
+    :type return: list
+    """
+
+    chunks = [string[i : i + chunk_size] for i in range(0, len(string), chunk_size)]
+    return chunks
+
+
+def simple_tokenizer(string: str, regular_expression: str = r'\w+') -> list[str]:
+    """
+    :param string: a string
+    :type string: str
+    :return: a list of tokens
+    :type return: list
+    """
+
+    if not regular_expression:
+        tokens = string.split(' ')
+    else:
+        tokens = re.findall(regular_expression, string)
+
+    return tokens
+
+
+def estimate_spacy_max_length(override: float | bool = False, tokenizer_only: bool = False) -> float:
+    """Returns a somewhat sensible suggestions for max_length."""
+    if override:
+        return override
+
+    try:
+        import psutil
+    except ImportError as e:
+        raise ImportError(
+            'estimate_spacy_max_length requires psutil, which is an optional dependency. '
+            "Install it with: pip install 'textdirectory[nlp]'"
+        ) from e
+
+    memory = psutil.virtual_memory()
+    gb_available = memory.available / 1024 / 1024 / 1024
+
+    # tagger, parser, ner 100,000 characters = 1 GB
+    estimated_max_length = gb_available * 100000
+
+    if tokenizer_only:
+        estimated_max_length = estimated_max_length * 3
+
+    return estimated_max_length
+
+
+def type_token_ratio(text: str) -> float:
+    """Returns a simple rounded type-token ratio of a text."""
+    tokens = simple_tokenizer(text)
+    no_types = len(Counter(tokens))
+    no_tokens = len(tokens)
+
+    if no_tokens == 0:
+        return 0.0
+
+    return round(no_types / no_tokens, 2)
+
+
+def get_human_from_docstring(doc: str) -> dict[str, str]:
+    """
+    :param doc: if True, also return the 'human name'
+    :type doc: string
+    :return: a dictionary of name_* keys/values from the docstring.
+    :type return: dict
+    """
+    doc = doc.replace('    ', '')
+    res = re.findall(r'human_(.*):(.*)', doc)
+
+    return {k: v.strip() for (k, v) in res}
+
+
+def coerce_args_by_signature(func: Callable[..., Any], args: list[Any]) -> list[Any]:
+    """
+    Coerce string arguments to the types suggested by a function's signature.
+
+    String values are converted to int, float, or bool when the corresponding
+    parameter's annotation or default value indicates such a type; all other
+    values are passed through unchanged.
+
+    :param func: the function or method the arguments are meant for
+    :type func: callable
+    :param args: the arguments to coerce
+    :type args: list
+    :return: a list of coerced arguments
+    :type return: list
+    """
+    import inspect
+
+    parameters = [p for p in inspect.signature(func).parameters.values() if p.name not in ('self', 'text')]
+
+    coerced: list[Any] = []
+    for arg, parameter in zip(args, parameters, strict=False):
+        target_type = None
+
+        if parameter.annotation in (int, float, bool):
+            target_type = parameter.annotation
+        elif parameter.default is not inspect.Parameter.empty and isinstance(parameter.default, (bool, int, float)):
+            target_type = type(parameter.default)
+
+        if not isinstance(arg, str) or target_type is None:
+            coerced.append(arg)
+        elif target_type is bool:
+            coerced.append(arg.lower() in ('1', 'true', 'yes'))
+        else:
+            try:
+                coerced.append(target_type(arg))
+            except ValueError:
+                coerced.append(arg)
+
+    # Surplus arguments (consumed by *args) are passed through untouched
+    coerced.extend(args[len(coerced) :])
+
+    return coerced
+
+
+def get_available_filters(get_human_name: bool = False) -> list[Any]:
+    """
+    :param get_human_name: if True, also return the 'human name'
+    :type get_human_name: bool
+    :return: a list of functions; if get_human_name a list of tuples
+    :type return: list
+    """
+
+    from textdirectory.textdirectory import TextDirectory
+
+    available_filters: list[Any] = [
+        filter
+        for filter in dir(TextDirectory)
+        if filter.startswith('filter_by_') and callable(getattr(TextDirectory, filter))
+    ]
+
+    if get_human_name:
+        available_filters_with_human: list[tuple[str, str]] = []
+        for f in available_filters:
+            doc = getattr(TextDirectory, f).__doc__
+            human = get_human_from_docstring(doc)
+            if 'name' in human:
+                available_filters_with_human.append((f, human['name']))
+            else:
+                available_filters_with_human.append((f, f))
+
+        available_filters = available_filters_with_human
+
+    return available_filters
+
+
+def get_available_transformations(get_human_name: bool = False) -> list[Any]:
+    """
+    :param get_human_name: if True, also return the 'human name'
+    :type string: bool
+    :return: a list of functions; if get_human_name a list of tuples
+    :type return: list
+    """
+
+    from textdirectory import transformations
+
+    available_transformations: list[Any] = [
+        transformation
+        for transformation in dir(transformations)
+        if transformation.startswith('transformation_') and callable(getattr(transformations, transformation))
+    ]
+
+    if get_human_name:
+        available_transformations_with_human: list[tuple[str, str]] = []
+        for t in available_transformations:
+            doc = getattr(transformations, t).__doc__
+            human = get_human_from_docstring(doc)
+            if 'name' in human:
+                available_transformations_with_human.append((t, human['name']))
+            else:
+                available_transformations_with_human.append((t, t))
+
+        available_transformations = available_transformations_with_human
+
+    return available_transformations

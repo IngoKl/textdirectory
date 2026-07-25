@@ -1,7 +1,7 @@
 import textdirectory
 
-td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
-td.load_files(True, 'txt')
+td = textdirectory.TextDirectory(directory='tests/data/testdata/')
+td.load_files(recursive=True, filetype='txt')
 
 # Stage three transformations
 td.stage_transformation(['transformation_lowercase'])

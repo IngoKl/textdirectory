@@ -1,7 +1,7 @@
 import textdirectory
 
-td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
-td.load_files(True, 'txt')
+td = textdirectory.TextDirectory(directory='tests/data/testdata/')
+td.load_files(recursive=True, filetype='txt')
 
 # Stage the same transformation with different arguments
 td.stage_transformation(['transformation_replace_string', 'Lorem', 'X'])

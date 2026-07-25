@@ -1,131 +1,119 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""Tests for `textdirectory` package."""
+"""Tests for the filters of TextDirectory."""
 
 import pytest
-from click.testing import CliRunner
-
-from textdirectory.textdirectory import TextDirectory
 
 
-def test_filter_by_max_chars():
+def test_filter_by_max_chars(td):
     """Test the max chars filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_max_chars(50)
     assert len(td.aggregation) == 5
 
 
-def test_filter_by_min_chars():
+def test_filter_by_min_chars(td):
     """Test the min chars filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_min_chars(500)
     assert len(td.aggregation) == 2
 
 
-def test_filter_by_max_tokens():
+def test_filter_by_max_tokens(td):
     """Test the max tokens filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_max_tokens(4)
     assert len(td.aggregation) == 4
 
 
-def test_filter_by_min_tokens():
+def test_filter_by_min_tokens(td):
     """Test the min tokens filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_min_tokens(100)
-    print(td)
     assert len(td.aggregation) == 2
 
 
-def test_filter_by_contains():
+def test_filter_by_contains(td):
     """Test the contains filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_contains('spaceship')
     assert len(td.aggregation) == 1
 
 
-def test_filter_by_not_contains():
+def test_filter_by_not_contains(td):
     """Test the not contains filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_not_contains('spaceship')
     assert len(td.aggregation) == 9
 
 
-def test_filter_by_random_sampling():
+def test_filter_by_random_sampling(td):
     """Test the random sampling filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_random_sampling(3)
     assert len(td.aggregation) == 3
 
 
-def test_filter_by_chars_outliers():
+def test_filter_by_random_sampling_returns_list(td):
+    """Sampling keeps the aggregation a plain list (regression: became a numpy array)."""
+    td.filter_by_random_sampling(3)
+
+    assert isinstance(td.aggregation, list)
+
+    # Follow-up filters and state saving keep working on the sampled aggregation
+    td.filter_by_max_chars(10**9)
+    td.save_aggregation_state()
+    assert len(td.aggregation) == 3
+
+
+def test_filter_by_random_sampling_with_replacement(td):
+    """Sampling with replacement can exceed the number of files."""
+    td.filter_by_random_sampling(12, replace=True)
+
+    assert len(td.aggregation) == 12
+
+
+def test_filter_by_similar_documents_invalid_threshold_raises(td, testdata_dir):
+    """A threshold outside [0, 1] raises a ValueError."""
+    with pytest.raises(ValueError):
+        td.filter_by_similar_documents(reference_file=testdata_dir / 'Text_A.txt', threshold=1.5)
+
+
+def test_filter_by_chars_outliers(td):
     """Test the outlier filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_chars_outliers(1)
     assert len(td.aggregation) == 9
 
 
-def test_filter_by_filenames():
+def test_filter_by_filenames(td):
     """Test the by filenames filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_filenames(['Text_A.txt'])
-    print(td)
     assert len(td.aggregation) == 1
 
 
-def test_filter_by_filename_contains():
+def test_filter_by_filename_contains(td):
     """Test the filename contains filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_filename_contains('Text_A')
     assert len(td.aggregation) == 1
 
 
-def test_filter_by_filename_not_contains():
+def test_filter_by_filename_not_contains(td):
     """Test the filename not contains filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_filename_not_contains('Text_A')
     assert len(td.aggregation) == 9
 
 
-def test_filter_by_similar_documents():
+def test_filter_by_similar_documents(td, testdata_dir):
     """Test the similarity filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
-    td.filter_by_similar_documents(reference_file='textdirectory/data/testdata/level_2/Text_2_B.txt', threshold=0.7)
+    reference_file = testdata_dir / 'level_2' / 'Text_2_B.txt'
+    td.filter_by_similar_documents(reference_file=reference_file, threshold=0.7)
     assert len(td.aggregation) == 2
 
 
-def test_filter_by_max_filesize():
+def test_filter_by_max_filesize(td):
     """Test the filesize (max) filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_max_filesize(max_kb=1)
     assert len(td.aggregation) == 9
 
 
-def test_filter_by_min_filesize():
+def test_filter_by_min_filesize(td):
     """Test the filesize (min) filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_min_filesize(min_kb=2)
     assert len(td.aggregation) == 1
 
 
-def test_filter_by_type_token_ratio():
+def test_filter_by_type_token_ratio(td):
     """Test the TTR filter."""
-    td = TextDirectory(directory='textdirectory/data/testdata/')
-    td.load_files(True, 'txt')
     td.filter_by_type_token_ratio(0.4, 0.8)
     assert len(td.aggregation) == 3

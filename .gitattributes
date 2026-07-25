@@ -1,0 +1,9 @@
+# Normalize line endings; keep test fixtures byte-stable across platforms
+* text=auto
+tests/data/** text eol=lf
+src/textdirectory/data/stopwords/*.txt text eol=lf
+*.bat text eol=crlf
+*.gz.lm binary
+*.png binary
+*.jpg binary
+*.gif binary

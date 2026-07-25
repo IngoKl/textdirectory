@@ -1,0 +1,4 @@
+# Documentation build requirements (kept in sync with the "docs" dependency group in pyproject.toml)
+sphinx>=7
+furo
+myst-parser

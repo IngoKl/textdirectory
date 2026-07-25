@@ -1,7 +1,7 @@
 import textdirectory
 
-td = textdirectory.TextDirectory(directory='textdirectory/data/testdata/')
-td.load_files(True, 'txt')
+td = textdirectory.TextDirectory(directory='tests/data/testdata/')
+td.load_files(recursive=True, filetype='txt')
 
 td.filter_by_max_chars(100)
 print(td)
