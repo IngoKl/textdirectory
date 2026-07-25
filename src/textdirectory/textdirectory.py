@@ -7,11 +7,22 @@ import statistics
 from collections.abc import Callable, Iterator
 from functools import wraps
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from tqdm import tqdm
 
 from textdirectory import helpers, transformations
+
+
+class AggregationState(NamedTuple):
+    """A saved aggregation state (checkpoint).
+
+    Behaves like the ``[aggregation, applied_filters]`` list used before 0.4.1, so
+    ``state[0]`` and ``state[1]`` keep working.
+    """
+
+    aggregation: list[int]
+    applied_filters: list[str]
 
 
 class TextDirectory:
@@ -29,29 +40,23 @@ class TextDirectory:
         self.aggregation: list[int] = []
         self.staged_transformations: list[list[Any]] = []
         self.applied_filters: list[str] = []
-        self.aggregation_states: list[list[Any]] = []
+        self.aggregation_states: list[AggregationState] = []
         self.current_state = 0
         self.encoding = encoding
-        self.iterator = 0
         self.disable_tqdm = disable_tqdm
 
         if not self.directory.exists():
-            raise NotADirectoryError
+            raise NotADirectoryError(f'The directory {self.directory} does not exist.')
+
+        if not self.directory.is_dir():
+            raise NotADirectoryError(f'{self.directory} is not a directory.')
 
         if autoload:
             self.load_files()
 
-    def __iter__(self) -> 'TextDirectory':
-        self.iterator = 0
-        return self
-
-    def __next__(self) -> dict[str, Any]:
-        if self.iterator < len(self.aggregation):
-            file = self.files[self.aggregation[self.iterator]]
-            self.iterator += 1
-            return file
-        else:
-            raise StopIteration()
+    def __iter__(self) -> Iterator[dict[str, Any]]:
+        # A generator, so that nested or concurrent iterations do not share a cursor
+        yield from self.get_aggregation()
 
     def __str__(self) -> str:
         aggregation = helpers.tabulate_flat_list_of_dicts(list(self.get_aggregation()))
@@ -64,8 +69,8 @@ class TextDirectory:
 
     def save_aggregation_state(self) -> None:
         """Saves the current self.aggregation state."""
-        self.aggregation_states.append([list(self.aggregation), list(self.applied_filters)])
-        self.current_state = len(self.aggregation_states)
+        self.aggregation_states.append(AggregationState(list(self.aggregation), list(self.applied_filters)))
+        self.current_state = len(self.aggregation_states) - 1
 
     def load_aggregation_state(self, state: int = 0) -> None:
         """
@@ -73,17 +78,15 @@ class TextDirectory:
         :type state: int
         """
 
-        if state in range(len(self.aggregation_states)):
-            aggregation: list[int] = []
-            previous_aggregation = self.aggregation_states[state]
-            for file_id in previous_aggregation[0]:
-                aggregation.append(file_id)
+        if state not in range(len(self.aggregation_states)):
+            raise ValueError(f'There is no saved state {state}. Saved states: 0 to {len(self.aggregation_states) - 1}.')
 
-            self.aggregation = aggregation
-            self.applied_filters = previous_aggregation[1]
-            self.current_state = state
-        else:
-            raise ValueError
+        previous_aggregation = self.aggregation_states[state]
+
+        # Copies, so that continuing to filter does not rewrite the saved state
+        self.aggregation = list(previous_aggregation.aggregation)
+        self.applied_filters = list(previous_aggregation.applied_filters)
+        self.current_state = state
 
     def get_aggregation(self) -> Iterator[dict[str, Any]]:
         """A generator that provides the current aggregation."""
@@ -122,9 +125,14 @@ class TextDirectory:
         @wraps(filter)
         def filter_wrapper(*args: Any, **kwargs: Any) -> Any:
             self = args[0]
+            result = filter(*args, **kwargs)
+
+            # The checkpoint is saved after the filter ran, so that it holds the files the
+            # filter selected. A filter that raises records nothing.
             self.applied_filters.append(filter.__name__)
             self.save_aggregation_state()
-            return filter(*args, **kwargs)
+
+            return result
 
         return filter_wrapper
 
@@ -153,7 +161,8 @@ class TextDirectory:
         :return: the (transformed) text of the given file
         """
 
-        if self.files[file_id]['transformed_text']:
+        # Checked against the sentinel, so that an empty transformation result is returned as-is
+        if self.files[file_id]['transformed_text'] is not False:
             return self.files[file_id]['transformed_text']
         else:
             with self.files[file_id]['path'].open(encoding=self.encoding, errors='ignore') as f:
@@ -223,7 +232,10 @@ class TextDirectory:
             if not skip_checkpoint:
                 self.save_aggregation_state()
         else:
-            raise FileNotFoundError
+            raise FileNotFoundError(
+                f'No {filetype} files were found in {self.directory}'
+                f'{"" if recursive else " (searched non-recursively)"}.'
+            )
 
     @filter
     def filter_by_max_chars(self, max_chars: int = 100) -> None:
@@ -364,6 +376,11 @@ class TextDirectory:
         :type filenames: list
         """
 
+        # A single filename is accepted too; without this it would be treated as a
+        # sequence of characters and match by substring
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
         new_aggregation: list[dict[str, Any]] = []
         for file in self.get_aggregation():
             if file['filename'] in filenames:
@@ -448,7 +465,7 @@ class TextDirectory:
         """
 
         if not 0.0 <= threshold <= 1.0:
-            raise (ValueError)
+            raise ValueError(f'The threshold must be between 0.0 and 1.0, got {threshold!r}.')
 
         new_aggregation: list[dict[str, Any]] = []
         with open(reference_file, encoding=self.encoding, errors='ignore') as rf:
@@ -554,14 +571,23 @@ class TextDirectory:
 
         output_directory = Path(output_directory)
 
-        if output_directory.is_dir():
-            for file in self.get_aggregation():
-                with file['path'].open(encoding=self.encoding, errors='ignore') as f:
-                    with open(output_directory / file['filename'], 'w', encoding='utf8') as output_file:
-                        output_file.write(self.run_transformations(f.read()))
+        if not output_directory.is_dir():
+            raise NotADirectoryError(f'The output directory {output_directory} does not exist.')
 
-        else:
-            raise FileNotFoundError
+        for file in self.get_aggregation():
+            # The directory structure below the input directory is mirrored, so that files
+            # sharing a filename in different subdirectories do not overwrite each other
+            try:
+                relative_path = file['path'].relative_to(self.directory)
+            except ValueError:
+                relative_path = Path(file['filename'])
+
+            output_path = output_directory / relative_path
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
+                with open(output_path, 'w', encoding=self.encoding) as output_file:
+                    output_file.write(self.run_transformations(f.read()))
 
     def transform_to_memory(self) -> None:
         """Runs all transformations and stores the transformed texts in memory."""
@@ -593,14 +619,15 @@ class TextDirectory:
         :type: str
         """
 
-        aggregated_string = ''
+        # Collected in a list: repeatedly concatenating the aggregate is quadratic
+        texts = []
         for file in self.get_aggregation():
             with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                 text = self.run_transformations(f.read())
                 file['transformed_text'] = text
-                aggregated_string = aggregated_string + text
+                texts.append(text)
 
-        return aggregated_string
+        return ''.join(texts)
 
     def print_aggregation(self) -> None:
         """Print the aggregated files as a table."""

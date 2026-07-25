@@ -6,6 +6,7 @@ from typing import Any
 import click
 
 from textdirectory import helpers, textdirectory
+from textdirectory import transformations as td_transformations
 
 available_filters = helpers.get_available_filters()
 available_transformations = helpers.get_available_transformations()
@@ -56,9 +57,16 @@ def main(
             filters_list.append([name, *filter_args])
 
     if transformations:
-        transformations_list: list[list[str]] = []
+        transformations_list: list[list[Any]] = []
         for transformation in transformations.split('/'):
-            transformations_list.append(transformation.split(','))
+            name, *transformation_args = transformation.split(',')
+
+            # Coerce string arguments (e.g. 'False') to the types the transformation expects
+            transformation_function = getattr(td_transformations, name, None)
+            if transformation_function is not None and name in available_transformations:
+                transformation_args = helpers.coerce_args_by_signature(transformation_function, transformation_args)
+
+            transformations_list.append([name, *transformation_args])
 
     if disable_tqdm or not output_file:
         disable_tqdm = True

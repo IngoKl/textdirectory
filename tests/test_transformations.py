@@ -6,7 +6,9 @@ import responses
 from textdirectory.transformations import (
     transformation_crude_spellchecker,
     transformation_eebop4_to_plaintext,
+    transformation_expand_english_contractions,
     transformation_ftfy,
+    transformation_postag,
     transformation_remove_htmltags,
     transformation_remove_non_alphanumerical,
     transformation_remove_non_ascii,
@@ -80,6 +82,38 @@ def test_transformation_lemmatize_does_not_corrupt_substrings():
 
 
 @pytest.mark.nlp
+def test_transformation_remove_weird_tokens_keeps_numbers():
+    """Numbers are alphanumeric and must survive (regression: every multi-digit number was deleted)."""
+    assert transformation_remove_weird_tokens('The war ended in 1945.') == 'The war ended in 1945.'
+    assert transformation_remove_weird_tokens('Chapter 12 begins on page 300.') == 'Chapter 12 begins on page 300.'
+
+
+@pytest.mark.nlp
+def test_transformation_postag_separates_single_character_tokens():
+    """Single-character tokens get their own tag (regression: they were glued onto the previous tag)."""
+    tagged = transformation_postag('A boy and a girl sat.')
+
+    assert 'and_CC' in tagged
+    assert '_CCa' not in tagged
+    for token in tagged.split():
+        assert '_' in token
+
+
+@pytest.mark.nlp
+def test_transformation_remove_stopwords_from_file(tmp_path):
+    """A user-supplied stopword list is read in full (regression: the first line was skipped)."""
+    stopwords_file = tmp_path / 'stopwords.txt'
+    stopwords_file.write_text('the\nand\nof\n', encoding='utf8')
+
+    result = transformation_remove_stopwords(
+        'the cat and the dog of doom', stopwords_source='file', stopwords=str(stopwords_file)
+    )
+
+    assert 'the' not in result.split()
+    assert 'cat' in result
+
+
+@pytest.mark.nlp
 def test_transformation_remove_weird_tokens_drops_whole_tokens():
     """Weird tokens are dropped with their whitespace instead of being blanked out of the string."""
     # Previously the token text was removed with str.replace, leaving the separating space behind
@@ -117,6 +151,19 @@ def test_transformation_lemmatize(td):
     assert 'language be complicate' in td.aggregate_to_memory()
 
 
+def test_transformation_expand_contractions_only_matches_whole_words():
+    """Contractions are matched at word boundaries (regression: 'Porsche's' became 'Porsche is')."""
+    assert transformation_expand_english_contractions("Porsche's engine is loud.") == "Porsche's engine is loud."
+    assert transformation_expand_english_contractions("The headache's cause.") == "The headache's cause."
+
+
+def test_transformation_expand_contractions_handles_capitalization():
+    """Sentence-initial contractions are expanded with their capitalization preserved."""
+    assert transformation_expand_english_contractions("He's late.") == 'He is late.'
+    assert transformation_expand_english_contractions("Don't go.") == 'Do not go.'
+    assert transformation_expand_english_contractions("They aren't here.") == 'They are not here.'
+
+
 def test_transformation_expand_contrations(td):
     """Test the expand English contractions transformation."""
     td.stage_transformation(['transformation_expand_english_contractions'])
@@ -129,6 +176,26 @@ def test_transformation_eebop4_to_plaintext():
     """Test the eebop4 to plaintext transformation."""
     text = '<TEXT><FRONT><DIV1 TYPE="title page"><P>Lorem</P><P>Ipsum</P></DIV1></FRONT></TEXT>'
     assert transformation_eebop4_to_plaintext(text).replace('\n', '').replace(' ', '') == 'LoremIpsum'
+
+
+def test_transformation_eebop4_does_not_resolve_external_entities(tmp_path):
+    """External entities are not resolved, so local files cannot be read (XXE)."""
+    secret = tmp_path / 'secret.txt'
+    secret.write_text('TOP_SECRET', encoding='utf8')
+    payload = (
+        '<?xml version="1.0"?>'
+        f'<!DOCTYPE t [<!ENTITY xxe SYSTEM "file:///{secret.as_posix()}">]>'
+        '<TEXT><P>Harmless. &xxe;</P></TEXT>'
+    )
+
+    # The entity is left unexpanded rather than read from disk
+    assert 'TOP_SECRET' not in transformation_eebop4_to_plaintext(payload)
+
+
+def test_transformation_eebop4_without_text_element_raises():
+    """A file without a <TEXT> element produces a helpful error."""
+    with pytest.raises(ValueError, match='EEBO'):
+        transformation_eebop4_to_plaintext('<EEBO><HEADER>x</HEADER></EEBO>')
 
 
 def test_transformation_replace_digits(td):

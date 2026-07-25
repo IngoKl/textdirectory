@@ -81,7 +81,7 @@ def count_non_alphanum(string: str) -> int:
 
     non_alphanum = 0
     for c in string:
-        if not c.isalpha():
+        if not c.isalnum():
             non_alphanum += 1
 
     return non_alphanum
@@ -161,6 +161,9 @@ def get_human_from_docstring(doc: str) -> dict[str, str]:
     :return: a dictionary of name_* keys/values from the docstring.
     :type return: dict
     """
+    if not doc:
+        return {}
+
     doc = doc.replace('    ', '')
     res = re.findall(r'human_(.*):(.*)', doc)
 

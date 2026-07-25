@@ -88,5 +88,7 @@ Texts are not held in memory; every aggregation re-reads from disk (except after
 collection — filters relying on that metadata (character and token counts) then raise a `ValueError`.
 
 `transformation_usas_en_semtag` calls the web version of
-[Paul Rayson's USAS tagger](http://ucrel.lancs.ac.uk/usas/) — don't use it for large amounts of text, give credit,
-and consider [Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/) for serious work.
+[Paul Rayson's USAS tagger](http://ucrel.lancs.ac.uk/usas/). **It uploads the full text of every processed file to a
+third-party server operated by Lancaster University — do not use it with confidential, personal, or licensed data.**
+Don't use it for large amounts of text, give credit, and consider
+[Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/) for serious work.

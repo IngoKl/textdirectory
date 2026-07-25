@@ -9,6 +9,10 @@ from collections.abc import Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
+#: The language models shipped with the package. The models are pickled, so only these
+#: names are accepted: an arbitrary name would allow loading (and executing) any file.
+AVAILABLE_LANGUAGE_MODELS = frozenset({'crudesc_lm_en', 'crudesc_lm_ame', 'crudesc_lm_amehistorical'})
+
 
 class CrudeSpellChecker:
     """A very simple and crude spellchecker based on Peter Norvig's design.
@@ -25,6 +29,11 @@ class CrudeSpellChecker:
         :param language_model: the name of the lm
         :type language_model: str
         """
+        if language_model not in AVAILABLE_LANGUAGE_MODELS:
+            raise ValueError(
+                f'Unknown language model {language_model!r}. Available models: {sorted(AVAILABLE_LANGUAGE_MODELS)}'
+            )
+
         self.caching = caching
         self.cache: dict[str, str] = {}
         self.language_model_name = language_model
@@ -34,12 +43,15 @@ class CrudeSpellChecker:
         )
         self.frequencies: Counter[str] = pickle.loads(gzip.decompress(model_resource.read_bytes()))
 
+        # The total is constant; recomputing it per candidate made corrections extremely slow
+        self._frequencies_total = sum(self.frequencies.values())
+
     def p_word(self, word: str) -> float:
         """
         :param word: a word
         :type word: str
         """
-        return self.frequencies[word] / sum(self.frequencies.values())
+        return self.frequencies[word] / self._frequencies_total
 
     def correction(self, word: str) -> str:
         """
@@ -48,22 +60,31 @@ class CrudeSpellChecker:
         :return: most probable spelling correction for word
         """
 
+        if not word:
+            return word
+
         # Preserve
+        original = word
         word_isupper = word[0].isupper()
         word = word.lower()
 
-        def reconstruct_case(word: str, word_isupper: bool) -> str:
+        def reconstruct_case(corrected: str, word_isupper: bool) -> str:
             """
-            :param word: the word
-            :type word: str
+            :param corrected: the corrected word
+            :type corrected: str
             :param word_isupper: the initial capitalization
             :type word_isupper: bool
             :return: the word with its initial capitalization
             """
+            # Nothing was corrected: keep the original spelling, including internal capitals
+            # such as in acronyms (USA) or proper nouns (McDonald)
+            if corrected == original.lower():
+                return original
+
             if word_isupper:
-                return word.capitalize()
+                return corrected.capitalize()
             else:
-                return word
+                return corrected
 
         if word in self.cache:
             return reconstruct_case(self.cache[word], word_isupper)
@@ -130,15 +151,10 @@ class CrudeSpellChecker:
         corrections: list[tuple[str, str]] = []
         corrected: list[str] = []
         for word in string.split():
-            word_matches = re.findall(r'\w+', word)
-
-            # Tokens without any word characters (e.g. '---') are kept as-is
-            if not word_matches:
-                corrected.append(word)
-                continue
-
-            corrected_word = self.correction(word_matches[0])
-            corrected_word = re.sub(r'(.*?)(\w+)(.*?)', rf'\g<1>{corrected_word}\g<3>', word)
+            # Each group of word characters is corrected on its own, so that surrounding
+            # punctuation is preserved and contractions or hyphenated compounds
+            # ("don't", "well-known") keep all of their parts
+            corrected_word = re.sub(r'\w+', lambda match: self.correction(match.group()), word)
             corrected.append(corrected_word)
 
             if return_corrections and corrected_word != word:

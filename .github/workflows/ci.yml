@@ -1,13 +1,21 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
-    branches: [master, modernize, 'dev-*']
+    branches: [master, 'dev-*']
+    tags: ['v*']
   pull_request:
   schedule:
     # Weekly run that also exercises the network-marked tests
     - cron: '0 6 * * 1'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
@@ -17,8 +25,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync --locked --group dev
       - name: Ruff lint
         run: uv run ruff check src tests
       - name: Ruff format
@@ -32,15 +41,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
       - name: Install dependencies (core only)
-        run: uv sync --group dev
+        run: uv sync --locked --group dev
       - name: Import smoke test
         run: uv run python -c "import textdirectory, textdirectory.transformations, textdirectory.cli"
       - name: Run tests
@@ -55,8 +65,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
       - name: Install dependencies (with nlp extra)
-        run: uv sync --group dev --extra nlp
+        run: uv sync --locked --group dev --extra nlp
       - name: Install the spaCy model
         run: uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
       - name: Run tests
@@ -77,8 +88,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync --locked --group dev
       - name: Run network-marked tests
         run: uv run pytest -m network
 
@@ -89,12 +101,18 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
+          enable-cache: true
       - name: Build sdist and wheel
         run: uv build
       - name: Check the distribution
         run: uvx twine check dist/*
       - name: Verify wheel contents
         run: |
-          uv run python -m zipfile -l dist/*.whl | grep 'data/stopwords/stopwords_en.txt'
-          uv run python -m zipfile -l dist/*.whl | grep 'data/language_models/crudesc_lm_en.gz.lm'
-          ! uv run python -m zipfile -l dist/*.whl | grep 'testdata'
+          uv run python -m zipfile -l dist/*.whl > wheel.txt
+          grep -q 'textdirectory/data/stopwords/stopwords_en.txt' wheel.txt
+          grep -q 'textdirectory/data/language_models/crudesc_lm_en.gz.lm' wheel.txt
+          grep -q 'textdirectory/py.typed' wheel.txt
+          if grep -qE 'tests/|testdata|__pycache__' wheel.txt; then
+            echo 'Unexpected files in the wheel'
+            exit 1
+          fi

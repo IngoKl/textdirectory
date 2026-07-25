@@ -220,8 +220,10 @@ We are not holding the actual texts in memory. This leads to much more disk read
 but saves memory. Of course, this is not the case when using `aggregate_to_memory`.
 
 `transformation_usas_en_semtag` relies on the web version of
-[Paul Rayson's USAS Tagger](http://ucrel.lancs.ac.uk/usas/). Don't use this transformation for large amounts of text,
-give credit, and consider using their commercial product [Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/).
+[Paul Rayson's USAS Tagger](http://ucrel.lancs.ac.uk/usas/). **This transformation uploads the full text of every
+processed file to a third-party server operated by Lancaster University. Do not use it with confidential, personal,
+or licensed data.** Don't use this transformation for large amounts of text, give credit, and consider using their
+commercial product [Wmatrix](http://ucrel.lancs.ac.uk/wmatrix/).
 
 If you are working with a lot of files, it might be wise to use `load_files(fast=True, skip_checkpoint=True)`.
 This will load files much quicker but skip collecting metadata. Filters that need that metadata (character and

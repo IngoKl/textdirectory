@@ -2170,9 +2170,9 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.11" },
     { name = "click", specifier = ">=8.1" },
     { name = "ftfy", specifier = ">=6.1" },
-    { name = "lxml", specifier = ">=4.9" },
+    { name = "lxml", specifier = ">=5.0" },
     { name = "psutil", marker = "extra == 'nlp'", specifier = ">=5.9" },
-    { name = "requests", specifier = ">=2.28" },
+    { name = "requests", specifier = ">=2.32" },
     { name = "spacy", marker = "extra == 'nlp'", specifier = ">=3.8,<4" },
     { name = "tqdm", specifier = ">=4.64" },
 ]

@@ -98,6 +98,72 @@ def test_metadata_filters_reject_fast_loaded_files(testdata_dir):
             apply_filter()
 
 
+def test_nested_iteration_is_independent(td):
+    """Two concurrent iterations do not share a cursor (regression: yielded 10 pairs, not 100)."""
+    assert sum(1 for _a in td for _b in td) == 100
+
+
+def test_iterator_yields_the_aggregation_not_all_files(td):
+    """Iteration follows the aggregation, not the full file list."""
+    td.filter_by_filenames(['Text_A.txt'])
+    assert [file['filename'] for file in td] == ['Text_A.txt']
+
+
+def test_transform_to_files_preserves_colliding_filenames(tmp_path):
+    """Files sharing a name in different subdirectories do not overwrite each other."""
+    source = tmp_path / 'input'
+    (source / 'sub').mkdir(parents=True)
+    (source / 'notes.txt').write_text('TOP LEVEL', encoding='utf8')
+    (source / 'sub' / 'notes.txt').write_text('NESTED', encoding='utf8')
+
+    output = tmp_path / 'output'
+    output.mkdir()
+
+    td = TextDirectory(directory=source, disable_tqdm=True)
+    td.load_files(recursive=True, filetype='txt')
+    td.transform_to_files(output)
+
+    assert (output / 'notes.txt').read_text(encoding='utf8') == 'TOP LEVEL'
+    assert (output / 'sub' / 'notes.txt').read_text(encoding='utf8') == 'NESTED'
+
+
+def test_get_text_returns_empty_transformation_result(td):
+    """An empty transformation result is returned instead of falling back to the file."""
+    td.filter_by_filenames(['Text_B.txt'])
+    td.stage_transformation(['transformation_replace_digits', ''])
+    td.transform_to_memory()
+
+    file_id = td.aggregation[0]
+    assert td.files[file_id]['transformed_text'].strip() == ''
+    assert td.get_text(file_id).strip() == ''
+
+
+def test_exceptions_carry_messages(td, tmp_path):
+    """User-facing errors explain what went wrong."""
+    with pytest.raises(NotADirectoryError) as missing_dir:
+        TextDirectory(directory=tmp_path / 'nope')
+    assert str(missing_dir.value)
+
+    with pytest.raises(ValueError) as bad_state:
+        td.load_aggregation_state(99)
+    assert str(bad_state.value)
+
+    with pytest.raises(FileNotFoundError) as no_files:
+        TextDirectory(directory=tmp_path, disable_tqdm=True).load_files()
+    assert str(no_files.value)
+
+
+def test_aggregate_to_memory_matches_aggregate_to_file(td, tmp_path):
+    """Both output paths produce the same text."""
+    td.filter_by_max_chars(600)
+    td.stage_transformation(['transformation_lowercase'])
+
+    output_file = tmp_path / 'aggregated.txt'
+    td.aggregate_to_file(output_file)
+
+    assert output_file.read_text(encoding='utf8') == td.aggregate_to_memory()
+
+
 def test_set_aggregation_accepts_equal_copies(td):
     """set_aggregation still resolves file records that are equal but not identical."""
     import copy
@@ -116,7 +182,7 @@ def test_load_files_empty_directory_raises(tmp_path):
 
 def test_transform_to_files_missing_directory_raises(td, tmp_path):
     """Writing to a non-existent output directory raises."""
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(NotADirectoryError):
         td.transform_to_files(tmp_path / 'does_not_exist')
 
 
