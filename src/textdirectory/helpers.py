@@ -185,7 +185,7 @@ def coerce_args_by_signature(func, args):
     parameters = [p for p in inspect.signature(func).parameters.values() if p.name not in ('self', 'text')]
 
     coerced = []
-    for arg, parameter in zip(args, parameters):
+    for arg, parameter in zip(args, parameters, strict=False):
         target_type = None
 
         if parameter.annotation in (int, float, bool):
