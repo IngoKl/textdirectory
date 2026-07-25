@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.1 (XXXX-XX-XX)
+## 0.4.1 (2026-07-26)
 
 * the language model of the crude spellchecker is now restricted to the models shipped with the package; any other name could load (and execute) an arbitrary pickled file
 * transformation_eebop4_to_plaintext no longer resolves external XML entities, which could be used to read local files; the lxml requirement is now >=5.0
