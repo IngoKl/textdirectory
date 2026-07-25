@@ -2,10 +2,11 @@
 
 import difflib
 import os
+import random
+import statistics
 from functools import wraps
 from pathlib import Path
 
-import numpy as np
 from tqdm import tqdm
 
 from textdirectory import helpers, transformations
@@ -346,7 +347,10 @@ class TextDirectory:
         :human_name: Random sampling
         """
 
-        self.aggregation = np.random.choice(self.aggregation, int(n), replace=replace)
+        if replace:
+            self.aggregation = random.choices(self.aggregation, k=int(n))
+        else:
+            self.aggregation = random.sample(self.aggregation, k=int(n))
 
     @filter
     def filter_by_chars_outliers(self, sigmas=2):
@@ -357,8 +361,8 @@ class TextDirectory:
         """
 
         chars_list = [file['characters'] for file in self.get_aggregation()]
-        std = np.std(chars_list)
-        mean = np.mean(chars_list)
+        std = statistics.pstdev(chars_list)
+        mean = statistics.fmean(chars_list)
         min = round(mean - sigmas * std, 1)
         max = round(mean + sigmas * std, 1)
 

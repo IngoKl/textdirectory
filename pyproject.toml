@@ -30,7 +30,6 @@ dependencies = [
     "beautifulsoup4>=4.11",
     "lxml>=4.9",
     "ftfy>=6.1",
-    "numpy>=1.23",
 ]
 
 [project.optional-dependencies]

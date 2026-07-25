@@ -5,14 +5,41 @@ import importlib.resources
 import re
 from pathlib import Path
 
-import ftfy
-import requests
-import spacy
-from bs4 import BeautifulSoup
-from lxml import etree
-
 from textdirectory.crudespellchecker import CrudeSpellChecker
 from textdirectory.helpers import count_non_alphanum, estimate_spacy_max_length
+
+_SPACY_MODELS = {}
+
+
+def _load_spacy_model(model_name, disable=()):
+    """Load and cache a spaCy model; raise a helpful error when the nlp extra is missing.
+
+    :param model_name: the name of the spaCy model (e.g. en_core_web_sm)
+    :type model_name: str
+    :param disable: pipeline components to disable
+    :type disable: tuple
+    :return: the loaded spaCy Language object
+    """
+    key = (model_name, tuple(disable))
+
+    if key not in _SPACY_MODELS:
+        try:
+            import spacy
+        except ImportError as e:
+            raise ImportError(
+                'This transformation requires spaCy, which is an optional dependency. '
+                "Install it with: pip install 'textdirectory[nlp]' and download the model "
+                f'with: python -m spacy download {model_name}'
+            ) from e
+
+        try:
+            _SPACY_MODELS[key] = spacy.load(model_name, disable=list(disable))
+        except OSError as e:
+            raise OSError(
+                f'The spaCy model {model_name!r} is not installed. Run: python -m spacy download {model_name}'
+            ) from e
+
+    return _SPACY_MODELS[key]
 
 
 def transformation_postag(text, spacy_model='en_core_web_sm', *args):
@@ -26,8 +53,8 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
     :human_name: Add pos-tags
     """
 
-    nlp = spacy.load(spacy_model)
-    nlp.max_length = estimate_spacy_max_length()
+    nlp = _load_spacy_model(spacy_model)
+    nlp.max_length = int(estimate_spacy_max_length())
     doc = nlp(text)
 
     transformed_text = ''
@@ -62,7 +89,7 @@ def transformation_remove_stopwords(
     tokens = []
     transformed_text = ''
 
-    nlp = spacy.load(spacy_model)
+    nlp = _load_spacy_model(spacy_model)
     nlp.max_length = 5000000
     doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat', 'lemmatizer'])
 
@@ -138,6 +165,9 @@ def transformation_usas_en_semtag(text, *args):
     :return: the transformed text
     :type return: str
     """
+
+    import requests
+    from bs4 import BeautifulSoup
 
     # Adhering to http://ucrel.lancs.ac.uk/claws/format.html
     text = html.escape(text)
@@ -251,8 +281,8 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     :type return: str
     """
 
-    nlp = spacy.load(spacy_model, disable=['parser', 'tagger', 'ner', 'lemmatizer'])
-    nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
+    nlp = _load_spacy_model(spacy_model, disable=('parser', 'tagger', 'ner', 'lemmatizer'))
+    nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
     for token in doc:
@@ -281,8 +311,8 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
     :human_name: Lemmatizer
     """
 
-    nlp = spacy.load(spacy_model, disable=['parser', 'ner'])
-    nlp.max_length = estimate_spacy_max_length(tokenizer_only=True)
+    nlp = _load_spacy_model(spacy_model, disable=('parser', 'ner'))
+    nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
     for token in doc:
@@ -340,6 +370,8 @@ def transformation_eebop4_to_plaintext(text):
     :type return: str
     """
 
+    from lxml import etree
+
     transformed_text = ''
 
     root = etree.fromstring(text.encode())
@@ -378,6 +410,8 @@ def transformation_ftfy(text):
     :return: the transformed text
     :type return: str
     """
+
+    import ftfy
 
     return ftfy.fix_text(text)
 

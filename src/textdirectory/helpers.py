@@ -4,8 +4,6 @@ import copy
 import re
 from collections import Counter
 
-import psutil
-
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     """
@@ -119,6 +117,14 @@ def simple_tokenizer(string, regular_expression=r'\w+'):
 
 def estimate_spacy_max_length(override=False, tokenizer_only=False):
     """Returns a somewhat sensible suggestions for max_length."""
+    try:
+        import psutil
+    except ImportError as e:
+        raise ImportError(
+            'estimate_spacy_max_length requires psutil, which is an optional dependency. '
+            "Install it with: pip install 'textdirectory[nlp]'"
+        ) from e
+
     memory = psutil.virtual_memory()
     gb_available = memory.available / 1024 / 1024 / 1024
 

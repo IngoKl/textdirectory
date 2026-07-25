@@ -7,8 +7,6 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from bs4 import BeautifulSoup
-
 
 class CrudeSpellChecker:
     """A very simple and crude spellchecker based on Peter Norvig's design.
@@ -153,6 +151,8 @@ def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False)
     :param strip_xml: stripping XML tags with bs4
     :type strip_xml: bool
     """
+    from bs4 import BeautifulSoup
+
     frequencies = Counter()
     files = list(Path(corpus_directory).glob('*.txt'))
 
