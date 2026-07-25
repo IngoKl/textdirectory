@@ -3,9 +3,11 @@
 import copy
 import re
 from collections import Counter
+from collections.abc import Callable
+from typing import Any
 
 
-def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
+def tabulate_flat_list_of_dicts(list_of_dicts: list[dict[str, Any]], max_length: int = 25) -> str:
     """
     :param list_of_dicts: a list of dictionaries; each list is a row
     :type list_of_dicts: list
@@ -28,7 +30,7 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
                 row[key] = str(value)[:max_length]
 
     # Determine the width of the columns
-    longest_values = {}
+    longest_values: dict[str, int] = {}
 
     for key in list_of_dicts[0].keys():
         longest_values[key] = len(key)
@@ -69,7 +71,7 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
     return table
 
 
-def count_non_alphanum(string):
+def count_non_alphanum(string: str) -> int:
     """
     :param string: a string
     :type string: str
@@ -85,7 +87,7 @@ def count_non_alphanum(string):
     return non_alphanum
 
 
-def chunk_text(string, chunk_size=50000):
+def chunk_text(string: str, chunk_size: int = 50000) -> list[str]:
     """
     :param string: a string
     :type string: str
@@ -99,7 +101,7 @@ def chunk_text(string, chunk_size=50000):
     return chunks
 
 
-def simple_tokenizer(string, regular_expression=r'\w+'):
+def simple_tokenizer(string: str, regular_expression: str = r'\w+') -> list[str]:
     """
     :param string: a string
     :type string: str
@@ -115,7 +117,7 @@ def simple_tokenizer(string, regular_expression=r'\w+'):
     return tokens
 
 
-def estimate_spacy_max_length(override=False, tokenizer_only=False):
+def estimate_spacy_max_length(override: float | bool = False, tokenizer_only: bool = False) -> float:
     """Returns a somewhat sensible suggestions for max_length."""
     if override:
         return override
@@ -140,7 +142,7 @@ def estimate_spacy_max_length(override=False, tokenizer_only=False):
     return estimated_max_length
 
 
-def type_token_ratio(text):
+def type_token_ratio(text: str) -> float:
     """Returns a simple rounded type-token ratio of a text."""
     tokens = simple_tokenizer(text)
     no_types = len(Counter(tokens))
@@ -152,7 +154,7 @@ def type_token_ratio(text):
     return round(no_types / no_tokens, 2)
 
 
-def get_human_from_docstring(doc):
+def get_human_from_docstring(doc: str) -> dict[str, str]:
     """
     :param doc: if True, also return the 'human name'
     :type doc: string
@@ -165,7 +167,7 @@ def get_human_from_docstring(doc):
     return {k: v.strip() for (k, v) in res}
 
 
-def coerce_args_by_signature(func, args):
+def coerce_args_by_signature(func: Callable[..., Any], args: list[Any]) -> list[Any]:
     """
     Coerce string arguments to the types suggested by a function's signature.
 
@@ -184,7 +186,7 @@ def coerce_args_by_signature(func, args):
 
     parameters = [p for p in inspect.signature(func).parameters.values() if p.name not in ('self', 'text')]
 
-    coerced = []
+    coerced: list[Any] = []
     for arg, parameter in zip(args, parameters, strict=False):
         target_type = None
 
@@ -209,7 +211,7 @@ def coerce_args_by_signature(func, args):
     return coerced
 
 
-def get_available_filters(get_human_name=False):
+def get_available_filters(get_human_name: bool = False) -> list[Any]:
     """
     :param get_human_name: if True, also return the 'human name'
     :type get_human_name: bool
@@ -219,14 +221,14 @@ def get_available_filters(get_human_name=False):
 
     from textdirectory.textdirectory import TextDirectory
 
-    available_filters = [
+    available_filters: list[Any] = [
         filter
         for filter in dir(TextDirectory)
         if filter.startswith('filter_by_') and callable(getattr(TextDirectory, filter))
     ]
 
     if get_human_name:
-        available_filters_with_human = []
+        available_filters_with_human: list[tuple[str, str]] = []
         for f in available_filters:
             doc = getattr(TextDirectory, f).__doc__
             human = get_human_from_docstring(doc)
@@ -240,7 +242,7 @@ def get_available_filters(get_human_name=False):
     return available_filters
 
 
-def get_available_transformations(get_human_name=False):
+def get_available_transformations(get_human_name: bool = False) -> list[Any]:
     """
     :param get_human_name: if True, also return the 'human name'
     :type string: bool
@@ -250,14 +252,14 @@ def get_available_transformations(get_human_name=False):
 
     from textdirectory import transformations
 
-    available_transformations = [
+    available_transformations: list[Any] = [
         transformation
         for transformation in dir(transformations)
         if transformation.startswith('transformation_') and callable(getattr(transformations, transformation))
     ]
 
     if get_human_name:
-        available_transformations_with_human = []
+        available_transformations_with_human: list[tuple[str, str]] = []
         for t in available_transformations:
             doc = getattr(transformations, t).__doc__
             human = get_human_from_docstring(doc)

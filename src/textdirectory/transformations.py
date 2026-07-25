@@ -4,14 +4,15 @@ import html
 import importlib.resources
 import re
 from pathlib import Path
+from typing import Any
 
 from textdirectory.crudespellchecker import CrudeSpellChecker
 from textdirectory.helpers import count_non_alphanum, estimate_spacy_max_length
 
-_SPACY_MODELS = {}
+_SPACY_MODELS: dict[tuple[str, tuple[str, ...]], Any] = {}
 
 
-def _load_spacy_model(model_name, disable=()):
+def _load_spacy_model(model_name: str, disable: tuple[str, ...] = ()) -> Any:
     """Load and cache a spaCy model; raise a helpful error when the nlp extra is missing.
 
     :param model_name: the name of the spaCy model (e.g. en_core_web_sm)
@@ -42,7 +43,7 @@ def _load_spacy_model(model_name, disable=()):
     return _SPACY_MODELS[key]
 
 
-def transformation_postag(text, spacy_model='en_core_web_sm', *args):
+def transformation_postag(text: str, spacy_model: str = 'en_core_web_sm', *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -69,8 +70,13 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
 
 
 def transformation_remove_stopwords(
-    text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm', custom_stopwords=None, *args
-):
+    text: str,
+    stopwords_source: str = 'internal',
+    stopwords: str = 'en',
+    spacy_model: str = 'en_core_web_sm',
+    custom_stopwords: str | None = None,
+    *args: Any,
+) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -86,12 +92,13 @@ def transformation_remove_stopwords(
     :type return: str
     """
 
-    tokens = []
+    tokens: list[Any] = []
     transformed_text = ''
 
     # Locating the stopwords list
+    stopwords_path: Any
     if stopwords_source == 'internal':
-        stopwords_path = importlib.resources.files('textdirectory').joinpath(
+        stopwords_path = importlib.resources.files('textdirectory').joinpath(  # type: ignore[call-arg]
             'data', 'stopwords', f'stopwords_{stopwords}.txt'
         )
     elif stopwords_source == 'file':
@@ -101,19 +108,19 @@ def transformation_remove_stopwords(
 
     try:
         with open(stopwords_path, encoding='utf-8') as stopwords_file:
-            stopwords = stopwords_file.read().splitlines()[1:]
+            stopword_list = stopwords_file.read().splitlines()[1:]
     except FileNotFoundError as e:
         raise FileNotFoundError(f'The stopwords file {stopwords_path} could not be found.') from e
 
     if custom_stopwords:
-        stopwords = stopwords + custom_stopwords.split(',')
+        stopword_list = stopword_list + custom_stopwords.split(',')
 
     nlp = _load_spacy_model(spacy_model)
     nlp.max_length = 5000000
     doc = nlp(text, disable=['parser', 'tagger', 'ner', 'textcat', 'lemmatizer'])
 
     for token in doc:
-        if token.text.lower() not in stopwords:
+        if token.text.lower() not in stopword_list:
             tokens.append(token)
 
     # Detokenize
@@ -126,7 +133,7 @@ def transformation_remove_stopwords(
     return transformed_text
 
 
-def transformation_uppercase(text, *args):
+def transformation_uppercase(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -137,7 +144,7 @@ def transformation_uppercase(text, *args):
     return text.upper()
 
 
-def transformation_lowercase(text, *args):
+def transformation_lowercase(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -148,7 +155,7 @@ def transformation_lowercase(text, *args):
     return text.lower()
 
 
-def transformation_remove_nl(text, *args):
+def transformation_remove_nl(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -160,7 +167,7 @@ def transformation_remove_nl(text, *args):
     return text
 
 
-def transformation_usas_en_semtag(text, *args):
+def transformation_usas_en_semtag(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -202,13 +209,13 @@ def transformation_usas_en_semtag(text, *args):
     tagged_text = soup.text.strip()
 
     # Removing the last tag because USAS adds a hash as the last element
-    tagged_text = tagged_text.split()
-    tagged_text = ' '.join(tagged_text[: -1 or None])
+    tagged_tokens = tagged_text.split()
+    tagged_text = ' '.join(tagged_tokens[: -1 or None])
 
     return tagged_text
 
 
-def transformation_remove_non_ascii(text, *args):
+def transformation_remove_non_ascii(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -219,7 +226,7 @@ def transformation_remove_non_ascii(text, *args):
     return ''.join(i for i in text if ord(i) < 128)
 
 
-def transformation_remove_htmltags(text, *args):
+def transformation_remove_htmltags(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -230,7 +237,7 @@ def transformation_remove_htmltags(text, *args):
     return re.sub('<[^<]+?>', '', text)
 
 
-def transformation_remove_non_alphanumerical(text, *args):
+def transformation_remove_non_alphanumerical(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -242,7 +249,7 @@ def transformation_remove_non_alphanumerical(text, *args):
     return pattern.sub('', text)
 
 
-def transformation_to_leetspeak(text, *args):
+def transformation_to_leetspeak(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -259,7 +266,7 @@ def transformation_to_leetspeak(text, *args):
     return transformed_text
 
 
-def transformation_crude_spellchecker(text, language_model='crudesc_lm_en', *args):
+def transformation_crude_spellchecker(text: str, language_model: str = 'crudesc_lm_en', *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -273,7 +280,9 @@ def transformation_crude_spellchecker(text, language_model='crudesc_lm_en', *arg
     return transformed_text
 
 
-def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remove_double_space=False, *args):
+def transformation_remove_weird_tokens(
+    text: str, spacy_model: str = 'en_core_web_sm', remove_double_space: bool = False, *args: Any
+) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -304,7 +313,7 @@ def transformation_remove_weird_tokens(text, spacy_model='en_core_web_sm', remov
     return text
 
 
-def transformation_lemmatize(text, spacy_model='en_core_web_sm', *args):
+def transformation_lemmatize(text: str, spacy_model: str = 'en_core_web_sm', *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -328,7 +337,7 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm', *args):
     return text
 
 
-def transformation_expand_english_contractions(text, *args):
+def transformation_expand_english_contractions(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -366,7 +375,7 @@ def transformation_expand_english_contractions(text, *args):
     return text
 
 
-def transformation_eebop4_to_plaintext(text, *args):
+def transformation_eebop4_to_plaintext(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -388,7 +397,7 @@ def transformation_eebop4_to_plaintext(text, *args):
     return transformed_text
 
 
-def transformation_replace_digits(text, replacement_character='%', *args):
+def transformation_replace_digits(text: str, replacement_character: str = '%', *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -407,7 +416,7 @@ def transformation_replace_digits(text, replacement_character='%', *args):
     return transformed_text
 
 
-def transformation_ftfy(text, *args):
+def transformation_ftfy(text: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -420,7 +429,7 @@ def transformation_ftfy(text, *args):
     return ftfy.fix_text(text)
 
 
-def transformation_replace_string(text, replace, replace_with, *args):
+def transformation_replace_string(text: str, replace: str, replace_with: str, *args: Any) -> str:
     """
     :param text: the text to run the transformation on
     :type text: str

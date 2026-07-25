@@ -1,6 +1,7 @@
 """Console script for textdirectory."""
 
 import sys
+from typing import Any
 
 import click
 
@@ -24,7 +25,16 @@ available_transformations = helpers.get_available_transformations()
     help=f'The transformations you want to apply. Tranformations: {available_transformations}',
     type=str,
 )
-def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, filters, transformations):
+def main(
+    directory: str | None,
+    output_file: str | None,
+    filetype: str,
+    encoding: str,
+    recursive: bool,
+    disable_tqdm: bool,
+    filters: str | None,
+    transformations: str | None,
+) -> int:
     """Console script for textdirectory."""
     if not directory:
         click.echo('Welcome to TextDirectory!\nRun textdirectory --help for further information.')
@@ -34,7 +44,7 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
         sys.exit()
 
     if filters:
-        filters_list = []
+        filters_list: list[list[Any]] = []
         for filter in filters.split('/'):
             name, *filter_args = filter.split(',')
 
@@ -46,7 +56,7 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
             filters_list.append([name, *filter_args])
 
     if transformations:
-        transformations_list = []
+        transformations_list: list[list[str]] = []
         for transformation in transformations.split('/'):
             transformations_list.append(transformation.split(','))
 
@@ -70,8 +80,8 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
             td.run_filters(filters_list)
 
         if transformations and len(transformations_list) > 0:
-            for transformation in transformations_list:
-                td.stage_transformation(transformation)
+            for staged_transformation in transformations_list:
+                td.stage_transformation(staged_transformation)
     except NameError as e:
         click.echo(str(e))
         sys.exit(1)

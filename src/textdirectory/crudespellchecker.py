@@ -5,7 +5,9 @@ import importlib.resources
 import pickle
 import re
 from collections import Counter
+from collections.abc import Iterable, Iterator
 from pathlib import Path
+from typing import Any
 
 
 class CrudeSpellChecker:
@@ -16,7 +18,7 @@ class CrudeSpellChecker:
     crudesc_lm_amehistorical.lm American English based on COHA (sample)
     """
 
-    def __init__(self, caching=True, language_model='crudesc_lm_en'):
+    def __init__(self, caching: bool = True, language_model: str = 'crudesc_lm_en') -> None:
         """
         :param caching: caching of corrections
         :type caching: bool
@@ -24,22 +26,22 @@ class CrudeSpellChecker:
         :type language_model: str
         """
         self.caching = caching
-        self.cache = {}
+        self.cache: dict[str, str] = {}
         self.language_model_name = language_model
 
-        model_resource = importlib.resources.files('textdirectory').joinpath(
+        model_resource = importlib.resources.files('textdirectory').joinpath(  # type: ignore[call-arg]
             'data', 'language_models', f'{self.language_model_name}.gz.lm'
         )
-        self.frequencies = pickle.loads(gzip.decompress(model_resource.read_bytes()))
+        self.frequencies: Counter[str] = pickle.loads(gzip.decompress(model_resource.read_bytes()))
 
-    def p_word(self, word):
+    def p_word(self, word: str) -> float:
         """
         :param word: a word
         :type word: str
         """
         return self.frequencies[word] / sum(self.frequencies.values())
 
-    def correction(self, word):
+    def correction(self, word: str) -> str:
         """
         :param word: a word
         :type word: str
@@ -50,7 +52,7 @@ class CrudeSpellChecker:
         word_isupper = word[0].isupper()
         word = word.lower()
 
-        def reconstruct_case(word, word_isupper):
+        def reconstruct_case(word: str, word_isupper: bool) -> str:
             """
             :param word: the word
             :type word: str
@@ -73,7 +75,7 @@ class CrudeSpellChecker:
 
             return reconstruct_case(correction, word_isupper)
 
-    def candidates(self, word):
+    def candidates(self, word: str) -> set[str] | list[str]:
         """
         :param word: a word
         :type word: str
@@ -86,7 +88,7 @@ class CrudeSpellChecker:
             or [word]
         )
 
-    def known(self, words):
+    def known(self, words: Iterable[str]) -> set[str]:
         """
         :param word: a word
         :type word: str
@@ -94,7 +96,7 @@ class CrudeSpellChecker:
         """
         return {w for w in words if w in self.frequencies}
 
-    def edit_distance_1(self, word):
+    def edit_distance_1(self, word: str) -> set[str]:
         """
         :param word: a word
         :type word: str
@@ -109,7 +111,7 @@ class CrudeSpellChecker:
 
         return set(deletes + transposes + replaces + inserts)
 
-    def edit_distance_2(self, word):
+    def edit_distance_2(self, word: str) -> Iterator[str]:
         """
         :param word: a word
         :type word: str
@@ -117,7 +119,7 @@ class CrudeSpellChecker:
         """
         return (e2 for e1 in self.edit_distance_1(word) for e2 in self.edit_distance_1(e1))
 
-    def correct_string(self, string, return_corrections=False):
+    def correct_string(self, string: str, return_corrections: bool = False) -> Any:
         """
         :param string: the string to correct.
         :type string: str
@@ -125,8 +127,8 @@ class CrudeSpellChecker:
         :type return_corrections: bool
         :return: the corrected string
         """
-        corrections = []
-        corrected = []
+        corrections: list[tuple[str, str]] = []
+        corrected: list[str] = []
         for word in string.split():
             word_matches = re.findall(r'\w+', word)
 
@@ -148,7 +150,7 @@ class CrudeSpellChecker:
             return ' '.join(corrected)
 
 
-def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False):
+def generate_crudespellchecker_lm(corpus_directory: str | Path, model_name: str, strip_xml: bool = False) -> None:
     """
     :param corpus_directory: path the folder containing the files.
     :type corpus_directory: str
@@ -159,7 +161,7 @@ def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False)
     """
     from bs4 import BeautifulSoup
 
-    frequencies = Counter()
+    frequencies: Counter[str] = Counter()
     files = list(Path(corpus_directory).glob('*.txt'))
 
     for file in files:
