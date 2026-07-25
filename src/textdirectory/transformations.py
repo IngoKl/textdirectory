@@ -1,4 +1,5 @@
 """Transformation module."""
+
 import html
 import importlib.resources
 import re
@@ -40,8 +41,9 @@ def transformation_postag(text, spacy_model='en_core_web_sm', *args):
     return transformed_text
 
 
-def transformation_remove_stopwords(text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm',
-                                    custom_stopwords=None, *args):
+def transformation_remove_stopwords(
+    text, stopwords_source='internal', stopwords='en', spacy_model='en_core_web_sm', custom_stopwords=None, *args
+):
     """
     :param text: the text to run the transformation on
     :type text: str
@@ -67,12 +69,13 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
     # Locating the stopwords list
     if stopwords_source == 'internal':
         stopwords_path = importlib.resources.files('textdirectory').joinpath(
-            'data', 'stopwords', f'stopwords_{stopwords}.txt')
+            'data', 'stopwords', f'stopwords_{stopwords}.txt'
+        )
     if stopwords_source == 'file':
         stopwords_path = Path(stopwords)
 
     try:
-        with open(stopwords_path, 'r', encoding='utf-8') as stopwords_file:
+        with open(stopwords_path, encoding='utf-8') as stopwords_file:
             stopwords = stopwords_file.read().splitlines()[1:]
     except FileNotFoundError:
         return False
@@ -123,7 +126,7 @@ def transformation_remove_nl(text, *args):
     :return: the transformed text
     :type return: str
     """
-    
+
     text = text.replace('\r\n', '').replace('\n', '')
     return text
 
@@ -142,9 +145,23 @@ def transformation_usas_en_semtag(text, *args):
     # Requesting USAS
     # USAS (web) is sensitive regarding the payload sequence
 
-    usas_payload = {'email': 'a.nobody@here.ac.uk', 'tagset': 'c7', 'style': 'horiz', 'type': 'web', 'text': text.strip()}
-    usas_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'referer': 'http://ucrel-api.lancaster.ac.uk/usas/tagger.html'}
-    usas_request = requests.post('http://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl', files=usas_payload, headers=usas_headers, allow_redirects=True)
+    usas_payload = {
+        'email': 'a.nobody@here.ac.uk',
+        'tagset': 'c7',
+        'style': 'horiz',
+        'type': 'web',
+        'text': text.strip(),
+    }
+    usas_headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'referer': 'http://ucrel-api.lancaster.ac.uk/usas/tagger.html',
+    }
+    usas_request = requests.post(
+        'http://ucrel-api.lancaster.ac.uk/cgi-bin/usas.pl',
+        files=usas_payload,
+        headers=usas_headers,
+        allow_redirects=True,
+    )
 
     # Parsing
     soup = BeautifulSoup(usas_request.text, 'html.parser')
@@ -152,7 +169,7 @@ def transformation_usas_en_semtag(text, *args):
 
     # Removing the last tag because USAS adds a hash as the last element
     tagged_text = tagged_text.split()
-    tagged_text = ' '.join(tagged_text[:-1 or None])
+    tagged_text = ' '.join(tagged_text[: -1 or None])
 
     return tagged_text
 
@@ -269,7 +286,7 @@ def transformation_lemmatize(text, spacy_model='en_core_web_sm'):
     doc = nlp(text)
 
     for token in doc:
-        if token.text[0] == "'": #Fix for contractions
+        if token.text[0] == "'":  # Fix for contractions
             text = text.replace(token.text, f' {token.lemma_}')
         else:
             text = text.replace(token.text, str(token.lemma_))
@@ -287,17 +304,26 @@ def transformation_expand_english_contractions(text):
 
     # This list certainly is not complete. However, it covers some of the most common cases.
     contractions = [
-        ("he's", "he is"), ("she's", "she is"), ("that's", "that is"), 
-        ("'re", " are"),
-        ("'ll", " will"),
-        ("'ve", " have"),
-        ("'d", " would"),
-            ("don't", "do not"), ("can't", "cannot"), ("are't", "are not"), 
-            ("couldn't", "could not"), ("shouldn't", "should not"), ("isn't", "is not"),
-            ("doesn't", "does not"), ("wasn't", "was not"), ("won't", "will not"), ("weren't", "were not"),
-            ("ain't", "am not"),
-        ("let's", "let us"),
-        ("y'all", "you all")
+        ("he's", 'he is'),
+        ("she's", 'she is'),
+        ("that's", 'that is'),
+        ("'re", ' are'),
+        ("'ll", ' will'),
+        ("'ve", ' have'),
+        ("'d", ' would'),
+        ("don't", 'do not'),
+        ("can't", 'cannot'),
+        ("are't", 'are not'),
+        ("couldn't", 'could not'),
+        ("shouldn't", 'should not'),
+        ("isn't", 'is not'),
+        ("doesn't", 'does not'),
+        ("wasn't", 'was not'),
+        ("won't", 'will not'),
+        ("weren't", 'were not'),
+        ("ain't", 'am not'),
+        ("let's", 'let us'),
+        ("y'all", 'you all'),
     ]
 
     for contraction in contractions:
@@ -322,7 +348,7 @@ def transformation_eebop4_to_plaintext(text):
     for e in text_element.itertext():
         if e != '\n':
             transformed_text += ' ' + e
-    
+
     return transformed_text
 
 
@@ -341,7 +367,7 @@ def transformation_replace_digits(text, replacement_character='%'):
             transformed_text += replacement_character
         else:
             transformed_text += character
-    
+
     return transformed_text
 
 
@@ -352,7 +378,7 @@ def transformation_ftfy(text):
     :return: the transformed text
     :type return: str
     """
-    
+
     return ftfy.fix_text(text)
 
 
@@ -363,5 +389,5 @@ def transformation_replace_string(text, replace, replace_with):
     :return: the transformed text
     :type return: str
     """
-    
+
     return text.replace(replace, replace_with)

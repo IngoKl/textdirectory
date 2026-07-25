@@ -3,7 +3,7 @@
 
 def test_iterator(td):
     """Test the iterator of TextDirectory."""
-    files = [file for file in td]
+    files = list(td)
     assert len(files) == 10
     assert 'Text_' in str(files[0]['path'].resolve())
 

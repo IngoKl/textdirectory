@@ -1,4 +1,5 @@
 """Helpers module."""
+
 import copy
 import re
 from collections import Counter
@@ -45,7 +46,7 @@ def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
 
     # Line / len(longest_values) = additonal characters for pipes
     length = 0
-    for key, value in longest_values.items():
+    for value in longest_values.values():
         length += value
 
     line = '\n|' + '-' * (length + len(longest_values) - 1) + '|'
@@ -96,7 +97,7 @@ def chunk_text(string, chunk_size=50000):
     :type return: list
     """
 
-    chunks = [string[i:i + chunk_size] for i in range(0, len(string), chunk_size)]
+    chunks = [string[i : i + chunk_size] for i in range(0, len(string), chunk_size)]
     return chunks
 
 
@@ -138,7 +139,7 @@ def type_token_ratio(text):
     tokens = simple_tokenizer(text)
     no_types = len(Counter(tokens))
     no_tokens = len(tokens)
-    
+
     return round(no_types / no_tokens, 2)
 
 
@@ -152,7 +153,7 @@ def get_human_from_docstring(doc):
     doc = doc.replace('    ', '')
     res = re.findall(r'human_(.*):(.*)', doc)
 
-    return {k:v.strip() for (k,v) in res} 
+    return {k: v.strip() for (k, v) in res}
 
 
 def get_available_filters(get_human_name=False):
@@ -162,7 +163,7 @@ def get_available_filters(get_human_name=False):
     :return: a list of functions; if get_human_name a list of tuples
     :type return: list
     """
-    
+
     from textdirectory.textdirectory import TextDirectory
 
     available_filters = [filter for filter in dir(TextDirectory) if 'filter_by' in filter]
@@ -192,7 +193,9 @@ def get_available_transformations(get_human_name=False):
 
     from textdirectory import transformations
 
-    available_transformations = [transformation for transformation in dir(transformations) if 'transformation' in transformation]
+    available_transformations = [
+        transformation for transformation in dir(transformations) if 'transformation' in transformation
+    ]
 
     if get_human_name:
         available_transformations_with_human = []

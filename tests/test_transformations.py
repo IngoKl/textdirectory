@@ -4,9 +4,8 @@ import pytest
 import responses
 
 from textdirectory.transformations import (
-    transformation_eebop4_to_plaintext,
-    transformation_expand_english_contractions,
     transformation_crude_spellchecker,
+    transformation_eebop4_to_plaintext,
     transformation_ftfy,
     transformation_remove_htmltags,
     transformation_remove_non_alphanumerical,
@@ -40,7 +39,10 @@ def test_transformation_uppercase(td):
 def test_transformation_remove_non_ascii_hard():
     """Test the remove non-ascii transformation."""
     test_string = 'This is a @ test string ~ containing non-ascii characters such as 😁.'
-    assert transformation_remove_non_ascii(test_string) == 'This is a @ test string ~ containing non-ascii characters such as .'
+    assert (
+        transformation_remove_non_ascii(test_string)
+        == 'This is a @ test string ~ containing non-ascii characters such as .'
+    )
 
 
 def test_transformation_remove_non_alphanumerical():
@@ -78,8 +80,9 @@ def test_transformation_remove_stopwords():
 @pytest.mark.nlp
 def test_transformation_test_arguments(td):
     """Test whether we can pass arguments to transformations."""
-    td.stage_transformation(['transformation_remove_stopwords', 'internal', 'en', 'en_core_web_sm',
-                             'dolor,dolore,dolores'])
+    td.stage_transformation(
+        ['transformation_remove_stopwords', 'internal', 'en', 'en_core_web_sm', 'dolor,dolore,dolores']
+    )
     text = td.aggregate_to_memory()
     assert 'dolor' not in text
 
@@ -128,7 +131,10 @@ def test_transformation_ftfy(td):
     assert 'ipsum lacus nisl' in td.aggregate_to_memory()
 
     # ftfy example test
-    assert transformation_ftfy('The Mona Lisa doesnÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t have eyebrows.') == "The Mona Lisa doesn't have eyebrows."
+    assert (
+        transformation_ftfy('The Mona Lisa doesnÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t have eyebrows.')
+        == "The Mona Lisa doesn't have eyebrows."
+    )
 
 
 def test_transformation_replace_string(td):

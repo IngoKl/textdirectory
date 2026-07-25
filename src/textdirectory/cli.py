@@ -1,13 +1,14 @@
 """Console script for textdirectory."""
+
 import sys
 
 import click
 
 from textdirectory import helpers, textdirectory
 
-
 available_filters = helpers.get_available_filters()
 available_transformations = helpers.get_available_transformations()
+
 
 @click.command()
 @click.option('--directory', help='The directory containing text files', type=str)
@@ -17,13 +18,18 @@ available_transformations = helpers.get_available_transformations()
 @click.option('--recursive', help='Recursion', type=bool)
 @click.option('--disable_tqdm', help='Disable progress bar', default=False, type=bool)
 @click.option('--filters', help=f'The filters you want to apply. Filters: {available_filters}', type=str)
-@click.option('--transformations', help=f'The transformations you want to apply. '
-                                        f'Tranformations: {available_transformations}', type=str)
+@click.option(
+    '--transformations',
+    help=f'The transformations you want to apply. Tranformations: {available_transformations}',
+    type=str,
+)
 def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, filters, transformations):
     """Console script for textdirectory."""
     if not directory:
         click.echo('Welcome to TextDirectory!\nRun textdirectory --help for further information.')
-        click.echo('Example (Basic Aggregation): textdirectory --directory testdata --output_file aggregated.txt --filetype txt')
+        click.echo(
+            'Example (Basic Aggregation): textdirectory --directory testdata --output_file aggregated.txt --filetype txt'
+        )
         sys.exit()
 
     if filters:
@@ -48,11 +54,11 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
         td.load_files(recursive=recursive, filetype=filetype)
     except NotADirectoryError:
         click.echo('The directory could not be found.')
-        sys.exit()    
+        sys.exit()
     except FileNotFoundError:
         click.echo('There seem to be no files. Maybe you want to run with --recursive True.')
         sys.exit()
-        
+
     if filters and len(filters_list) > 0:
         td.run_filters(filters_list)
 
@@ -69,5 +75,5 @@ def main(directory, output_file, filetype, encoding, recursive, disable_tqdm, fi
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

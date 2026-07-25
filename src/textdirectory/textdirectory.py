@@ -1,4 +1,5 @@
 """Main module."""
+
 import difflib
 import os
 from functools import wraps
@@ -60,7 +61,6 @@ class TextDirectory:
         """Saves the current self.aggregation state."""
         current_state = []
         for file in self.get_aggregation():
-
             # A pointer would be great!
             current_state.append(self.files.index(file))
 
@@ -98,6 +98,7 @@ class TextDirectory:
 
     def filter(filter):
         """A wrapper for filters."""
+
         @wraps(filter)
         def filter_wrapper(*args, **kwargs):
             self = args[0]
@@ -169,11 +170,21 @@ class TextDirectory:
                 file = Path(file)
 
                 if fast:
-                    file_with_meta = {'path': file, 'filename': file.name, 'characters': False,
-                                    'tokens': False, 'transformed_text': False}
+                    file_with_meta = {
+                        'path': file,
+                        'filename': file.name,
+                        'characters': False,
+                        'tokens': False,
+                        'transformed_text': False,
+                    }
                 else:
-                    file_with_meta = {'path': file, 'filename': file.name, 'characters': self.get_file_length(file),
-                                    'tokens': self.get_file_tokens(file), 'transformed_text': False}
+                    file_with_meta = {
+                        'path': file,
+                        'filename': file.name,
+                        'characters': self.get_file_length(file),
+                        'tokens': self.get_file_tokens(file),
+                        'transformed_text': False,
+                    }
 
                 self.files.append(file_with_meta)
                 self.filenames.append(file.name)
@@ -257,7 +268,7 @@ class TextDirectory:
 
         new_aggregation = []
         for file in self.get_aggregation():
-            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
+            with open(file['path'], encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if contains in fr:
                     new_aggregation.append(file)
@@ -274,7 +285,7 @@ class TextDirectory:
 
         new_aggregation = []
         for file in self.get_aggregation():
-            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
+            with open(file['path'], encoding=self.encoding, errors='ignore') as f:
                 fr = f.read()
                 if not_contains not in fr:
                     new_aggregation.append(file)
@@ -324,7 +335,6 @@ class TextDirectory:
                 new_aggregation.append(file)
 
         self.set_aggregation(new_aggregation)
-
 
     @filter
     def filter_by_random_sampling(self, n, replace=False):
@@ -398,13 +408,13 @@ class TextDirectory:
         """
 
         if not 0.0 <= threshold <= 1.0:
-            raise(ValueError)
+            raise (ValueError)
 
         new_aggregation = []
-        with open(reference_file, 'r', encoding=self.encoding, errors='ignore') as rf:
+        with open(reference_file, encoding=self.encoding, errors='ignore') as rf:
             reference = rf.read()
             for file in self.get_aggregation():
-                with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as ft:
+                with open(file['path'], encoding=self.encoding, errors='ignore') as ft:
                     target = ft.read()
                     d = difflib.SequenceMatcher(None, reference, target)
                     if d.ratio() >= threshold:
@@ -424,7 +434,7 @@ class TextDirectory:
 
         new_aggregation = []
         for file in self.get_aggregation():
-            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
+            with open(file['path'], encoding=self.encoding, errors='ignore') as f:
                 ttr = helpers.type_token_ratio(f.read())
 
             if min_ttr <= ttr <= max_ttr:
@@ -494,10 +504,8 @@ class TextDirectory:
         output_directory = Path(output_directory)
 
         if output_directory.is_dir():
-
             for file in self.get_aggregation():
                 with file['path'].open(encoding=self.encoding, errors='ignore') as f:
-
                     with open(output_directory / file['filename'], 'w', encoding='utf8') as output_file:
                         output_file.write(self.run_transformations(f.read()))
 
@@ -552,10 +560,10 @@ class TextDirectory:
         """Print all saved states."""
         print('Saved States:')
         for i, state in enumerate(self.aggregation_states):
-            print (f'[{i}] - {len(state[0])} files after applying {state[1]}')
+            print(f'[{i}] - {len(state[0])} files after applying {state[1]}')
 
     def print_pipeline(self):
-        """Print the current pipeline. """
+        """Print the current pipeline."""
         print('Applied Filters:')
         if len(self.aggregation_states) > 0:
             print(f'> {len(self.aggregation_states)} states have been saved.')

@@ -47,7 +47,7 @@ def test_type_token_ratio():
 
 def test_get_human_from_docstring():
     """Test the get_human_from_docstring helper."""
-    doc = getattr(TextDirectory, 'filter_by_min_chars').__doc__
+    doc = TextDirectory.filter_by_min_chars.__doc__
     human_name = helpers.get_human_from_docstring(doc)['name']
     assert human_name == 'Minimum characters'
 

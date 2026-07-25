@@ -8,8 +8,7 @@ import pytest
 TESTDATA = Path(__file__).resolve().parent / 'data' / 'testdata'
 
 _HAS_SPACY_MODEL = (
-    importlib.util.find_spec('spacy') is not None
-    and importlib.util.find_spec('en_core_web_sm') is not None
+    importlib.util.find_spec('spacy') is not None and importlib.util.find_spec('en_core_web_sm') is not None
 )
 
 

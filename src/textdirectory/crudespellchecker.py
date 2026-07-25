@@ -1,4 +1,5 @@
 """Spellchecker module."""
+
 import gzip
 import importlib.resources
 import pickle
@@ -9,7 +10,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 
-class CrudeSpellChecker():
+class CrudeSpellChecker:
     """A very simple and crude spellchecker based on Peter Norvig's design.
     Simple Language Models:
     crudesc_lm_en.gz.lm English based on COCA (sample), OANC (written), BNC
@@ -29,7 +30,8 @@ class CrudeSpellChecker():
         self.language_model_name = language_model
 
         model_resource = importlib.resources.files('textdirectory').joinpath(
-            'data', 'language_models', f'{self.language_model_name}.gz.lm')
+            'data', 'language_models', f'{self.language_model_name}.gz.lm'
+        )
         self.frequencies = pickle.loads(gzip.decompress(model_resource.read_bytes()))
 
     def p_word(self, word):
@@ -80,8 +82,12 @@ class CrudeSpellChecker():
         :type word: str
         :return: a list of candidates
         """
-        return (self.known([word]) or self.known(self.edit_distance_1(word)) or
-                self.known(self.edit_distance_2(word)) or [word])
+        return (
+            self.known([word])
+            or self.known(self.edit_distance_1(word))
+            or self.known(self.edit_distance_2(word))
+            or [word]
+        )
 
     def known(self, words):
         """
@@ -89,7 +95,7 @@ class CrudeSpellChecker():
         :type word: str
         :return: a subset of words in the dictionary of frequencies
         """
-        return set(w for w in words if w in self.frequencies)
+        return {w for w in words if w in self.frequencies}
 
     def edit_distance_1(self, word):
         """
@@ -126,7 +132,7 @@ class CrudeSpellChecker():
         corrected = []
         for word in string.split():
             corrected_word = self.correction(re.findall(r'\w+', word)[0])
-            corrected_word = re.sub(r'(.*?)(\w+)(.*?)', f'\g<1>{corrected_word}\g<3>', word)
+            corrected_word = re.sub(r'(.*?)(\w+)(.*?)', rf'\g<1>{corrected_word}\g<3>', word)
             corrected.append(corrected_word)
 
             if return_corrections and corrected_word != word:
@@ -151,7 +157,7 @@ def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False)
     files = list(Path(corpus_directory).glob('*.txt'))
 
     for file in files:
-        with open(file, 'r', encoding='utf-8', errors='ignore') as corpus_file:
+        with open(file, encoding='utf-8', errors='ignore') as corpus_file:
             if strip_xml:
                 soup = BeautifulSoup(corpus_file.read().lower(), 'lxml')
                 text = soup.get_text()
@@ -163,4 +169,3 @@ def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False)
 
     with gzip.open(model_name + '.gz.lm', 'wb') as pkl:
         pickle.dump(frequencies, pkl)
-
