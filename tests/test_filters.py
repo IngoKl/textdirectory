@@ -8,6 +8,7 @@ from click.testing import CliRunner
 
 from textdirectory.textdirectory import TextDirectory
 
+
 def test_filter_by_max_chars():
     """Test the max chars filter."""
     td = TextDirectory(directory='textdirectory/data/testdata/')
@@ -29,7 +30,7 @@ def test_filter_by_max_tokens():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_max_tokens(4)
-    assert len(td.aggregation) == 1
+    assert len(td.aggregation) == 4
 
 
 def test_filter_by_min_tokens():
@@ -37,6 +38,7 @@ def test_filter_by_min_tokens():
     td = TextDirectory(directory='textdirectory/data/testdata/')
     td.load_files(True, 'txt')
     td.filter_by_min_tokens(100)
+    print(td)
     assert len(td.aggregation) == 2
 
 
@@ -119,3 +121,11 @@ def test_filter_by_min_filesize():
     td.load_files(True, 'txt')
     td.filter_by_min_filesize(min_kb=2)
     assert len(td.aggregation) == 1
+
+
+def test_filter_by_type_token_ratio():
+    """Test the TTR filter."""
+    td = TextDirectory(directory='textdirectory/data/testdata/')
+    td.load_files(True, 'txt')
+    td.filter_by_type_token_ratio(0.4, 0.8)
+    assert len(td.aggregation) == 3

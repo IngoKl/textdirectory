@@ -25,7 +25,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.9',
     ],
     description="TextDirectory allows you to combine multiple text files into one. While doing this, filters and transformations can be applied.",
     entry_points={
@@ -48,6 +48,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/IngoKl/textdirectory',
-    version='0.3.3',
+    version='0.3.4',
     zip_safe=False,
 )

@@ -3,6 +3,7 @@
 """Helpers module."""
 import copy
 import re
+from collections import Counter
 
 import psutil
 
@@ -103,6 +104,22 @@ def chunk_text(string, chunk_size=50000):
     return chunks
 
 
+def simple_tokenizer(string, regular_expression=r'\w+'):
+    """
+    :param string: a string
+    :type string: str
+    :return: a list of tokens
+    :type return: list
+    """
+
+    if not regular_expression:
+        tokens = string.split(' ')
+    else:
+        tokens = re.findall(regular_expression, string)
+
+    return tokens
+
+
 def estimate_spacy_max_length(override=False, tokenizer_only=False):
     """Returns a somewhat sensible suggestions for max_length."""
     memory = psutil.virtual_memory()
@@ -120,6 +137,15 @@ def estimate_spacy_max_length(override=False, tokenizer_only=False):
     return estimated_max_length
 
 
+def type_token_ratio(text):
+    """Returns a simple rounded type-token ratio of a text."""
+    tokens = simple_tokenizer(text)
+    no_types = len(Counter(tokens))
+    no_tokens = len(tokens)
+    
+    return round(no_types / no_tokens, 2)
+
+
 def get_human_from_docstring(doc):
     """
     :param doc: if True, also return the 'human name'
@@ -128,7 +154,7 @@ def get_human_from_docstring(doc):
     :type return: dict
     """
     doc = doc.replace('    ', '')
-    res = re.findall('human_(.*):(.*)', doc)
+    res = re.findall(r'human_(.*):(.*)', doc)
 
     return {k:v.strip() for (k,v) in res} 
 

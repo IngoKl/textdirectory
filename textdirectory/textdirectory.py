@@ -15,7 +15,7 @@ from textdirectory import transformations, helpers
 
 
 class TextDirectory:
-    def __init__(self, directory, encoding='utf8', autoload=False):
+    def __init__(self, directory, encoding='utf8', autoload=False, disable_tqdm=False):
         """
         :param directory: path to the text directory
         :type directory: str
@@ -31,6 +31,7 @@ class TextDirectory:
         self.current_state = 0
         self.encoding = encoding
         self.iterator = 0
+        self.disable_tqdm = disable_tqdm
 
         if not self.directory.exists():
             raise NotADirectoryError
@@ -96,7 +97,7 @@ class TextDirectory:
     def set_aggregation(self, aggregation):
         """Set the aggregation."""
         self.aggregation = []
-        for file in tqdm(aggregation):
+        for file in tqdm(aggregation, disable=self.disable_tqdm):
             self.aggregation.append(self.files.index(file))
 
     def filter(filter):
@@ -127,7 +128,7 @@ class TextDirectory:
         with path.open(encoding=self.encoding, errors='ignore') as f:
             # Replace all line breaks with spaces
             fr = f.read().replace('\n', ' ')
-            return len(fr.split(' '))
+            return len(helpers.simple_tokenizer(fr))
 
     def get_text(self, file_id):
         """
@@ -168,7 +169,7 @@ class TextDirectory:
             if sort:
                 files.sort()
 
-            for file in tqdm(files):
+            for file in tqdm(files, disable=self.disable_tqdm):
                 file = Path(file)
 
                 if fast:
@@ -415,6 +416,26 @@ class TextDirectory:
 
         self.set_aggregation(new_aggregation)
 
+    @filter
+    def filter_by_type_token_ratio(self, min_ttr=0, max_ttr=1):
+        """
+        :param min_ttr: The minimum TTR
+        :type min_ttr: float
+        :param max_ttr: The maximum TTR
+        :type max_ttr: float
+        :human_name: Type-Token Ratio
+        """
+
+        new_aggregation = []
+        for file in self.get_aggregation():
+            with open(file['path'], 'r', encoding=self.encoding, errors='ignore') as f:
+                ttr = helpers.type_token_ratio(f.read())
+
+            if min_ttr <= ttr <= max_ttr:
+                new_aggregation.append(file)
+
+        self.set_aggregation(new_aggregation)
+
     def stage_transformation(self, transformation):
         """
         :param transformation: the transformation that should be staged and its parameters
@@ -450,9 +471,9 @@ class TextDirectory:
 
         transformed_text = text
 
-        for transformation in self.staged_transformations:
-            transformation_method = getattr(transformations, transformation[0])
-            transformed_text = transformation_method(transformed_text, *transformation[1:])
+        for transformation, *args in self.staged_transformations:
+            transformation_method = getattr(transformations, transformation)
+            transformed_text = transformation_method(transformed_text, *args)
 
         return transformed_text
 
@@ -465,29 +486,6 @@ class TextDirectory:
         for filter, *args in filters:
             filter_method = getattr(self, filter)
             filter_method(*args)
-
-    def aggregate_to_memory(self):
-        """
-        :return: a string containing the aggregated text files
-        :type: str
-        """
-
-        aggregated_string = ''
-        for file in self.get_aggregation():
-            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
-                text = self.run_transformations(f.read())
-                file['transformed_text'] = text
-                aggregated_string = aggregated_string + text
-
-        return aggregated_string
-
-    def transform_to_memory(self):
-        """Runs all transformations and stores the transformed texts in memory."""
-        for file in self.get_aggregation():
-            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
-                text = self.run_transformations(f.read())
-                file['transformed_text'] = text
-
 
     def transform_to_files(self, output_directory):
         """
@@ -510,6 +508,13 @@ class TextDirectory:
         else:
             raise FileNotFoundError
 
+    def transform_to_memory(self):
+        """Runs all transformations and stores the transformed texts in memory."""
+        for file in self.get_aggregation():
+            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
+                text = self.run_transformations(f.read())
+                file['transformed_text'] = text
+
     def clear_transformation(self):
         """Destage all transformations and clear memory."""
         self.staged_transformations = []
@@ -526,6 +531,21 @@ class TextDirectory:
                 with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                     text = self.run_transformations(f.read())
                     aggregation_file.write(text)
+
+    def aggregate_to_memory(self):
+        """
+        :return: a string containing the aggregated text files
+        :type: str
+        """
+
+        aggregated_string = ''
+        for file in self.get_aggregation():
+            with file['path'].open(encoding=self.encoding, errors='ignore') as f:
+                text = self.run_transformations(f.read())
+                file['transformed_text'] = text
+                aggregated_string = aggregated_string + text
+
+        return aggregated_string
 
     def print_aggregation(self):
         """Print the aggregated files as a table."""
