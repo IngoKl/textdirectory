@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 """Spellchecker module."""
 import gzip
-import os
+import importlib.resources
 import pickle
 import re
 from collections import Counter
@@ -30,11 +28,9 @@ class CrudeSpellChecker():
         self.cache = {}
         self.language_model_name = language_model
 
-        model_path = Path(f'{os.path.join(os.path.dirname(__file__))}/data/language_models/'
-                          f'{self.language_model_name}.gz.lm')
-        print(model_path)
-        with gzip.open(model_path, 'rb') as lm:
-            self.frequencies = pickle.load(lm)
+        model_resource = importlib.resources.files('textdirectory').joinpath(
+            'data', 'language_models', f'{self.language_model_name}.gz.lm')
+        self.frequencies = pickle.loads(gzip.decompress(model_resource.read_bytes()))
 
     def p_word(self, word):
         """
@@ -155,12 +151,12 @@ def generate_crudespellchecker_lm(corpus_directory, model_name, strip_xml=False)
     files = list(Path(corpus_directory).glob('*.txt'))
 
     for file in files:
-        with open(file, 'r', errors='ignore') as file:
+        with open(file, 'r', encoding='utf-8', errors='ignore') as corpus_file:
             if strip_xml:
-                soup = BeautifulSoup(file.read().lower(), 'lxml')
+                soup = BeautifulSoup(corpus_file.read().lower(), 'lxml')
                 text = soup.get_text()
             else:
-                text = file.read().lower()
+                text = corpus_file.read().lower()
 
             file_frequency = Counter(re.findall(r'\b[^\d\W]+\b', text))
         frequencies = frequencies + file_frequency

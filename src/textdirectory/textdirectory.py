@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Main module."""
 import difflib
 import os
-import sys
 from functools import wraps
 from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
 
-sys.path.insert(0, os.path.abspath('..'))
-from textdirectory import transformations, helpers
+from textdirectory import helpers, transformations
 
 
 class TextDirectory:
@@ -526,7 +522,7 @@ class TextDirectory:
         :param filename: the path/filename to write to
         :type filename: str
         """
-        with open(filename, 'w', encoding=self.encoding, errors='ignore') as aggregation_file:
+        with open(filename, 'w', encoding=self.encoding) as aggregation_file:
             for file in self.get_aggregation():
                 with file['path'].open(encoding=self.encoding, errors='ignore') as f:
                     text = self.run_transformations(f.read())

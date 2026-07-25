@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
-
 """Top-level package for textdirectory."""
 
-__author__ = """Ingo Kleiber"""
+__author__ = 'Ingo Kleiber'
 __email__ = 'ingo@kleiber.me'
 __version__ = '0.3.4'
 
-from textdirectory import *
-from textdirectory.textdirectory import *
+from textdirectory import helpers, transformations
+from textdirectory.crudespellchecker import CrudeSpellChecker
+from textdirectory.textdirectory import TextDirectory
+
+__all__ = ['CrudeSpellChecker', 'TextDirectory', '__version__', 'helpers', 'transformations']

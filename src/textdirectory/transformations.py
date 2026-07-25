@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """Transformation module."""
 import html
-import os
+import importlib.resources
 import re
-import sys
 from pathlib import Path
 
 import ftfy
@@ -13,7 +10,6 @@ import spacy
 from bs4 import BeautifulSoup
 from lxml import etree
 
-sys.path.insert(0, os.path.abspath('..'))
 from textdirectory.crudespellchecker import CrudeSpellChecker
 from textdirectory.helpers import count_non_alphanum, estimate_spacy_max_length
 
@@ -70,13 +66,13 @@ def transformation_remove_stopwords(text, stopwords_source='internal', stopwords
 
     # Locating the stopwords list
     if stopwords_source == 'internal':
-        stopwords_path = Path(f'{os.path.join(os.path.dirname(__file__))}/data/stopwords/'
-                              f'stopwords_{stopwords}.txt')
+        stopwords_path = importlib.resources.files('textdirectory').joinpath(
+            'data', 'stopwords', f'stopwords_{stopwords}.txt')
     if stopwords_source == 'file':
         stopwords_path = Path(stopwords)
 
     try:
-        with open(stopwords_path, 'r') as stopwords_file:
+        with open(stopwords_path, 'r', encoding='utf-8') as stopwords_file:
             stopwords = stopwords_file.read().splitlines()[1:]
     except FileNotFoundError:
         return False

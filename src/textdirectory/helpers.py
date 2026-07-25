@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Helpers module."""
 import copy
 import re
 from collections import Counter
 
 import psutil
-
-from textdirectory import textdirectory, transformations
 
 
 def tabulate_flat_list_of_dicts(list_of_dicts, max_length=25):
@@ -167,12 +163,14 @@ def get_available_filters(get_human_name=False):
     :type return: list
     """
     
-    available_filters = [filter for filter in dir(textdirectory.TextDirectory) if 'filter_by' in filter]
+    from textdirectory.textdirectory import TextDirectory
+
+    available_filters = [filter for filter in dir(TextDirectory) if 'filter_by' in filter]
 
     if get_human_name:
         available_filters_with_human = []
         for f in available_filters:
-            doc = getattr(textdirectory.TextDirectory, f).__doc__
+            doc = getattr(TextDirectory, f).__doc__
             human = get_human_from_docstring(doc)
             if 'name' in human:
                 available_filters_with_human.append((f, human['name']))
@@ -192,12 +190,14 @@ def get_available_transformations(get_human_name=False):
     :type return: list
     """
 
+    from textdirectory import transformations
+
     available_transformations = [transformation for transformation in dir(transformations) if 'transformation' in transformation]
 
     if get_human_name:
         available_transformations_with_human = []
         for t in available_transformations:
-            doc = getattr(textdirectory.transformations, t).__doc__
+            doc = getattr(transformations, t).__doc__
             human = get_human_from_docstring(doc)
             if 'name' in human:
                 available_transformations_with_human.append((t, human['name']))

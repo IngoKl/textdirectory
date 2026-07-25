@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Console script for textdirectory."""
-from email.policy import default
 import sys
-import os
+
 import click
 
-sys.path.insert(0, os.path.abspath('..'))
-from textdirectory import textdirectory
-from textdirectory import transformations
-import textdirectory.helpers as helpers
+from textdirectory import helpers, textdirectory
 
 
 available_filters = helpers.get_available_filters()
