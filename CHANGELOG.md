@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 (XXXX-XX-XX)
+
+* documented that `uv sync` removes the spaCy model unless `--inexact` is used
+
 ## 0.4.0 (2026-07-26)
 
 * modernized the packaging: pyproject.toml + hatchling, src/ layout, uv-based development workflow

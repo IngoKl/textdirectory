@@ -201,6 +201,9 @@ The project uses [uv](https://docs.astral.sh/uv/) for development:
 uv sync --group dev --extra nlp
 uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 
+# Later syncs: use --inexact, otherwise the spaCy model is removed again
+uv sync --inexact --group dev --extra nlp
+
 uv run pytest              # run the test suite (network tests excluded by default)
 uv run pytest -m network   # run the tests that hit live external services
 uv run ruff check src tests

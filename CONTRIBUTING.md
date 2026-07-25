@@ -25,6 +25,10 @@ uv sync --group dev --extra nlp
 uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 ```
 
+The spaCy model is not a declared dependency (it is not on PyPI), so a later plain `uv sync` removes it again.
+Use `uv sync --inexact ...` to keep it, or reinstall the model afterwards — otherwise the tests that need it are
+silently skipped.
+
 Note: if you keep the repository inside a synced folder (e.g. Dropbox), exclude `.venv/` from syncing.
 
 ## Running Checks
