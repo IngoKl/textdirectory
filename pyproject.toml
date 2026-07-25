@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "textdirectory"
 dynamic = ["version"]
 description = "Aggregate multiple text files into one, with filters and transformations."
-readme = "README.rst"
+readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Ingo Kleiber", email = "ingo@kleiber.me" }]
@@ -75,10 +75,10 @@ include = [
     "tests",
     "docs",
     "examples",
-    "README.rst",
-    "HISTORY.rst",
-    "AUTHORS.rst",
-    "CONTRIBUTING.rst",
+    "README.md",
+    "CHANGELOG.md",
+    "AUTHORS.md",
+    "CONTRIBUTING.md",
     "LICENSE",
 ]
 exclude = ["docs/_build"]

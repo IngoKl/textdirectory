@@ -2,7 +2,7 @@
 
 __author__ = 'Ingo Kleiber'
 __email__ = 'ingo@kleiber.me'
-__version__ = '0.3.4'
+__version__ = '0.4.0'
 
 from textdirectory import helpers, transformations
 from textdirectory.crudespellchecker import CrudeSpellChecker
