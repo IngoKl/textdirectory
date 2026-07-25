@@ -71,6 +71,22 @@ def test_transformation_remove_weird_tokens():
 
 
 @pytest.mark.nlp
+def test_transformation_lemmatize_does_not_corrupt_substrings():
+    """Lemmas replace whole tokens only (regression: 'saw' also rewrote 'sawmill')."""
+    from textdirectory.transformations import transformation_lemmatize
+
+    assert transformation_lemmatize('I saw a sawmill.') == 'I see a sawmill.'
+    assert transformation_lemmatize('The men ate at the mensa.') == 'the man eat at the mensa.'
+
+
+@pytest.mark.nlp
+def test_transformation_remove_weird_tokens_drops_whole_tokens():
+    """Weird tokens are dropped with their whitespace instead of being blanked out of the string."""
+    # Previously the token text was removed with str.replace, leaving the separating space behind
+    assert transformation_remove_weird_tokens('C++ code ++') == 'code ++'
+
+
+@pytest.mark.nlp
 def test_transformation_remove_stopwords():
     """Test the remove stopwords transformation."""
     test_string = 'There is a house on the hill.'

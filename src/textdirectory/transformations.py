@@ -210,7 +210,7 @@ def transformation_usas_en_semtag(text: str, *args: Any) -> str:
 
     # Removing the last tag because USAS adds a hash as the last element
     tagged_tokens = tagged_text.split()
-    tagged_text = ' '.join(tagged_tokens[: -1 or None])
+    tagged_text = ' '.join(tagged_tokens[:-1])
 
     return tagged_text
 
@@ -298,14 +298,21 @@ def transformation_remove_weird_tokens(
     nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
+    # The text is rebuilt from the tokens; replacing token texts in the original string would
+    # also hit the same character sequence inside unrelated tokens.
+    kept_tokens = []
     for token in doc:
         # More non-alphanum than alphanum
         if count_non_alphanum(token.text) > len(token.text) / 2 and len(token.text) > 1:
-            text = text.replace(token.text, '')
+            continue
 
         # Remove very long tokens (45 seems to be one of the longest words in major dictionaries)
         if len(token.text) > 45:
-            text = text.replace(token.text, '')
+            continue
+
+        kept_tokens.append(token)
+
+    text = ''.join(f'{token.text}{token.whitespace_}' for token in kept_tokens)
 
     if remove_double_space:
         text = re.sub(' +', ' ', text)
@@ -328,13 +335,19 @@ def transformation_lemmatize(text: str, spacy_model: str = 'en_core_web_sm', *ar
     nlp.max_length = int(estimate_spacy_max_length(tokenizer_only=True))
     doc = nlp(text)
 
+    # The text is rebuilt from the tokens; replacing token texts in the original string would
+    # also hit the same character sequence inside unrelated tokens (e.g. 'saw' in 'sawmill').
+    lemmatized = []
     for token in doc:
-        if token.text[0] == "'":  # Fix for contractions
-            text = text.replace(token.text, f' {token.lemma_}')
-        else:
-            text = text.replace(token.text, str(token.lemma_))
+        lemma = str(token.lemma_) if token.lemma_ else token.text
 
-    return text
+        # Fix for contractions ("'s" becomes a full word and needs a separating space)
+        if token.text.startswith("'") and not lemma.startswith("'"):
+            lemma = f' {lemma}'
+
+        lemmatized.append(f'{lemma}{token.whitespace_}')
+
+    return ''.join(lemmatized)
 
 
 def transformation_expand_english_contractions(text: str, *args: Any) -> str:

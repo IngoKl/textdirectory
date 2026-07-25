@@ -2,6 +2,10 @@
 
 ## 0.4.1 (XXXX-XX-XX)
 
+* fixed transformation_lemmatize corrupting unrelated words (`I saw a sawmill.` became `I see a seemill.`); the text is now rebuilt from tokens
+* fixed transformation_remove_weird_tokens operating on the raw string, which left the whitespace of removed tokens behind
+* filters that need character or token metadata now raise a ValueError in fast mode instead of silently keeping every file
+* sped up set_aggregation and save_aggregation_state, which performed a linear search per file (quadratic on large directories)
 * documented that `uv sync` removes the spaCy model unless `--inexact` is used
 
 ## 0.4.0 (2026-07-26)

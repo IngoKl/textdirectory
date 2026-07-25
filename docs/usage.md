@@ -85,7 +85,7 @@ td.transform_to_files('output')
 
 Texts are not held in memory; every aggregation re-reads from disk (except after `aggregate_to_memory` /
 `transform_to_memory`). For large directories, `load_files(fast=True, skip_checkpoint=True)` skips the metadata
-collection — note that filters relying on that metadata (character/token counts) will not work in fast mode.
+collection — filters relying on that metadata (character and token counts) then raise a `ValueError`.
 
 `transformation_usas_en_semtag` calls the web version of
 [Paul Rayson's USAS tagger](http://ucrel.lancs.ac.uk/usas/) — don't use it for large amounts of text, give credit,

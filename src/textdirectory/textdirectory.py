@@ -64,12 +64,7 @@ class TextDirectory:
 
     def save_aggregation_state(self) -> None:
         """Saves the current self.aggregation state."""
-        current_state: list[int] = []
-        for file in self.get_aggregation():
-            # A pointer would be great!
-            current_state.append(self.files.index(file))
-
-        self.aggregation_states.append([current_state, list(self.applied_filters)])
+        self.aggregation_states.append([list(self.aggregation), list(self.applied_filters)])
         self.current_state = len(self.aggregation_states)
 
     def load_aggregation_state(self, state: int = 0) -> None:
@@ -97,9 +92,29 @@ class TextDirectory:
 
     def set_aggregation(self, aggregation: list[dict[str, Any]]) -> None:
         """Set the aggregation."""
+        # Files are looked up by identity; a linear search per file would be quadratic
+        file_ids = {id(file): file_id for file_id, file in enumerate(self.files)}
+
         self.aggregation = []
         for file in tqdm(aggregation, disable=self.disable_tqdm):
-            self.aggregation.append(self.files.index(file))
+            file_id = file_ids.get(id(file))
+            if file_id is None:
+                # Not one of our file records (e.g. a copy): fall back to an equality search
+                file_id = self.files.index(file)
+
+            self.aggregation.append(file_id)
+
+    def _require_metadata(self, key: str) -> None:
+        """Raise if the loaded files lack the metadata a filter depends on.
+
+        :param key: the metadata key a filter needs (e.g. characters)
+        :type key: str
+        """
+        if any(file[key] is False for file in self.get_aggregation()):
+            raise ValueError(
+                f"This filter needs the '{key}' metadata, which was not collected because the files "
+                'were loaded with fast=True. Reload them with load_files(fast=False).'
+            )
 
     def filter(filter: Callable[..., Any]) -> Callable[..., Any]:  # type: ignore[misc]
         """A wrapper for filters."""
@@ -218,6 +233,8 @@ class TextDirectory:
         :human_name: Maximum characters
         """
 
+        self._require_metadata('characters')
+
         new_aggregation: list[dict[str, Any]] = []
         for file in self.get_aggregation():
             if file['characters'] <= int(max_chars):
@@ -232,6 +249,8 @@ class TextDirectory:
         :type min_chars: int
         :human_name: Minimum characters
         """
+
+        self._require_metadata('characters')
 
         new_aggregation: list[dict[str, Any]] = []
         for file in self.get_aggregation():
@@ -248,6 +267,8 @@ class TextDirectory:
         :human_name: Maximum tokens
         """
 
+        self._require_metadata('tokens')
+
         new_aggregation: list[dict[str, Any]] = []
         for file in self.get_aggregation():
             if file['tokens'] <= int(max_tokens):
@@ -262,6 +283,8 @@ class TextDirectory:
         :type min_tokens: int
         :human_name: Minimum tokens
         """
+
+        self._require_metadata('tokens')
 
         new_aggregation: list[dict[str, Any]] = []
         for file in self.get_aggregation():
@@ -370,6 +393,8 @@ class TextDirectory:
         :type sigmas: int
         :human_name: Character outliers
         """
+
+        self._require_metadata('characters')
 
         chars_list = [file['characters'] for file in self.get_aggregation()]
         std = statistics.pstdev(chars_list)

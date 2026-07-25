@@ -82,6 +82,31 @@ def test_load_files_fast_skip_checkpoint(testdata_dir):
     assert td.aggregation_states == []
 
 
+def test_metadata_filters_reject_fast_loaded_files(testdata_dir):
+    """Filters needing metadata raise in fast mode (regression: silently kept every file)."""
+    td = TextDirectory(directory=testdata_dir, disable_tqdm=True)
+    td.load_files(recursive=True, filetype='txt', fast=True)
+
+    for apply_filter in (
+        lambda: td.filter_by_max_chars(1),
+        lambda: td.filter_by_min_chars(1),
+        lambda: td.filter_by_max_tokens(1),
+        lambda: td.filter_by_min_tokens(1),
+        lambda: td.filter_by_chars_outliers(1),
+    ):
+        with pytest.raises(ValueError, match='fast=True'):
+            apply_filter()
+
+
+def test_set_aggregation_accepts_equal_copies(td):
+    """set_aggregation still resolves file records that are equal but not identical."""
+    import copy
+
+    td.set_aggregation([copy.deepcopy(file) for file in td.get_aggregation()])
+
+    assert len(td.aggregation) == 10
+
+
 def test_load_files_empty_directory_raises(tmp_path):
     """An existing but empty directory raises FileNotFoundError."""
     td = TextDirectory(directory=tmp_path, disable_tqdm=True)
