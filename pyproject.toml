@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers -m 'not network'"
+markers = [
+    "network: hits live external services (deselected by default; run with -m network)",
+    "nlp: requires spacy and the en_core_web_sm model (auto-skipped when missing)",
+]

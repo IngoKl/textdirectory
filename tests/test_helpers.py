@@ -1,18 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""Tests for `textdirectory` package."""
+"""Tests for the helpers module."""
 
 import pytest
-import psutil
-from click.testing import CliRunner
 
-from textdirectory import helpers
-from textdirectory import TextDirectory
+from textdirectory import TextDirectory, helpers
+
 
 def test_tabulate_flat_list_of_dicts():
     """Test the tabulate_flat_list_of_dicts helper."""
-    dicts = [{'1':'a'}, {'2':'b'}]
+    dicts = [{'1': 'a'}, {'2': 'b'}]
     table = helpers.tabulate_flat_list_of_dicts(dicts)
     assert table == '\n|---|\n|1|\n|---|\n|a|\n|b|\n|---|'
 
@@ -34,8 +29,11 @@ def test_simple_tokenizer():
     assert helpers.simple_tokenizer('lorem ipsum dolor sit') == ['lorem', 'ipsum', 'dolor', 'sit']
 
 
+@pytest.mark.nlp
 def test_estimate_spacy_max_length():
-    """Test the test_estimate_spacy_max_length helper."""
+    """Test the estimate_spacy_max_length helper."""
+    import psutil
+
     estimate = helpers.estimate_spacy_max_length()
     assert estimate <= psutil.virtual_memory().available
 
@@ -54,14 +52,14 @@ def test_get_human_from_docstring():
     assert human_name == 'Minimum characters'
 
 
-def test_get_get_available_filters():
+def test_get_available_filters():
     """Test the get_available_filters helper."""
     available_filters = helpers.get_available_filters()
     assert 'filter_by_chars_outliers' in available_filters
 
 
-def test_get_get_available_filters_human():
-    """Test the get_available_filters helper."""
+def test_get_available_filters_human():
+    """Test the get_available_filters helper with human names."""
     available_filters = helpers.get_available_filters(get_human_name=True)
     assert ('filter_by_chars_outliers', 'Character outliers') in available_filters
 
@@ -73,6 +71,6 @@ def test_get_available_transformations():
 
 
 def test_get_available_transformations_human():
-    """Test the get_available_transformations helper."""
+    """Test the get_available_transformations helper with human names."""
     available_transformations = helpers.get_available_transformations(get_human_name=True)
     assert ('transformation_crude_spellchecker', 'transformation_crude_spellchecker') in available_transformations
