@@ -1,9 +1,10 @@
 # TextDirectory
 
-[![PyPI](https://img.shields.io/pypi/v/textdirectory.svg)](https://pypi.org/project/textdirectory/)
+[![PyPI](https://img.shields.io/pypi/v/textdirectory)](https://pypi.org/project/textdirectory/)
 [![CI](https://github.com/IngoKl/textdirectory/actions/workflows/ci.yml/badge.svg)](https://github.com/IngoKl/textdirectory/actions/workflows/ci.yml)
 [![Documentation Status](https://readthedocs.org/projects/textdirectory/badge/?version=latest)](https://textdirectory.readthedocs.io/en/latest/?badge=latest)
-[![Python Versions](https://img.shields.io/pypi/pyversions/textdirectory.svg)](https://pypi.org/project/textdirectory/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/textdirectory)](https://pypi.org/project/textdirectory/)
+[![License](https://img.shields.io/pypi/l/textdirectory)](https://github.com/IngoKl/textdirectory/blob/master/LICENSE)
 
 ![TextDirectory](https://user-images.githubusercontent.com/16179317/39367680-cd409a00-4a37-11e8-8d42-0bed5a4e814b.png)
 
